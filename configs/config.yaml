@@ -1,0 +1,21 @@
+server:
+  host: "0.0.0.0"
+  port: 8080
+
+database:
+  driver: "postgres"
+  host: "localhost"
+  port: 5432
+  user: "postgres"
+  password: "1234"
+  dbname: "mess"
+
+jwt:
+  secret: "coolsecret"
+  expire_hours: 8760
+
+argon2:
+  time: 1
+  memory: 16384
+  threads: 4
+  key_len: 32
