@@ -1,10 +1,13 @@
 package handler
 
 import (
+	"encoding/json"
+	"log"
 	"strconv"
-	"strings"
 
 	"github.com/gofiber/websocket/v2"
+	"github.com/slipe-fun/skid-backend/internal/domain"
+	"github.com/slipe-fun/skid-backend/internal/service"
 	"github.com/slipe-fun/skid-backend/internal/transport/ws/events"
 	"github.com/slipe-fun/skid-backend/internal/transport/ws/types"
 )
@@ -49,24 +52,39 @@ func HandleWS(hub *types.Hub) func(c *websocket.Conn) {
 				break
 			}
 
-			parts := strings.SplitN(string(msg), ":", 2)
-			if len(parts) < 2 {
+			var socketMsg domain.SocketMessage
+			if err := json.Unmarshal(msg, &socketMsg); err != nil {
+				c.WriteMessage(websocket.TextMessage, []byte("Invalid message format"))
 				continue
 			}
 
-			cmd := parts[0]
-			data := parts[1]
-
-			switch cmd {
+			switch socketMsg.Type {
 			case "send":
-				{
-					roomMsg := strings.SplitN(data, "|", 2)
-					if len(roomMsg) == 2 {
-						events.Send(hub, client, userID, roomMsg[0], roomMsg[1])
-					}
+				room := "chat" + strconv.Itoa(socketMsg.ChatID)
+
+				allowed := service.IsUserInChat(chats, socketMsg.ChatID)
+
+				if !allowed {
+					c.WriteMessage(websocket.TextMessage, []byte("You are not a member of this chat"))
+					continue
 				}
+
+				events.Send(hub, client, userID, room, socketMsg)
+			case "join":
+				room := "chat" + strconv.Itoa(socketMsg.ChatID)
+
+				allowed := service.IsUserInChat(chats, socketMsg.ChatID)
+
+				if !allowed {
+					c.WriteMessage(websocket.TextMessage, []byte("You are not a member of this chat"))
+					continue
+				}
+
+				events.Join(hub, client, room)
 			case "leave":
 				events.Leave(hub, client)
+			default:
+				log.Println("Unknown message type:", socketMsg.Type)
 			}
 		}
 	}
