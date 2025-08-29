@@ -5,7 +5,8 @@ import (
 	"log"
 
 	"github.com/gofiber/fiber/v2"
-	// "github.com/gofiber/websocket/v2"
+	"github.com/gofiber/websocket/v2"
+
 	AuthApp "github.com/slipe-fun/skid-backend/internal/app/auth"
 	ChatApp "github.com/slipe-fun/skid-backend/internal/app/chat"
 	MessageApp "github.com/slipe-fun/skid-backend/internal/app/message"
@@ -20,6 +21,8 @@ import (
 	"github.com/slipe-fun/skid-backend/internal/transport/http/chat"
 	"github.com/slipe-fun/skid-backend/internal/transport/http/message"
 	"github.com/slipe-fun/skid-backend/internal/transport/http/user"
+	"github.com/slipe-fun/skid-backend/internal/transport/ws/handler"
+	"github.com/slipe-fun/skid-backend/internal/transport/ws/types"
 )
 
 func main() {
@@ -61,16 +64,8 @@ func main() {
 
 	fiberApp.Get("/message/:id", messageHandler.GetMessageById)
 
-	// fiberApp.Get("/ws", websocket.New(func(c *websocket.Conn) {
-	// 	defer c.Close()
-	// 	for {
-	// 		mt, msg, err := c.ReadMessage()
-	// 		if err != nil {
-	// 			break
-	// 		}
-	// 		c.WriteMessage(mt, msg)
-	// 	}
-	// }))
+	hub := types.NewHub()
+	fiberApp.Get("/ws", websocket.New(handler.HandleWS(hub)))
 
 	log.Fatal(fiberApp.Listen(fmt.Sprintf("%s:%d", cfg.Server.Host, cfg.Server.Port)))
 }
