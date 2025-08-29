@@ -34,6 +34,7 @@ func main() {
 	fiberApp.Post("/login", authHandler.Login)
 	fiberApp.Post("/register", authHandler.Register)
 	fiberApp.Get("/user/me", userHandler.GetUser)
+	fiberApp.Get("/user/:id", userHandler.GetUserById)
 
 	// fiberApp.Get("/ws", websocket.New(func(c *websocket.Conn) {
 	// 	defer c.Close()

@@ -43,3 +43,12 @@ func (u *UserApp) GetUserByToken(tokenStr string) (*domain.User, error) {
 
 	return user, nil
 }
+
+func (u *UserApp) GetUserById(id int) (*domain.User, error) {
+	user, err := u.users.GetById(id)
+	if err != nil {
+		return nil, err
+	}
+
+	return user, nil
+}
