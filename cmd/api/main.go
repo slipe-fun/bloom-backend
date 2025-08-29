@@ -50,7 +50,7 @@ func main() {
 	fiberApp.Post("/chat/create", chatHandler.CreateChat)
 	fiberApp.Get("/chats", chatHandler.GetChatsByUserId)
 	fiberApp.Get("/chat/:id", chatHandler.GetChatById)
-	fiberApp.Get("/chat/:id/addkeys", chatHandler.AddChatKeys)
+	fiberApp.Post("/chat/:id/addkeys", chatHandler.AddChatKeys)
 
 	// fiberApp.Get("/ws", websocket.New(func(c *websocket.Conn) {
 	// 	defer c.Close()
