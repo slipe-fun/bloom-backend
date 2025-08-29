@@ -2,17 +2,17 @@ package app
 
 import (
 	"github.com/slipe-fun/skid-backend/internal/domain"
-	"github.com/slipe-fun/skid-backend/internal/repository"
+	UserRepo "github.com/slipe-fun/skid-backend/internal/repository/user"
 	"github.com/slipe-fun/skid-backend/internal/service"
 )
 
 type UserApp struct {
-	users    *repository.UserRepo
+	users    *UserRepo.UserRepo
 	jwtSvc   *service.JWTService
 	tokenSvc *service.TokenService
 }
 
-func NewUserApp(users *repository.UserRepo, jwtSvc *service.JWTService, tokenSvc *service.TokenService) *UserApp {
+func NewUserApp(users *UserRepo.UserRepo, jwtSvc *service.JWTService, tokenSvc *service.TokenService) *UserApp {
 	return &UserApp{
 		users:    users,
 		jwtSvc:   jwtSvc,

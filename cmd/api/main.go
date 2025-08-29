@@ -9,6 +9,8 @@ import (
 	"github.com/slipe-fun/skid-backend/internal/app"
 	"github.com/slipe-fun/skid-backend/internal/config"
 	"github.com/slipe-fun/skid-backend/internal/repository"
+	ChatRepo "github.com/slipe-fun/skid-backend/internal/repository/chat"
+	UserRepo "github.com/slipe-fun/skid-backend/internal/repository/user"
 	"github.com/slipe-fun/skid-backend/internal/service"
 	"github.com/slipe-fun/skid-backend/internal/transport/http/auth"
 	"github.com/slipe-fun/skid-backend/internal/transport/http/chat"
@@ -21,8 +23,8 @@ func main() {
 	db := repository.InitDB(cfg)
 	defer db.Close()
 
-	userRepo := repository.NewUserRepo(db)
-	chatRepo := repository.NewChatRepo(db)
+	userRepo := UserRepo.NewUserRepo(db)
+	chatRepo := ChatRepo.NewChatRepo(db)
 
 	jwtSvc := service.NewJWTService(cfg.JWT.Secret)
 	tokenSvc := service.NewTokenService(jwtSvc)

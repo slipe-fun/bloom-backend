@@ -5,16 +5,16 @@ import (
 	"time"
 
 	"github.com/slipe-fun/skid-backend/internal/domain"
-	"github.com/slipe-fun/skid-backend/internal/repository"
+	UserRepo "github.com/slipe-fun/skid-backend/internal/repository/user"
 	"github.com/slipe-fun/skid-backend/internal/service"
 )
 
 type AuthApp struct {
-	users  *repository.UserRepo
+	users  *UserRepo.UserRepo
 	jwtSvc *service.JWTService
 }
 
-func NewAuthApp(users *repository.UserRepo, jwt *service.JWTService) *AuthApp {
+func NewAuthApp(users *UserRepo.UserRepo, jwt *service.JWTService) *AuthApp {
 	return &AuthApp{
 		users:  users,
 		jwtSvc: jwt,

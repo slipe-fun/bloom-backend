@@ -4,16 +4,16 @@ import (
 	"errors"
 
 	"github.com/slipe-fun/skid-backend/internal/domain"
-	"github.com/slipe-fun/skid-backend/internal/repository"
+	ChatRepo "github.com/slipe-fun/skid-backend/internal/repository/chat"
 	"github.com/slipe-fun/skid-backend/internal/service"
 )
 
 type ChatApp struct {
-	chats    *repository.ChatRepo
+	chats    *ChatRepo.ChatRepo
 	tokenSvc *service.TokenService
 }
 
-func NewChatApp(chats *repository.ChatRepo, tokenSvc *service.TokenService) *ChatApp {
+func NewChatApp(chats *ChatRepo.ChatRepo, tokenSvc *service.TokenService) *ChatApp {
 	return &ChatApp{
 		chats:    chats,
 		tokenSvc: tokenSvc,
