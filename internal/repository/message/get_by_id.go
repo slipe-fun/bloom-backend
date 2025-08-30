@@ -12,7 +12,7 @@ func (r *MessageRepo) GetById(id int) (*domain.Message, error) {
 		nonce,
 		chat_id,
 		signature,
-		COALESCE(salt, '') AS salt,
+		seen,
 		COALESCE(signed_payload, '') AS signed_payload,
 		COALESCE(cek_wrap, '') AS cek_wrap,
 		COALESCE(cek_wrap_iv, '') AS cek_wrap_iv,

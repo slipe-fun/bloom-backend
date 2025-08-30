@@ -54,40 +54,46 @@ func HandleWS(hub *types.Hub) func(c *websocket.Conn) {
 				break
 			}
 
-			var socketMsg domain.SocketMessage
-			if err := json.Unmarshal(msg, &socketMsg); err != nil {
+			var baseMsg struct {
+				Type   string `json:"type"`
+				ChatID int    `json:"chat_id"`
+			}
+			if err := json.Unmarshal(msg, &baseMsg); err != nil {
 				events.SendError(client, "invalid_message_format")
 				continue
 			}
 
-			switch socketMsg.Type {
+			switch baseMsg.Type {
 			case "send":
-				room := "chat" + strconv.Itoa(socketMsg.ChatID)
-
-				allowed := service.IsUserInChat(chats, socketMsg.ChatID)
-
-				if !allowed {
-					events.SendError(client, "not_member")
+				var socketMsg domain.SocketMessage
+				if err := json.Unmarshal(msg, &socketMsg); err != nil {
+					events.SendError(client, "invalid_message_format")
 					continue
 				}
 
+				room := "chat" + strconv.Itoa(socketMsg.ChatID)
+				if !service.IsUserInChat(chats, socketMsg.ChatID) {
+					events.SendError(client, "not_member")
+					continue
+				}
 				events.Send(hub, client, clientToken, userID, room, socketMsg)
-			case "join":
-				room := "chat" + strconv.Itoa(socketMsg.ChatID)
 
-				allowed := service.IsUserInChat(chats, socketMsg.ChatID)
-
-				if !allowed {
-					events.SendError(client, "not_member")
+			case "message_seen":
+				var seenMsg domain.SocketMessageSeen
+				if err := json.Unmarshal(msg, &seenMsg); err != nil {
+					events.SendError(client, "invalid_message_format")
 					continue
 				}
 
-				events.Join(hub, client, room)
-			case "leave":
-				room := "chat" + strconv.Itoa(socketMsg.ChatID)
-				events.Leave(hub, client, room)
+				room := "chat" + strconv.Itoa(seenMsg.ChatID)
+				if !service.IsUserInChat(chats, seenMsg.ChatID) {
+					events.SendError(client, "not_member")
+					continue
+				}
+				events.MessageSeen(hub, client, clientToken, userID, room, seenMsg)
+
 			default:
-				log.Println("Unknown message type:", socketMsg.Type)
+				log.Println("Unknown message type:", baseMsg.Type)
 			}
 		}
 	}
