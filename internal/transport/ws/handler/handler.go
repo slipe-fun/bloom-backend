@@ -82,6 +82,13 @@ func HandleWS(hub *types.Hub) func(c *websocket.Conn) {
 					continue
 				}
 				events.Send(hub, client, clientToken, userID, room, socketMsg)
+			case "add_keys":
+				var socketKeys domain.SocketKeys
+				if err := json.Unmarshal(msg, &socketKeys); err != nil {
+					events.SendError(client, "invalid_message_format")
+					continue
+				}
+				events.AddChatKeys(hub, client, clientToken, userID, socketKeys)
 			case "create_chat":
 				var socketChat domain.SocketChat
 				if err := json.Unmarshal(msg, &socketChat); err != nil {
