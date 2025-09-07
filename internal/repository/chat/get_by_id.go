@@ -23,7 +23,7 @@ func (r *ChatRepo) GetById(id int) (*domain.Chat, error) {
 		member := chat.Members[i]
 		user, err := r.userRepo.GetById(member.ID)
 		if err != nil {
-			return nil, err
+			continue
 		}
 		chat.Members[i].Username = user.Username
 	}

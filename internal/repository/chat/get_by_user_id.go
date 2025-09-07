@@ -32,5 +32,18 @@ func (r *ChatRepo) GetByUserId(id int) ([]*domain.Chat, error) {
 		}
 		chats = append(chats, &chat)
 	}
+
+	for c := range chats {
+		chat := chats[c]
+		for i := range chat.Members {
+			member := chat.Members[i]
+			user, err := r.userRepo.GetById(member.ID)
+			if err != nil {
+				continue
+			}
+			chat.Members[i].Username = user.Username
+		}
+	}
+
 	return chats, rows.Err()
 }
