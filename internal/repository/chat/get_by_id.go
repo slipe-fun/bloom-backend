@@ -19,5 +19,14 @@ func (r *ChatRepo) GetById(id int) (*domain.Chat, error) {
 
 	json.Unmarshal(membersJSON, &chat.Members)
 
+	for i := range chat.Members {
+		member := chat.Members[i]
+		user, err := r.userRepo.GetById(member.ID)
+		if err != nil {
+			return nil, err
+		}
+		chat.Members[i].Username = user.Username
+	}
+
 	return &chat, nil
 }

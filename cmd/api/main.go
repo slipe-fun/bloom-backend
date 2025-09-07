@@ -34,7 +34,7 @@ func main() {
 	defer db.Close()
 
 	userRepo := UserRepo.NewUserRepo(db)
-	chatRepo := ChatRepo.NewChatRepo(db)
+	chatRepo := ChatRepo.NewChatRepo(db, userRepo)
 	messageRepo := MessageRepo.NewMessageRepo(db)
 
 	jwtSvc := service.NewJWTService(cfg.JWT.Secret)
