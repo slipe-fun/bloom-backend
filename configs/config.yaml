@@ -6,9 +6,9 @@ database:
   driver: "postgres"
   host: "localhost"
   port: 5432
-  user: "postgres"
+  user: "pip64"
   password: "1234"
-  dbname: "mess"
+  dbname: "bloom"
 
 jwt:
   secret: "coolsecret"

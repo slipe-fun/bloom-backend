@@ -41,8 +41,12 @@ func CreateChat(hub *types.Hub, sender *types.Client, token string, senderId int
 	if err != nil {
 		return
 	}
+	room := "chat" + strconv.Itoa(createChat.ID)
+
+	Join(hub, sender, room)
 
 	if recipientClient, ok := hub.ClientsByUserID[chat.Recipient]; ok {
+		Join(hub, recipientClient, room)
 		recipientClient.Conn.WriteMessage(websocket.TextMessage, b)
 	}
 
