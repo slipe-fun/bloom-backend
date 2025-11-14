@@ -12,11 +12,13 @@ import (
 	ChatApp "github.com/slipe-fun/skid-backend/internal/app/chat"
 	MessageApp "github.com/slipe-fun/skid-backend/internal/app/message"
 	UserApp "github.com/slipe-fun/skid-backend/internal/app/user"
+	VerificationApp "github.com/slipe-fun/skid-backend/internal/app/verification"
 	"github.com/slipe-fun/skid-backend/internal/config"
 	"github.com/slipe-fun/skid-backend/internal/repository"
 	ChatRepo "github.com/slipe-fun/skid-backend/internal/repository/chat"
 	MessageRepo "github.com/slipe-fun/skid-backend/internal/repository/message"
 	UserRepo "github.com/slipe-fun/skid-backend/internal/repository/user"
+	VerificationRepo "github.com/slipe-fun/skid-backend/internal/repository/verification"
 	"github.com/slipe-fun/skid-backend/internal/service"
 	"github.com/slipe-fun/skid-backend/internal/transport/http/auth"
 	"github.com/slipe-fun/skid-backend/internal/transport/http/chat"
@@ -33,14 +35,16 @@ func main() {
 	db := repository.InitDB(cfg)
 	defer db.Close()
 
-	userRepo := UserRepo.NewUserRepo(db)
+	verificationRepo := VerificationRepo.NewVerificationRepo(db)
+	userRepo := UserRepo.NewUserRepo(db, verificationRepo)
 	chatRepo := ChatRepo.NewChatRepo(db, userRepo)
 	messageRepo := MessageRepo.NewMessageRepo(db)
 
 	jwtSvc := service.NewJWTService(cfg.JWT.Secret)
 	tokenSvc := service.NewTokenService(jwtSvc)
 
-	authApp := AuthApp.NewAuthApp(userRepo, jwtSvc)
+	verificationApp := VerificationApp.NewAuthApp(verificationRepo)
+	authApp := AuthApp.NewAuthApp(userRepo, verificationRepo, verificationApp, jwtSvc)
 	userApp := UserApp.NewUserApp(userRepo, jwtSvc, tokenSvc)
 	chatApp := ChatApp.NewChatApp(chatRepo, tokenSvc)
 	messageApp := MessageApp.NewMessageApp(messageRepo, chatApp, tokenSvc)
@@ -69,7 +73,8 @@ func main() {
 		}()
 	}
 
-	fiberApp.Post("/auth/login", authHandler.Login)
+	fiberApp.Post("/auth/verify-code", authHandler.VerifyCode)
+	fiberApp.Post("/auth/request-code", authHandler.RequestCode)
 	fiberApp.Post("/auth/register", authHandler.Register)
 
 	fiberApp.Get("/user/me", userHandler.GetUser)

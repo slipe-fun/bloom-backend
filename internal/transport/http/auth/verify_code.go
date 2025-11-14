@@ -2,28 +2,27 @@ package auth
 
 import (
 	"github.com/gofiber/fiber/v2"
-	"github.com/slipe-fun/skid-backend/internal/config"
 )
 
-func (h *AuthHandler) Login(c *fiber.Ctx) error {
+func (h *AuthHandler) VerifyCode(c *fiber.Ctx) error {
 	var req struct {
-		Username string `json:"username"`
-		Password string `json:"password"`
+		Email string `json:"email"`
+		Code  string `json:"code"`
 	}
 
 	if err := c.BodyParser(&req); err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "invalid_request"})
 	}
 
-	if req.Password == "" || req.Username == "" {
+	if req.Email == "" || req.Code == "" {
 		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{"error": "invalid_request"})
 	}
 
-	if len(req.Username) < 4 || !config.UsernameRegex.MatchString(req.Username) {
+	if len(req.Email) < 4 {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "invalid_username"})
 	}
 
-	token, user, err := h.authApp.Login(req.Username, req.Password)
+	token, user, err := h.authApp.VerifyCode(req.Email, req.Code)
 
 	if err != nil {
 		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{"error": "cant_login_user"})

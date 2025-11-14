@@ -1,11 +1,15 @@
 package UserRepo
 
-import "github.com/jmoiron/sqlx"
+import (
+	"github.com/jmoiron/sqlx"
+	VerificationRepo "github.com/slipe-fun/skid-backend/internal/repository/verification"
+)
 
 type UserRepo struct {
-	db *sqlx.DB
+	db               *sqlx.DB
+	verificationRepo *VerificationRepo.VerificationRepo
 }
 
-func NewUserRepo(db *sqlx.DB) *UserRepo {
-	return &UserRepo{db: db}
+func NewUserRepo(db *sqlx.DB, verificationRepo *VerificationRepo.VerificationRepo) *UserRepo {
+	return &UserRepo{db: db, verificationRepo: verificationRepo}
 }
