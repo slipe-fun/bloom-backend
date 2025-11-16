@@ -2,7 +2,6 @@ package handler
 
 import (
 	"encoding/json"
-	"fmt"
 	"log"
 	"strconv"
 	"time"
@@ -88,7 +87,6 @@ func HandleWS(hub *types.Hub) func(c *websocket.Conn) {
 
 				room := "chat" + strconv.Itoa(socketMsg.ChatID)
 				if !service.IsUserInChat(chats, socketMsg.ChatID) {
-					fmt.Println(socketMsg.ChatID)
 					events.SendError(client, "not_member")
 					continue
 				}

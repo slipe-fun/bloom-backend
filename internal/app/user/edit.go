@@ -3,7 +3,6 @@ package UserApp
 import (
 	"database/sql"
 	"errors"
-	"fmt"
 
 	"github.com/slipe-fun/skid-backend/internal/config"
 	"github.com/slipe-fun/skid-backend/internal/domain"
@@ -51,7 +50,6 @@ func (u *UserApp) EditUser(token string, editedUser *domain.User) (*domain.User,
 
 	editUserErr := u.users.Edit(user)
 	if editUserErr != nil {
-		fmt.Println(editUserErr)
 		return nil, errors.New("failed to edit user")
 	}
 

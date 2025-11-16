@@ -3,7 +3,6 @@ package AuthApp
 import (
 	"database/sql"
 	"errors"
-	"fmt"
 
 	"github.com/slipe-fun/skid-backend/internal/domain"
 	"github.com/slipe-fun/skid-backend/internal/service"
@@ -38,11 +37,9 @@ func (a *AuthApp) ExchangeCode(code string) (string, *domain.User, error) {
 			DisplayName: service.GenerateNickname(),
 		})
 		if err != nil {
-			fmt.Println(err, name)
 			return "", nil, errors.New("failed to register user")
 		}
 	} else if !errors.Is(err, sql.ErrNoRows) && err != nil {
-		fmt.Println(err)
 		return "", nil, errors.New("failed to get user")
 	}
 

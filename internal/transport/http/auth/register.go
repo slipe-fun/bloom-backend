@@ -1,8 +1,6 @@
 package auth
 
 import (
-	"fmt"
-
 	"github.com/gofiber/fiber/v2"
 	"github.com/slipe-fun/skid-backend/internal/config"
 )
@@ -26,7 +24,6 @@ func (h *AuthHandler) Register(c *fiber.Ctx) error {
 
 	err := h.authApp.Register(req.Email)
 	if err != nil {
-		fmt.Println(err)
 		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{"error": "cant_create_user"})
 	}
 
