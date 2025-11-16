@@ -27,6 +27,7 @@ import (
 	"github.com/slipe-fun/skid-backend/internal/transport/http/chat"
 	"github.com/slipe-fun/skid-backend/internal/transport/http/message"
 	"github.com/slipe-fun/skid-backend/internal/transport/http/middleware"
+	"github.com/slipe-fun/skid-backend/internal/transport/http/session"
 	"github.com/slipe-fun/skid-backend/internal/transport/http/user"
 	"github.com/slipe-fun/skid-backend/internal/transport/ws/handler"
 	"github.com/slipe-fun/skid-backend/internal/transport/ws/types"
@@ -64,6 +65,7 @@ func main() {
 	userHandler := user.NewUserHandler(userApp)
 	chatHandler := chat.NewChatHandler(chatApp, userApp, messageApp)
 	messageHandler := message.NewMessageHandler(chatApp, userApp, messageApp)
+	sessionHandler := session.NewSessionHandler(sessionApp)
 
 	fiberApp := fiber.New()
 
@@ -101,6 +103,10 @@ func main() {
 	fiberApp.Post("/chat/:id/addkeys", chatHandler.AddChatKeys)
 
 	fiberApp.Get("/message/:id", messageHandler.GetMessageById)
+
+	fiberApp.Get("/sessions", sessionHandler.GetUserSessions)
+	fiberApp.Get("/session", sessionHandler.GetSessionByToken)
+	fiberApp.Get("/session/:id/delete", sessionHandler.DeleteSession)
 
 	hub := types.NewHub(sessionApp, chatApp, messageApp, userApp, jwtSvc, tokenSvc)
 	fiberApp.Get("/ws", websocket.New(handler.HandleWS(hub)))
