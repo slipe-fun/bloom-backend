@@ -4,24 +4,20 @@ import (
 	"errors"
 
 	"github.com/slipe-fun/skid-backend/internal/domain"
+	"github.com/slipe-fun/skid-backend/internal/service"
 )
 
-func (a *AuthApp) Register(username string, email string) error {
-	_, err := a.users.GetByUsername(username)
-
-	if err == nil {
-		return errors.New("user already exists")
-	}
-
-	_, err = a.users.GetByEmail(email)
+func (a *AuthApp) Register(email string) error {
+	_, err := a.users.GetByEmail(email)
 
 	if err == nil {
 		return errors.New("user already exists")
 	}
 
 	user, err := a.users.Create(&domain.User{
-		Username: username,
-		Email:    email,
+		Email:       email,
+		DisplayName: service.GenerateNickname(),
+		Username:    "",
 	})
 
 	if err != nil {

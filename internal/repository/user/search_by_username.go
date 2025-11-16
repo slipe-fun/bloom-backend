@@ -6,7 +6,7 @@ import (
 
 func (r *UserRepo) SearchUsersByUsername(username string, limit, offset int) ([]*domain.User, error) {
 	rows, err := r.db.Query(`
-	SELECT id, username, date
+	SELECT id, username, display_name, date
 	FROM users
 	WHERE similarity(cyr_to_lat(username), cyr_to_lat($1)) > 0.3
 	ORDER BY similarity(cyr_to_lat(username), cyr_to_lat($1)) DESC
@@ -20,7 +20,7 @@ func (r *UserRepo) SearchUsersByUsername(username string, limit, offset int) ([]
 	var users []*domain.User
 	for rows.Next() {
 		var user domain.User
-		if err := rows.Scan(&user.ID, &user.Username, &user.Date); err != nil {
+		if err := rows.Scan(&user.ID, &user.Username, &user.DisplayName, &user.Date); err != nil {
 			return nil, err
 		}
 		users = append(users, &user)

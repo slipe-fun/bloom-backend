@@ -92,6 +92,7 @@ func main() {
 	fiberApp.Post("/auth/register", authHandler.Register)
 
 	fiberApp.Get("/user/me", userHandler.GetUser)
+	fiberApp.Post("/user/edit", userHandler.EditUser)
 	fiberApp.Get("/user/search", userHandler.SearchByUsername)
 	fiberApp.Get("/user/:id", userHandler.GetUserById)
 
@@ -106,7 +107,7 @@ func main() {
 
 	fiberApp.Get("/sessions", sessionHandler.GetUserSessions)
 	fiberApp.Get("/session", sessionHandler.GetSessionByToken)
-	fiberApp.Get("/session/:id/delete", sessionHandler.DeleteSession)
+	fiberApp.Post("/session/:id/delete", sessionHandler.DeleteSession)
 
 	hub := types.NewHub(sessionApp, chatApp, messageApp, userApp, jwtSvc, tokenSvc)
 	fiberApp.Get("/ws", websocket.New(handler.HandleWS(hub)))

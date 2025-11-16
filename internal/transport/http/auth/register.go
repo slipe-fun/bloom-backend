@@ -9,27 +9,22 @@ import (
 
 func (h *AuthHandler) Register(c *fiber.Ctx) error {
 	var req struct {
-		Username string `json:"username"`
-		Email    string `json:"email"`
+		Email string `json:"email"`
 	}
 
 	if err := c.BodyParser(&req); err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "invalid_request"})
 	}
 
-	if req.Email == "" || req.Username == "" {
+	if req.Email == "" {
 		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{"error": "invalid_request"})
-	}
-
-	if len(req.Username) < 4 || !config.UsernameRegex.MatchString(req.Username) {
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "invalid_username"})
 	}
 
 	if !config.EmailRegex.MatchString(req.Email) {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "invalid_email"})
 	}
 
-	err := h.authApp.Register(req.Username, req.Email)
+	err := h.authApp.Register(req.Email)
 	if err != nil {
 		fmt.Println(err)
 		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{"error": "cant_create_user"})

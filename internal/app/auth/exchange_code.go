@@ -1,7 +1,9 @@
 package AuthApp
 
 import (
+	"database/sql"
 	"errors"
+	"fmt"
 
 	"github.com/slipe-fun/skid-backend/internal/domain"
 	"github.com/slipe-fun/skid-backend/internal/service"
@@ -24,19 +26,24 @@ func (a *AuthApp) ExchangeCode(code string) (string, *domain.User, error) {
 	}
 
 	user, err := a.users.GetByEmail(email)
-	if err != nil {
+	if errors.Is(err, sql.ErrNoRows) {
 		name, ok := client["name"].(string)
 		if !ok {
 			return "", nil, errors.New("name not found or wrong type")
 		}
 
 		user, err = a.users.Create(&domain.User{
-			Email:    email,
-			Username: service.GenerateUsername(name),
+			Email:       email,
+			Username:    service.GenerateUsername(name),
+			DisplayName: service.GenerateNickname(),
 		})
 		if err != nil {
+			fmt.Println(err, name)
 			return "", nil, errors.New("failed to register user")
 		}
+	} else if !errors.Is(err, sql.ErrNoRows) && err != nil {
+		fmt.Println(err)
+		return "", nil, errors.New("failed to get user")
 	}
 
 	jwtToken, err := a.sessionApp.CreateSession(user.ID)
