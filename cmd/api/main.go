@@ -88,6 +88,7 @@ func main() {
 
 	fiberApp.Post("/auth/verify-code", authHandler.VerifyCode)
 	fiberApp.Post("/auth/request-code", authHandler.RequestCode)
+	fiberApp.Get("/oauth2/google/redirect", authHandler.GoogleRedirect)
 	fiberApp.Get("/oauth2/google/exchange-code", authHandler.ExchangeCode)
 	fiberApp.Post("/auth/register", authHandler.Register)
 

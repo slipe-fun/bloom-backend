@@ -41,6 +41,7 @@ type Config struct {
 		ClientId     string `mapstructure:"client_id"`
 		ClientSecret string `mapstructure:"client_secret"`
 		RedirectURL  string `mapstructure:"redirect_url"`
+		BundleID     string `mapstructure:"bundle_id"`
 	} `mapstructure:"google_auth"`
 	RateLimit struct {
 		Enabled                  bool `mapstructure:"enabled"`
