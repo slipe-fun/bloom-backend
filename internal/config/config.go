@@ -32,10 +32,10 @@ type Config struct {
 	}
 	Email struct {
 		Email        string
-		ClientId     string `mapstructure:"client_id"`
-		ClientSecret string `mapstructure:"client_secret"`
-		AccessToken  string `mapstructure:"access_token"`
-		RefreshToken string `mapstructure:"refresh_token"`
+		SmtpHost     string `mapstructure:"smtp_host"`
+		SmtpPort     string `mapstructure:"smtp_port"`
+		SmtpLogin    string `mapstructure:"smtp_login"`
+		SmtpPassword string `mapstructure:"smtp_password"`
 	}
 	GoogleAuth struct {
 		ClientId     string `mapstructure:"client_id"`
