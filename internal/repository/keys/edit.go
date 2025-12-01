@@ -8,11 +8,11 @@ func (k *KeysRepo) Edit(keys *domain.EncryptedKeys) error {
         SET ciphertext = $1,
             nonce = $2,
 			salt = $3
-        WHERE id = $4
-        RETURNING id, user_id, chat_id, ciphertext, nonce, salt
+        WHERE user_id = $4
+        RETURNING id, user_id, ciphertext, nonce, salt
     `
 
-	_, err := k.db.Exec(query, keys.Ciphertext, keys.Nonce, keys.Salt, keys.ChatID)
+	_, err := k.db.Exec(query, keys.Ciphertext, keys.Nonce, keys.Salt, keys.UserID)
 
 	if err != nil {
 		return err

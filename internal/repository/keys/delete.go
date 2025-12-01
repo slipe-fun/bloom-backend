@@ -1,9 +1,9 @@
 package KeysRepo
 
-func (k *KeysRepo) Delete(id int) error {
-	query := `DELETE FROM keys WHERE id = $1`
+func (k *KeysRepo) Delete(user_id int) error {
+	query := `DELETE FROM keys WHERE user_id = $1`
 
-	_, err := k.db.Exec(query, id)
+	_, err := k.db.Exec(query, user_id)
 	if err != nil {
 		return err
 	}

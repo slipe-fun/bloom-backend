@@ -7,19 +7,19 @@ import (
 	"github.com/slipe-fun/skid-backend/internal/domain"
 )
 
-func (k *KeysApp) CreateKeys(tokenStr string, chatId int, keys *domain.EncryptedKeys) (*domain.EncryptedKeys, error) {
+func (k *KeysApp) CreateKeys(tokenStr string, keys *domain.EncryptedKeys) (*domain.EncryptedKeys, error) {
 	session, err := k.sessionApp.GetSession(tokenStr)
 	if err != nil {
 		return nil, errors.New("failed to get session")
 	}
 
-	chat, err := k.chats.GetChatById(tokenStr, chatId)
+	user, err := k.users.GetUserById(session.UserID)
 	if err != nil {
-		return nil, errors.New("failed to get chat")
+		return nil, errors.New("failed to get user")
 	}
 
 	ciphertextBytes, err := base64.StdEncoding.DecodeString(keys.Ciphertext)
-	if err != nil || len(ciphertextBytes) != 3393 {
+	if err != nil || len(ciphertextBytes) < 3393 {
 		return nil, errors.New("invalid ciphertext")
 	}
 
@@ -33,9 +33,21 @@ func (k *KeysApp) CreateKeys(tokenStr string, chatId int, keys *domain.Encrypted
 		return nil, errors.New("invalid salt")
 	}
 
+	existingKeys, err := k.keys.GetByUserId(user.ID)
+	if err == nil {
+		existingKeys.Ciphertext = keys.Ciphertext
+		existingKeys.Nonce = keys.Nonce
+		existingKeys.Salt = keys.Salt
+
+		err = k.keys.Edit(existingKeys)
+		if err != nil {
+			return nil, errors.New("failed to save keys")
+		}
+		return existingKeys, nil
+	}
+
 	keys, err = k.keys.Create(&domain.EncryptedKeys{
-		UserID:     session.UserID,
-		ChatID:     chat.ID,
+		UserID:     user.ID,
 		Ciphertext: keys.Ciphertext,
 		Nonce:      keys.Nonce,
 		Salt:       keys.Salt,

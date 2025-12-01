@@ -14,15 +14,6 @@ func (h *KeysHandler) SaveChatKeys(c *fiber.Ctx) error {
 		})
 	}
 
-	chatId, err := c.ParamsInt("id")
-	if err != nil {
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "invalid_params"})
-	}
-
-	if chatId == 0 {
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "no_chat"})
-	}
-
 	var req struct {
 		Ciphertext string `json:"ciphertext"`
 		Nonce      string `json:"nonce"`
@@ -37,12 +28,7 @@ func (h *KeysHandler) SaveChatKeys(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "invalid_request"})
 	}
 
-	chat, err := h.chatApp.GetChatById(token, chatId)
-	if err != nil {
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "chat_not_found"})
-	}
-
-	_, err = h.keysApp.CreateKeys(token, chat.ID, &domain.EncryptedKeys{
+	_, err = h.keysApp.CreateKeys(token, &domain.EncryptedKeys{
 		Ciphertext: req.Ciphertext,
 		Nonce:      req.Nonce,
 		Salt:       req.Salt,
