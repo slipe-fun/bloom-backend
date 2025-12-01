@@ -13,11 +13,6 @@ func (k *KeysApp) CreateKeys(tokenStr string, keys *domain.EncryptedKeys) (*doma
 		return nil, errors.New("failed to get session")
 	}
 
-	user, err := k.users.GetUserById(session.UserID)
-	if err != nil {
-		return nil, errors.New("failed to get user")
-	}
-
 	ciphertextBytes, err := base64.StdEncoding.DecodeString(keys.Ciphertext)
 	if err != nil || len(ciphertextBytes) < 3393 {
 		return nil, errors.New("invalid ciphertext")
@@ -33,7 +28,7 @@ func (k *KeysApp) CreateKeys(tokenStr string, keys *domain.EncryptedKeys) (*doma
 		return nil, errors.New("invalid salt")
 	}
 
-	existingKeys, err := k.keys.GetByUserId(user.ID)
+	existingKeys, err := k.keys.GetByUserId(session.UserID)
 	if err == nil {
 		existingKeys.Ciphertext = keys.Ciphertext
 		existingKeys.Nonce = keys.Nonce
@@ -47,7 +42,7 @@ func (k *KeysApp) CreateKeys(tokenStr string, keys *domain.EncryptedKeys) (*doma
 	}
 
 	keys, err = k.keys.Create(&domain.EncryptedKeys{
-		UserID:     user.ID,
+		UserID:     session.UserID,
 		Ciphertext: keys.Ciphertext,
 		Nonce:      keys.Nonce,
 		Salt:       keys.Salt,
