@@ -2,6 +2,7 @@ package chat
 
 import (
 	"github.com/gofiber/fiber/v2"
+	"github.com/slipe-fun/skid-backend/internal/domain"
 	"github.com/slipe-fun/skid-backend/internal/transport/http"
 )
 
@@ -9,7 +10,8 @@ func (h *ChatHandler) CreateChat(c *fiber.Ctx) error {
 	token, err := http.ExtractBearerToken(c)
 	if err != nil {
 		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
-			"error": "invalid_token",
+			"error":   "invalid_token",
+			"message": "invalid token",
 		})
 	}
 
@@ -18,32 +20,40 @@ func (h *ChatHandler) CreateChat(c *fiber.Ctx) error {
 	}
 
 	if err := c.BodyParser(&req); err != nil {
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "invalid_request"})
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"error":   "invalid_request",
+			"message": "invalid request",
+		})
 	}
 
 	if req.Recipient == 0 {
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "no_recipient"})
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"error":   "no_recipient",
+			"message": "no recipient",
+		})
 	}
 
 	user, err := h.userApp.GetUserById(req.Recipient)
-	if err != nil {
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-			"error": "recipient_not_found",
+	if appErr, ok := err.(*domain.AppError); ok {
+		return c.Status(appErr.Status).JSON(fiber.Map{
+			"error":   appErr.Code,
+			"message": appErr.Msg,
 		})
 	}
 
 	chat1, err := h.chatApp.GetChatWithUsers(token, req.Recipient)
 	if chat1 != nil || err == nil {
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-			"error": "already_exists",
+		return c.Status(fiber.StatusConflict).JSON(fiber.Map{
+			"error":   "already_exists",
+			"message": "chat with users already exists",
 		})
 	}
 
 	chat, err := h.chatApp.CreateChat(token, user.ID)
-
-	if err != nil {
-		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-			"error": "cant_create_chat",
+	if appErr, ok := err.(*domain.AppError); ok {
+		return c.Status(appErr.Status).JSON(fiber.Map{
+			"error":   appErr.Code,
+			"message": appErr.Msg,
 		})
 	}
 

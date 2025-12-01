@@ -1,8 +1,6 @@
 package AuthApp
 
 import (
-	"errors"
-
 	"github.com/slipe-fun/skid-backend/internal/domain"
 	"github.com/slipe-fun/skid-backend/internal/service"
 )
@@ -11,7 +9,7 @@ func (a *AuthApp) Register(email string) error {
 	_, err := a.users.GetByEmail(email)
 
 	if err == nil {
-		return errors.New("user already exists")
+		return domain.AlreadyExists("user already exists")
 	}
 
 	user, err := a.users.Create(&domain.User{
@@ -21,7 +19,7 @@ func (a *AuthApp) Register(email string) error {
 	})
 
 	if err != nil {
-		return err
+		return domain.Failed("failed to register user")
 	}
 
 	createAndSendCodeError := a.codesApp.CreateAndSendCode(*user.Email)

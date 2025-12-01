@@ -1,6 +1,9 @@
 package user
 
-import "github.com/gofiber/fiber/v2"
+import (
+	"github.com/gofiber/fiber/v2"
+	"github.com/slipe-fun/skid-backend/internal/domain"
+)
 
 func (h *UserHandler) SearchByUsername(c *fiber.Ctx) error {
 	query := c.Query("q", "")
@@ -9,14 +12,16 @@ func (h *UserHandler) SearchByUsername(c *fiber.Ctx) error {
 
 	if len(query) == 0 {
 		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
-			"error": "users_not_found",
+			"error":   "not_found",
+			"message": "users not found",
 		})
 	}
 
 	users, err := h.userApp.SearchUsersByUsername(query, limit, offset)
-	if err != nil || len(users) == 0 {
-		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
-			"error": "users_not_found",
+	if appErr, ok := err.(*domain.AppError); ok {
+		return c.Status(appErr.Status).JSON(fiber.Map{
+			"error":   appErr.Code,
+			"message": appErr.Msg,
 		})
 	}
 

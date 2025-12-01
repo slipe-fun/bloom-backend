@@ -17,7 +17,7 @@ func (c *MessageApp) GetChatMessagesAfter(tokenStr string, chatId int, afterId i
 
 	messages, err := c.messages.GetChatMessagesAfter(chat.ID, afterId)
 	if err != nil {
-		return nil, err
+		return nil, domain.NotFound("messages not found")
 	}
 
 	result := make([]*domain.MessageWithReply, len(messages))

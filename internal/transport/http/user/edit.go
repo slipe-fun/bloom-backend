@@ -10,14 +10,16 @@ func (h *UserHandler) EditUser(c *fiber.Ctx) error {
 	token, err := http.ExtractBearerToken(c)
 	if err != nil {
 		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
-			"error": "invalid_token",
+			"error":   "invalid_token",
+			"message": "invalid token",
 		})
 	}
 
 	user, err := h.userApp.GetUserByToken(token)
-	if err != nil {
-		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
-			"error": "user_not_found",
+	if appErr, ok := err.(*domain.AppError); ok {
+		return c.Status(appErr.Status).JSON(fiber.Map{
+			"error":   appErr.Code,
+			"message": appErr.Msg,
 		})
 	}
 
@@ -28,7 +30,8 @@ func (h *UserHandler) EditUser(c *fiber.Ctx) error {
 
 	if err := c.BodyParser(&req); err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-			"error": "invalid_request",
+			"error":   "invalid_request",
+			"message": "invalid request",
 		})
 	}
 
@@ -51,9 +54,10 @@ func (h *UserHandler) EditUser(c *fiber.Ctx) error {
 	}
 
 	edited, err := h.userApp.EditUser(token, newUser)
-	if err != nil {
-		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-			"error": "failed_to_edit_user",
+	if appErr, ok := err.(*domain.AppError); ok {
+		return c.Status(appErr.Status).JSON(fiber.Map{
+			"error":   appErr.Code,
+			"message": appErr.Msg,
 		})
 	}
 

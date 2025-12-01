@@ -1,7 +1,6 @@
 package VerificationApp
 
 import (
-	"errors"
 	"fmt"
 
 	"github.com/slipe-fun/skid-backend/internal/domain"
@@ -11,7 +10,7 @@ import (
 func (v *VerificationApp) CreateAndSendCode(email string) error {
 	code, err := service.GenerateNumericCode(6)
 	if err != nil {
-		return errors.New("cant generate numeric code")
+		return domain.Failed("failed to generate numeric code")
 	}
 
 	createdCode, err := v.verification.Create(&domain.VerificationCode{
@@ -19,7 +18,7 @@ func (v *VerificationApp) CreateAndSendCode(email string) error {
 		Code:  code,
 	})
 	if err != nil {
-		return errors.New("cant create code")
+		return domain.Failed("failed to create code")
 	}
 
 	sendEmailError := service.SendMail(
@@ -29,7 +28,7 @@ func (v *VerificationApp) CreateAndSendCode(email string) error {
 	)
 	if sendEmailError != nil {
 		v.verification.DeleteByEmailAndCode(email, createdCode.Code)
-		return errors.New("cant send email")
+		return domain.Failed("failed to send email")
 	}
 
 	return nil

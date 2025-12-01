@@ -1,8 +1,6 @@
 package SessionApp
 
 import (
-	"errors"
-
 	"github.com/slipe-fun/skid-backend/internal/domain"
 	"github.com/slipe-fun/skid-backend/internal/service"
 )
@@ -10,12 +8,12 @@ import (
 func (s *SessionApp) CreateSession(user_id int) (string, error) {
 	user, err := s.users.GetById(user_id)
 	if err != nil {
-		return "", errors.New("user not found")
+		return "", domain.NotFound("user not found")
 	}
 
 	token, err := s.jwtSvc.GenerateToken(user.ID)
 	if err != nil {
-		return "", errors.New("failed to generate token")
+		return "", domain.Failed("failed to generate token")
 	}
 
 	_, err = s.session.Create(&domain.Session{
@@ -23,7 +21,7 @@ func (s *SessionApp) CreateSession(user_id int) (string, error) {
 		UserID: user.ID,
 	})
 	if err != nil {
-		return "", errors.New("failed to generate token")
+		return "", domain.Failed("failed to generate token")
 	}
 
 	return token, nil

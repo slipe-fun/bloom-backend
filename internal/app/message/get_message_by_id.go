@@ -12,12 +12,12 @@ func (c *MessageApp) GetMessageById(tokenStr string, id int) (*domain.MessageWit
 
 	message, err := c.messages.GetById(id)
 	if err != nil {
-		return nil, err
+		return nil, domain.NotFound("message not found")
 	}
 
 	_, chaterr := c.chats.GetChatById(tokenStr, message.ChatID)
 	if chaterr != nil {
-		return nil, err
+		return nil, domain.NotFound("message not found")
 	}
 
 	result := &domain.MessageWithReply{

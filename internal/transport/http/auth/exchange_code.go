@@ -2,6 +2,7 @@ package auth
 
 import (
 	"github.com/gofiber/fiber/v2"
+	"github.com/slipe-fun/skid-backend/internal/domain"
 )
 
 func (h *AuthHandler) ExchangeCode(c *fiber.Ctx) error {
@@ -15,8 +16,11 @@ func (h *AuthHandler) ExchangeCode(c *fiber.Ctx) error {
 	}
 
 	token, user, err := h.authApp.ExchangeCode(code)
-	if err != nil {
-		return c.Status(400).SendString("server error")
+	if appErr, ok := err.(*domain.AppError); ok {
+		return c.Status(appErr.Status).JSON(fiber.Map{
+			"error":   appErr.Code,
+			"message": appErr.Msg,
+		})
 	}
 
 	return c.JSON(fiber.Map{

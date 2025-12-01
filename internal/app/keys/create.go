@@ -2,7 +2,6 @@ package KeysApp
 
 import (
 	"encoding/base64"
-	"errors"
 
 	"github.com/slipe-fun/skid-backend/internal/domain"
 )
@@ -10,22 +9,22 @@ import (
 func (k *KeysApp) CreateKeys(tokenStr string, keys *domain.EncryptedKeys) (*domain.EncryptedKeys, error) {
 	session, err := k.sessionApp.GetSession(tokenStr)
 	if err != nil {
-		return nil, errors.New("failed to get session")
+		return nil, err
 	}
 
 	ciphertextBytes, err := base64.StdEncoding.DecodeString(keys.Ciphertext)
 	if err != nil || len(ciphertextBytes) < 3393 {
-		return nil, errors.New("invalid ciphertext")
+		return nil, domain.InvalidData("invalid ciphertext")
 	}
 
 	nonceBytes, err := base64.StdEncoding.DecodeString(keys.Nonce)
 	if err != nil || len(nonceBytes) != 12 {
-		return nil, errors.New("invalid nonce")
+		return nil, domain.InvalidData("invalid nonce")
 	}
 
 	saltBytes, err := base64.StdEncoding.DecodeString(keys.Salt)
 	if err != nil || len(saltBytes) != 16 {
-		return nil, errors.New("invalid salt")
+		return nil, domain.InvalidData("invalid salt")
 	}
 
 	existingKeys, err := k.keys.GetByUserId(session.UserID)
@@ -36,7 +35,7 @@ func (k *KeysApp) CreateKeys(tokenStr string, keys *domain.EncryptedKeys) (*doma
 
 		err = k.keys.Edit(existingKeys)
 		if err != nil {
-			return nil, errors.New("failed to save keys")
+			return nil, domain.Failed("failed to save keys")
 		}
 		return existingKeys, nil
 	}
@@ -48,7 +47,7 @@ func (k *KeysApp) CreateKeys(tokenStr string, keys *domain.EncryptedKeys) (*doma
 		Salt:       keys.Salt,
 	})
 	if err != nil {
-		return nil, errors.New("failed to save keys")
+		return nil, domain.Failed("failed to save keys")
 	}
 
 	return keys, nil

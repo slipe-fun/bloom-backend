@@ -11,7 +11,7 @@ func (c *ChatApp) GetChatWithUsers(tokenStr string, recipient int) (*domain.Chat
 	chat, err := c.chats.GetWithUsers(session.UserID, recipient)
 
 	if err != nil {
-		return nil, err
+		return nil, domain.NotExpired("chats not found")
 	}
 
 	return chat, nil

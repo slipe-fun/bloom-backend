@@ -1,30 +1,32 @@
 package SessionApp
 
-import "errors"
+import (
+	"github.com/slipe-fun/skid-backend/internal/domain"
+)
 
 func (s *SessionApp) DeleteSession(id int, token string) error {
 	userID, err := s.tokenSvc.ExtractUserID(token)
 	if err != nil {
-		return err
+		return domain.Unauthorized("failed to extract token")
 	}
 
 	_, err = s.users.GetById(userID)
 	if err != nil {
-		return errors.New("user not found")
+		return domain.NotFound("user not found")
 	}
 
 	session, err := s.session.GetById(id)
 	if err != nil {
-		return errors.New("session not found")
+		return domain.NotFound("session not found")
 	}
 
 	if session.UserID != userID {
-		return errors.New("session not found")
+		return domain.NotFound("session not found")
 	}
 
 	deleteSessionErr := s.session.Delete(id)
 	if deleteSessionErr != nil {
-		return errors.New("failed to delete session")
+		return domain.Failed("failed to delete session")
 	}
 
 	return nil

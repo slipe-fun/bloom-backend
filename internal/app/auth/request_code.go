@@ -1,15 +1,16 @@
 package AuthApp
 
 import (
-	"errors"
 	"time"
+
+	"github.com/slipe-fun/skid-backend/internal/domain"
 )
 
 func (a *AuthApp) RequestCode(email string) error {
 	user, err := a.users.GetByEmail(email)
 
 	if err != nil {
-		return errors.New("code not found")
+		return domain.NotFound("code not found")
 	}
 
 	verificationCode, err := a.codesRepo.GetLastCode(email)
@@ -17,12 +18,12 @@ func (a *AuthApp) RequestCode(email string) error {
 		now := time.Now().UTC()
 
 		if !verificationCode.ExpiresAt.Before(now) {
-			return errors.New("code hasnt expired")
+			return domain.NotExpired("code hasnt expired")
 		}
 
 		err = a.codesRepo.DeleteByEmailAndCode(email, verificationCode.Code)
 		if err != nil {
-			return err
+			return domain.Failed("failed to delete old code")
 		}
 	}
 

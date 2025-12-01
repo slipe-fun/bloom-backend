@@ -16,5 +16,10 @@ func (c *ChatApp) AddKeys(tokenStr string, chat *domain.Chat, kyberPublicKey str
 		}
 	}
 
-	return c.chats.UpdateChat(chat)
+	updateChatError := c.chats.UpdateChat(chat)
+	if updateChatError != nil {
+		return domain.Failed("failed to update chat keys")
+	}
+
+	return nil
 }

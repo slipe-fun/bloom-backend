@@ -2,6 +2,7 @@ package chat
 
 import (
 	"github.com/gofiber/fiber/v2"
+	"github.com/slipe-fun/skid-backend/internal/domain"
 	"github.com/slipe-fun/skid-backend/internal/service"
 	"github.com/slipe-fun/skid-backend/internal/transport/http"
 )
@@ -30,26 +31,41 @@ func (h *ChatHandler) AddChatKeys(c *fiber.Ctx) error {
 	}
 
 	if err := c.BodyParser(&req); err != nil {
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "invalid_request"})
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"error":   "invalid_request",
+			"message": "invalid request",
+		})
 	}
 
 	if req.KyberPublicKey == "" || req.EcdhPublicKey == "" || req.EdPublicKey == "" {
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "not_all_keys"})
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"error":   "not_all_keys",
+			"message": "not all keys are provided",
+		})
 	}
 
 	keysCheck := service.CheckKeysLength(req.KyberPublicKey, req.EcdhPublicKey, req.EdPublicKey)
 	if keysCheck != nil {
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": keysCheck.Error()})
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"error":   keysCheck.Error(),
+			"message": "invalid key length",
+		})
 	}
 
 	chat, err := h.chatApp.GetChatById(token, chatId)
-	if err != nil {
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "chat_not_found"})
+	if appErr, ok := err.(*domain.AppError); ok {
+		return c.Status(appErr.Status).JSON(fiber.Map{
+			"error":   appErr.Code,
+			"message": appErr.Msg,
+		})
 	}
 
 	updateChatErr := h.chatApp.AddKeys(token, chat, req.KyberPublicKey, req.EcdhPublicKey, req.EdPublicKey)
-	if updateChatErr != nil {
-		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "cant_update_chat"})
+	if appErr, ok := updateChatErr.(*domain.AppError); ok {
+		return c.Status(appErr.Status).JSON(fiber.Map{
+			"error":   appErr.Code,
+			"message": appErr.Msg,
+		})
 	}
 
 	return c.JSON(fiber.Map{

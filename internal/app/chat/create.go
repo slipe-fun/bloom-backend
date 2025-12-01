@@ -13,7 +13,7 @@ func (c *ChatApp) CreateChat(tokenStr string, recipient int) (*domain.Chat, erro
 
 	encryptionKey, err := crypto.GenerateEncryptionKey()
 	if err != nil {
-		return nil, err
+		return nil, domain.Failed("failed to generate encryption key")
 	}
 
 	encKey := encryptionKey
@@ -36,7 +36,7 @@ func (c *ChatApp) CreateChat(tokenStr string, recipient int) (*domain.Chat, erro
 	})
 
 	if err != nil {
-		return nil, err
+		return nil, domain.Failed("failed to create chat")
 	}
 
 	return chat, nil

@@ -20,7 +20,12 @@ func (h *AuthHandler) GoogleRedirect(c *fiber.Ctx) error {
 
 	cfg := config.LoadConfig("configs/config.yaml")
 
-	redirectURI := fmt.Sprintf("%s://oauth2redirect/google?code=%s", cfg.GoogleAuth.BundleID, url.QueryEscape(code))
+	link := c.Query("link")
+	if link == "" {
+		link = cfg.GoogleAuth.BundleID
+	}
+
+	redirectURI := fmt.Sprintf("%s://oauth2redirect/google?code=%s", link, url.QueryEscape(code))
 
 	return c.Redirect(redirectURI, fiber.StatusFound)
 }

@@ -17,7 +17,7 @@ func (c *MessageApp) CreateMessage(tokenStr string, chatId int, message *domain.
 
 	message, messageErr := c.messages.Create(message)
 	if messageErr != nil {
-		return nil, messageErr
+		return nil, domain.Failed("failed to create message")
 	}
 
 	return message, nil
