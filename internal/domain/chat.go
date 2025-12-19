@@ -3,9 +3,9 @@ package domain
 type Member struct {
 	ID             int    `json:"id"`
 	Username       string `json:"username,omitempty"`
-	KyberPublicKey string `json:"kyberPublicKey"`
-	EcdhPublicKey  string `json:"ecdhPublicKey"`
-	EdPublicKey    string `json:"edPublicKey"`
+	KyberPublicKey string `json:"kyber_public_key"`
+	EcdhPublicKey  string `json:"ecdh_public_key"`
+	EdPublicKey    string `json:"ed_public_key"`
 }
 
 type Chat struct {
