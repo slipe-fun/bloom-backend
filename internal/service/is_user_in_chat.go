@@ -2,7 +2,7 @@ package service
 
 import "github.com/slipe-fun/skid-backend/internal/domain"
 
-func IsUserInChat(chats []*domain.Chat, chatId int) bool {
+func IsUserInChat(chats []*domain.ChatWithLastMessage, chatId int) bool {
 	allowed := false
 	for _, chat := range chats {
 		if chat.ID == chatId {
