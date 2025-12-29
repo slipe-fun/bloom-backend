@@ -24,9 +24,12 @@ func (h *UserHandler) GetUser(c *fiber.Ctx) error {
 	}
 
 	return c.JSON(fiber.Map{
-		"id":           user.ID,
-		"username":     user.Username,
-		"display_name": user.DisplayName,
-		"date":         user.Date,
+		"id":            user.ID,
+		"username":      user.Username,
+		"display_name":  user.DisplayName,
+		"email":         user.Email,
+		"description":   "Hello everyone!",
+		"date":          user.Date,
+		"friends_count": 0,
 	})
 }
