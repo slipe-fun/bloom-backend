@@ -26,6 +26,7 @@ func (h *UserHandler) GetUserById(c *fiber.Ctx) error {
 		"id":           user.ID,
 		"username":     user.Username,
 		"display_name": user.DisplayName,
+		"description":  user.Description,
 		"date":         user.Date,
 	})
 }

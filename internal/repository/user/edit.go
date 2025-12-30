@@ -7,7 +7,7 @@ func (r *UserRepo) Edit(user *domain.User) error {
         UPDATE users
         SET username = $1,
             email = $2,
-			display_name = $3
+			display_name = $3,
 			description = $4
         WHERE id = $5
         RETURNING id, username, email, display_name, description, date

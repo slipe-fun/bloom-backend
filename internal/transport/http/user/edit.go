@@ -26,9 +26,17 @@ func (h *UserHandler) EditUser(c *fiber.Ctx) error {
 	var req struct {
 		Username    *string `json:"username"`
 		DisplayName *string `json:"display_name" form:"display_name"`
+		Description *string `json:"description" form:"description"`
 	}
 
 	if err := c.BodyParser(&req); err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"error":   "invalid_request",
+			"message": "invalid request",
+		})
+	}
+
+	if req.Username == nil && req.DisplayName == nil && req.Description == nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
 			"error":   "invalid_request",
 			"message": "invalid request",
@@ -53,6 +61,12 @@ func (h *UserHandler) EditUser(c *fiber.Ctx) error {
 		newUser.DisplayName = user.DisplayName
 	}
 
+	if req.Description != nil {
+		newUser.Description = req.Description
+	} else {
+		newUser.Description = user.Description
+	}
+
 	edited, err := h.userApp.EditUser(token, newUser)
 	if appErr, ok := err.(*domain.AppError); ok {
 		return c.Status(appErr.Status).JSON(fiber.Map{
@@ -67,6 +81,7 @@ func (h *UserHandler) EditUser(c *fiber.Ctx) error {
 			"id":           edited.ID,
 			"username":     edited.Username,
 			"display_name": edited.DisplayName,
+			"description":  edited.Description,
 			"date":         edited.Date,
 		},
 	})

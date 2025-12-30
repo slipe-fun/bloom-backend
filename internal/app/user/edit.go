@@ -52,6 +52,12 @@ func (u *UserApp) EditUser(token string, editedUser *domain.User) (*domain.User,
 		return nil, domain.InvalidData("invalid length of display name")
 	}
 
+	if editedUser.Description != nil && len(*editedUser.Description) <= 150 {
+		user.Description = editedUser.Description
+	} else {
+		return nil, domain.InvalidData("invalid length of display name")
+	}
+
 	editUserErr := u.users.Edit(user)
 	if editUserErr != nil {
 		logger.LogError(editUserErr.Error(), "user-app")
