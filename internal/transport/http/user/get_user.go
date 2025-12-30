@@ -28,7 +28,7 @@ func (h *UserHandler) GetUser(c *fiber.Ctx) error {
 		"username":      user.Username,
 		"display_name":  user.DisplayName,
 		"email":         user.Email,
-		"description":   "Hello everyone!",
+		"description":   user.Description,
 		"date":          user.Date,
 		"friends_count": 0,
 	})

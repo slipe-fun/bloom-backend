@@ -8,11 +8,12 @@ func (r *UserRepo) Edit(user *domain.User) error {
         SET username = $1,
             email = $2,
 			display_name = $3
-        WHERE id = $4
-        RETURNING id, username, email, display_name, date
+			description = $4
+        WHERE id = $5
+        RETURNING id, username, email, display_name, description, date
     `
 
-	_, err := r.db.Exec(query, user.Username, user.Email, user.DisplayName, user.ID)
+	_, err := r.db.Exec(query, user.Username, user.Email, user.DisplayName, user.Description, user.ID)
 
 	if err != nil {
 		return err
