@@ -46,6 +46,7 @@ func (h *AuthHandler) VerifyCode(c *fiber.Ctx) error {
 			"id":           user.ID,
 			"username":     user.Username,
 			"display_name": user.DisplayName,
+			"description":  user.Description,
 			"date":         user.Date,
 		},
 	})
