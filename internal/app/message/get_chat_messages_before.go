@@ -5,7 +5,7 @@ import (
 	"github.com/slipe-fun/skid-backend/internal/service/logger"
 )
 
-func (c *MessageApp) GetChatMessagesAfter(tokenStr string, chatId, afterId, count int) ([]*domain.MessageWithReply, error) {
+func (c *MessageApp) GetChatMessagesBefore(tokenStr string, chatId, afterId, count int) ([]*domain.MessageWithReply, error) {
 	_, err := c.sessionApp.GetSession(tokenStr)
 	if err != nil {
 		return nil, err
@@ -16,7 +16,7 @@ func (c *MessageApp) GetChatMessagesAfter(tokenStr string, chatId, afterId, coun
 		return nil, err
 	}
 
-	messages, err := c.messages.GetChatMessagesAfter(chat.ID, afterId, count)
+	messages, err := c.messages.GetChatMessagesBefore(chat.ID, afterId, count)
 	if err != nil {
 		logger.LogError(err.Error(), "message-app")
 		return nil, domain.NotFound("messages not found")
