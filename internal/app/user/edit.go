@@ -46,16 +46,21 @@ func (u *UserApp) EditUser(token string, editedUser *domain.User) (*domain.User,
 		user.Username = editedUser.Username
 	}
 
-	if editedUser.DisplayName != nil && len(*editedUser.DisplayName) > 0 && len(*editedUser.DisplayName) <= 20 {
-		user.DisplayName = editedUser.DisplayName
-	} else {
-		return nil, domain.InvalidData("invalid length of display name")
+	if editedUser.DisplayName != nil {
+		dLen := len(*editedUser.DisplayName)
+		if dLen > 0 && dLen <= 20 {
+			user.DisplayName = editedUser.DisplayName
+		} else {
+			return nil, domain.InvalidData("invalid length of display name")
+		}
 	}
 
-	if editedUser.Description != nil && len(*editedUser.Description) <= 150 {
-		user.Description = editedUser.Description
-	} else {
-		return nil, domain.InvalidData("invalid length of display name")
+	if editedUser.Description != nil {
+		if len(*editedUser.Description) <= 150 {
+			user.Description = editedUser.Description
+		} else {
+			return nil, domain.InvalidData("invalid length of description")
+		}
 	}
 
 	editUserErr := u.users.Edit(user)
