@@ -4,20 +4,37 @@ import (
 	"github.com/slipe-fun/skid-backend/internal/domain"
 )
 
-func (r *UserRepo) SearchUsersByUsername(username string, limit, offset int) ([]*domain.User, error) {
-	rows, err := r.db.Query(`
+func (r *UserRepo) SearchUsersByUsername(query string, limit, offset int) ([]*domain.User, error) {
+	sqlQuery := `
 	SELECT id, username, display_name, description, date
 	FROM users
-	WHERE similarity(cyr_to_lat(username), cyr_to_lat($1)) > 0.3
-	ORDER BY similarity(cyr_to_lat(username), cyr_to_lat($1)) DESC
+	WHERE 
+		username ILIKE '%' || $1 || '%'
+		OR display_name ILIKE '%' || $1 || '%'
+		OR similarity(username, cyr_to_lat($1)) > 0.3
+		OR similarity(cyr_to_lat(display_name), cyr_to_lat($1)) > 0.3
+	ORDER BY
+		CASE WHEN username ILIKE $1 THEN 1 ELSE 0 END DESC,
+		
+		CASE WHEN username ILIKE $1 || '%' THEN 1 ELSE 0 END DESC,
+		
+		CASE WHEN display_name ILIKE $1 || '%' THEN 1 ELSE 0 END DESC,
+
+		GREATEST(
+			similarity(username, cyr_to_lat($1)), 
+			similarity(cyr_to_lat(display_name), cyr_to_lat($1))
+		) DESC
 	LIMIT $2 OFFSET $3;
-	`, username, limit, offset)
+	`
+
+	rows, err := r.db.Query(sqlQuery, query, limit, offset)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
 
-	var users []*domain.User
+	users := make([]*domain.User, 0)
+
 	for rows.Next() {
 		var user domain.User
 		if err := rows.Scan(&user.ID, &user.Username, &user.DisplayName, &user.Description, &user.Date); err != nil {
@@ -25,5 +42,10 @@ func (r *UserRepo) SearchUsersByUsername(username string, limit, offset int) ([]
 		}
 		users = append(users, &user)
 	}
-	return users, rows.Err()
+
+	if err = rows.Err(); err != nil {
+		return nil, err
+	}
+
+	return users, nil
 }
