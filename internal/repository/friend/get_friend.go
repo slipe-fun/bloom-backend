@@ -2,14 +2,12 @@ package FriendRepo
 
 import "github.com/slipe-fun/skid-backend/internal/domain"
 
-func (r *FriendRepo) GetFriend(userID int, friendID int) (*domain.Friend, error) {
+func (r *FriendRepo) GetFriend(userID int, friendID int) (*domain.FriendRow, error) {
 	query := `
 		SELECT
 			id,
-			CASE
-				WHEN user_id = $1 THEN friend_id
-				ELSE user_id
-			END AS friend_id,
+			user_id,
+			friend_id,
 			status
 		FROM friends
 		WHERE
@@ -18,7 +16,7 @@ func (r *FriendRepo) GetFriend(userID int, friendID int) (*domain.Friend, error)
 		LIMIT 1
 	`
 
-	var friend domain.Friend
+	var friend domain.FriendRow
 	err := r.db.Get(&friend, query, userID, friendID)
 	if err != nil {
 		return nil, err

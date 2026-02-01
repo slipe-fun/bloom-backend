@@ -115,6 +115,8 @@ func main() {
 	fiberApp.Get("/user/exists", userHandler.IsUserWithEmailExists)
 	fiberApp.Get("/user/:id", userHandler.GetUserById)
 
+	fiberApp.Post("/friend/request", friendHandler.SendRequest)
+
 	fiberApp.Post("/chat/create", chatHandler.CreateChat)
 	fiberApp.Get("/chats", chatHandler.GetChatsByUserId)
 	fiberApp.Get("/chat/:id", chatHandler.GetChatById)
