@@ -31,6 +31,21 @@ func HandleWS(hub *types.Hub) func(c *websocket.Conn) {
 		}
 		hub.ClientsByUserID[session.UserID] = client
 
+		hub.RegisterUser(session.UserID, client)
+
+		defer func() {
+			hub.UnregisterUser(session.UserID)
+			hub.LeaveAllRooms(client)
+			c.Close()
+		}()
+
+		for {
+			_, _, err := c.ReadMessage()
+			if err != nil {
+				break
+			}
+		}
+
 		chats, err := hub.Chats.GetChatsByUserId(clientToken)
 		if err != nil {
 			c.WriteMessage(websocket.TextMessage, []byte("Get chats error"))
@@ -78,19 +93,6 @@ func HandleWS(hub *types.Hub) func(c *websocket.Conn) {
 			}
 
 			switch baseMsg.Type {
-			case "send":
-				var socketMsg domain.SocketMessage
-				if err := json.Unmarshal(msg, &socketMsg); err != nil {
-					events.SendError(client, "invalid_message_format")
-					continue
-				}
-
-				room := "chat" + strconv.Itoa(socketMsg.ChatID)
-				if !service.IsUserInChat(chats, socketMsg.ChatID) {
-					events.SendError(client, "not_member")
-					continue
-				}
-				events.Send(hub, client, clientToken, session.UserID, room, socketMsg)
 			case "add_keys":
 				var socketKeys domain.SocketKeys
 				if err := json.Unmarshal(msg, &socketKeys); err != nil {

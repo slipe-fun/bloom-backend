@@ -27,13 +27,14 @@ type Hub struct {
 
 func NewHub(SessionApp *SessionApp.SessionApp, Chats *ChatApp.ChatApp, Messages *MessageApp.MessageApp, Users *UserApp.UserApp, JwtSvc *service.JWTService, TokenSvc *service.TokenService) *Hub {
 	return &Hub{
-		SessionApp: SessionApp,
-		Clients:    make(map[string]map[*Client]bool),
-		Chats:      Chats,
-		Messages:   Messages,
-		Users:      Users,
-		JwtSvc:     JwtSvc,
-		TokenSvc:   TokenSvc,
+		SessionApp:      SessionApp,
+		Clients:         make(map[string]map[*Client]bool),
+		ClientsByUserID: make(map[int]*Client),
+		Chats:           Chats,
+		Messages:        Messages,
+		Users:           Users,
+		JwtSvc:          JwtSvc,
+		TokenSvc:        TokenSvc,
 	}
 }
 
@@ -72,6 +73,26 @@ func (h *Hub) Broadcast(room string, message []byte) {
 	if clients, ok := h.Clients[room]; ok {
 		for client := range clients {
 			client.Conn.WriteMessage(websocket.TextMessage, message)
+		}
+	}
+}
+
+func (h *Hub) RegisterUser(userID int, client *Client) {
+	h.ClientsByUserID[userID] = client
+}
+
+func (h *Hub) UnregisterUser(userID int) {
+	if _, ok := h.ClientsByUserID[userID]; ok {
+		delete(h.ClientsByUserID, userID)
+	}
+}
+
+func (h *Hub) SendToUser(userID int, message []byte) {
+	if client, ok := h.ClientsByUserID[userID]; ok {
+		err := client.Conn.WriteMessage(websocket.TextMessage, message)
+		if err != nil {
+			h.UnregisterUser(userID)
+			client.Conn.Close()
 		}
 	}
 }

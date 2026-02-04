@@ -76,10 +76,12 @@ func main() {
 	keysApp := KeysApp.NewKeysApp(sessionApp, keysRepo, userApp, chatApp)
 	friendApp := FriendApp.NewFriendApp(sessionApp, friendRepo, userRepo, tokenSvc)
 
+	hub := types.NewHub(sessionApp, chatApp, messageApp, userApp, jwtSvc, tokenSvc)
+
 	authHandler := auth.NewAuthHandler(authApp, (*oauth2.GoogleAuthService)(googleService))
 	userHandler := user.NewUserHandler(userApp, friendApp)
 	chatHandler := chat.NewChatHandler(chatApp, userApp, messageApp)
-	messageHandler := message.NewMessageHandler(chatApp, userApp, messageApp)
+	messageHandler := message.NewMessageHandler(chatApp, userApp, messageApp, hub)
 	sessionHandler := session.NewSessionHandler(sessionApp)
 	keysHandler := keys.NewKeysHandler(keysApp, chatApp)
 	friendHandler := friend.NewFriendHandler(friendApp)
@@ -132,12 +134,12 @@ func main() {
 	fiberApp.Get("/chats/keys/private", keysHandler.GetUserChatsKeys)
 
 	fiberApp.Get("/message/:id", messageHandler.GetMessageById)
+	fiberApp.Post("/message/send", messageHandler.Send)
 
 	fiberApp.Get("/sessions", sessionHandler.GetUserSessions)
 	fiberApp.Get("/session", sessionHandler.GetSessionByToken)
 	fiberApp.Post("/session/:id/delete", sessionHandler.DeleteSession)
 
-	hub := types.NewHub(sessionApp, chatApp, messageApp, userApp, jwtSvc, tokenSvc)
 	fiberApp.Get("/ws", websocket.New(handler.HandleWS(hub)))
 
 	log.Fatal(fiberApp.Listen(fmt.Sprintf("%s:%d", cfg.Server.Host, cfg.Server.Port)))

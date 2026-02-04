@@ -19,7 +19,7 @@ func (h *ChatHandler) GetChatLastReadMessage(c *fiber.Ctx) error {
 	if err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
 			"error":   "invalid_params",
-			"message": "invalid request params",
+			"message": "invalid request params",          
 		})
 	}
 
