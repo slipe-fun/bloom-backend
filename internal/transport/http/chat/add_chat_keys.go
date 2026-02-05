@@ -1,6 +1,8 @@
 package chat
 
 import (
+	"encoding/json"
+
 	"github.com/gofiber/fiber/v2"
 	"github.com/slipe-fun/skid-backend/internal/domain"
 	"github.com/slipe-fun/skid-backend/internal/service"
@@ -15,6 +17,11 @@ func (h *ChatHandler) AddChatKeys(c *fiber.Ctx) error {
 		})
 	}
 
+	session, err := h.wsHub.SessionApp.GetSession(token)
+	if err != nil {
+		return err
+	}
+
 	chatId, err := c.ParamsInt("id")
 	if err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "invalid_params"})
@@ -25,9 +32,9 @@ func (h *ChatHandler) AddChatKeys(c *fiber.Ctx) error {
 	}
 
 	var req struct {
-		KyberPublicKey string `json:"kyberPublicKey"`
-		EcdhPublicKey  string `json:"ecdhPublicKey"`
-		EdPublicKey    string `json:"edPublicKey"`
+		KyberPublicKey string `json:"kyber_public_key"`
+		EcdhPublicKey  string `json:"ecdh_public_key"`
+		EdPublicKey    string `json:"ed_public_key"`
 	}
 
 	if err := c.BodyParser(&req); err != nil {
@@ -67,6 +74,33 @@ func (h *ChatHandler) AddChatKeys(c *fiber.Ctx) error {
 			"message": appErr.Msg,
 		})
 	}
+
+	outMsg := struct {
+		Type   string `json:"type"`
+		UserID int    `json:"user_id"`
+		ChatID int    `json:"chat_id"`
+		domain.SocketKeys
+	}{
+		Type:   "chat.keys_updated",
+		UserID: session.UserID,
+		ChatID: chat.ID,
+		SocketKeys: domain.SocketKeys{
+			ChatID:         chat.ID,
+			KyberPublicKey: req.KyberPublicKey,
+			EcdhPublicKey:  req.EcdhPublicKey,
+			EdPublicKey:    req.EdPublicKey,
+		},
+	}
+
+	b, err := json.Marshal(outMsg)
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"error":   "internal_error",
+			"message": "internal error",
+		})
+	}
+
+	h.wsHub.SendToUser(h.chatApp.GetOtherMember(chat, session.UserID).ID, b)
 
 	return c.JSON(fiber.Map{
 		"success": true,
