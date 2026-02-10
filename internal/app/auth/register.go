@@ -2,8 +2,9 @@ package auth
 
 import (
 	"github.com/slipe-fun/skid-backend/internal/domain"
-	"github.com/slipe-fun/skid-backend/internal/service"
-	"github.com/slipe-fun/skid-backend/internal/service/logger"
+	"github.com/slipe-fun/skid-backend/internal/generator"
+	"github.com/slipe-fun/skid-backend/internal/pkg/logger"
+	"github.com/slipe-fun/skid-backend/internal/pointer"
 )
 
 func (a *AuthApp) Register(email string) error {
@@ -14,8 +15,8 @@ func (a *AuthApp) Register(email string) error {
 	}
 
 	user, err := a.users.Create(&domain.User{
-		Email:       service.Strptr(email),
-		DisplayName: service.Strptr(service.GenerateNickname()),
+		Email:       pointer.Strptr(email),
+		DisplayName: pointer.Strptr(generator.GenerateNickname()),
 		Username:    "",
 	})
 

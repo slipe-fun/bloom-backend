@@ -2,7 +2,7 @@ package chat
 
 import (
 	"github.com/slipe-fun/skid-backend/internal/domain"
-	"github.com/slipe-fun/skid-backend/internal/service/logger"
+	"github.com/slipe-fun/skid-backend/internal/pkg/logger"
 )
 
 func (c *ChatApp) GetChatsByUserId(tokenStr string) ([]*domain.ChatWithLastMessage, error) {

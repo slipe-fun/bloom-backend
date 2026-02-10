@@ -6,7 +6,7 @@ import (
 	MessageApp "github.com/slipe-fun/skid-backend/internal/app/message"
 	SessionApp "github.com/slipe-fun/skid-backend/internal/app/session"
 	UserApp "github.com/slipe-fun/skid-backend/internal/app/user"
-	"github.com/slipe-fun/skid-backend/internal/service"
+	"github.com/slipe-fun/skid-backend/internal/auth"
 )
 
 type Client struct {
@@ -21,11 +21,11 @@ type Hub struct {
 	Chats           *ChatApp.ChatApp
 	Messages        *MessageApp.MessageApp
 	Users           *UserApp.UserApp
-	JwtSvc          *service.JWTService
-	TokenSvc        *service.TokenService
+	JwtSvc          *auth.JWTService
+	TokenSvc        *auth.TokenService
 }
 
-func NewHub(SessionApp *SessionApp.SessionApp, Chats *ChatApp.ChatApp, Messages *MessageApp.MessageApp, Users *UserApp.UserApp, JwtSvc *service.JWTService, TokenSvc *service.TokenService) *Hub {
+func NewHub(SessionApp *SessionApp.SessionApp, Chats *ChatApp.ChatApp, Messages *MessageApp.MessageApp, Users *UserApp.UserApp, JwtSvc *auth.JWTService, TokenSvc *auth.TokenService) *Hub {
 	return &Hub{
 		SessionApp:      SessionApp,
 		Clients:         make(map[string]map[*Client]bool),

@@ -2,7 +2,7 @@ package message
 
 import (
 	"github.com/slipe-fun/skid-backend/internal/domain"
-	"github.com/slipe-fun/skid-backend/internal/service/logger"
+	"github.com/slipe-fun/skid-backend/internal/pkg/logger"
 )
 
 func (m *MessageApp) GetMessageById(tokenStr string, id int) (*domain.MessageWithReply, error) {

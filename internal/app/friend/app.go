@@ -1,23 +1,23 @@
 package friend
 
 import (
-	SessionApp "github.com/slipe-fun/skid-backend/internal/app/session"
-	FriendRepo "github.com/slipe-fun/skid-backend/internal/repository/friend"
-	UserRepo "github.com/slipe-fun/skid-backend/internal/repository/user"
-	"github.com/slipe-fun/skid-backend/internal/service"
+	"github.com/slipe-fun/skid-backend/internal/app/session"
+	"github.com/slipe-fun/skid-backend/internal/auth"
+	"github.com/slipe-fun/skid-backend/internal/repository/friend"
+	"github.com/slipe-fun/skid-backend/internal/repository/user"
 )
 
 type FriendApp struct {
-	sessionApp *SessionApp.SessionApp
-	friends    *FriendRepo.FriendRepo
-	users      *UserRepo.UserRepo
-	tokenSvc   *service.TokenService
+	sessionApp *session.SessionApp
+	friends    *friend.FriendRepo
+	users      *user.UserRepo
+	tokenSvc   *auth.TokenService
 }
 
-func NewFriendApp(sessionApp *SessionApp.SessionApp,
-	friends *FriendRepo.FriendRepo,
-	users *UserRepo.UserRepo,
-	tokenSvc *service.TokenService) *FriendApp {
+func NewFriendApp(sessionApp *session.SessionApp,
+	friends *friend.FriendRepo,
+	users *user.UserRepo,
+	tokenSvc *auth.TokenService) *FriendApp {
 	return &FriendApp{
 		sessionApp: sessionApp,
 		friends:    friends,

@@ -5,8 +5,9 @@ import (
 	"errors"
 
 	"github.com/slipe-fun/skid-backend/internal/domain"
-	"github.com/slipe-fun/skid-backend/internal/service"
-	"github.com/slipe-fun/skid-backend/internal/service/logger"
+	"github.com/slipe-fun/skid-backend/internal/generator"
+	"github.com/slipe-fun/skid-backend/internal/pkg/logger"
+	"github.com/slipe-fun/skid-backend/internal/pointer"
 )
 
 func (a *AuthApp) ExchangeCode(code string) (string, *domain.User, error) {
@@ -35,9 +36,9 @@ func (a *AuthApp) ExchangeCode(code string) (string, *domain.User, error) {
 		}
 
 		user, err = a.users.Create(&domain.User{
-			Email:       service.Strptr(email),
-			Username:    service.GenerateUsername(name),
-			DisplayName: service.Strptr(service.GenerateNickname()),
+			Email:       pointer.Strptr(email),
+			Username:    generator.GenerateUsername(name),
+			DisplayName: pointer.Strptr(generator.GenerateNickname()),
 		})
 		if err != nil {
 			logger.LogError(err.Error(), "auth-app")

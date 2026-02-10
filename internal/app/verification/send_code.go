@@ -4,12 +4,13 @@ import (
 	"fmt"
 
 	"github.com/slipe-fun/skid-backend/internal/domain"
-	"github.com/slipe-fun/skid-backend/internal/service"
-	"github.com/slipe-fun/skid-backend/internal/service/logger"
+	"github.com/slipe-fun/skid-backend/internal/generator"
+	"github.com/slipe-fun/skid-backend/internal/mailer"
+	"github.com/slipe-fun/skid-backend/internal/pkg/logger"
 )
 
 func (v *VerificationApp) CreateAndSendCode(email string) error {
-	code, err := service.GenerateNumericCode(6)
+	code, err := generator.GenerateNumericCode(6)
 	if err != nil {
 		logger.LogError(err.Error(), "verification-app")
 		return domain.Failed("failed to generate numeric code")
@@ -24,7 +25,7 @@ func (v *VerificationApp) CreateAndSendCode(email string) error {
 		return domain.Failed("failed to create code")
 	}
 
-	sendEmailError := service.SendMail(
+	sendEmailError := mailer.SendMail(
 		fmt.Sprintf("Your code - %s", createdCode.Code),
 		fmt.Sprintf("Hello! Your Bloom verification code - %s", createdCode.Code),
 		email,

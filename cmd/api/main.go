@@ -16,7 +16,10 @@ import (
 	sessionapp "github.com/slipe-fun/skid-backend/internal/app/session"
 	userapp "github.com/slipe-fun/skid-backend/internal/app/user"
 	verificationapp "github.com/slipe-fun/skid-backend/internal/app/verification"
+	authservice "github.com/slipe-fun/skid-backend/internal/auth"
 	"github.com/slipe-fun/skid-backend/internal/config"
+	"github.com/slipe-fun/skid-backend/internal/oauth/google"
+	"github.com/slipe-fun/skid-backend/internal/pkg/logger"
 	"github.com/slipe-fun/skid-backend/internal/repository"
 	chatrepo "github.com/slipe-fun/skid-backend/internal/repository/chat"
 	friendrepo "github.com/slipe-fun/skid-backend/internal/repository/friend"
@@ -25,9 +28,6 @@ import (
 	sessionrepo "github.com/slipe-fun/skid-backend/internal/repository/session"
 	userrepo "github.com/slipe-fun/skid-backend/internal/repository/user"
 	verificationrepo "github.com/slipe-fun/skid-backend/internal/repository/verification"
-	"github.com/slipe-fun/skid-backend/internal/service"
-	"github.com/slipe-fun/skid-backend/internal/service/logger"
-	"github.com/slipe-fun/skid-backend/internal/service/oauth2"
 	authhandler "github.com/slipe-fun/skid-backend/internal/transport/http/auth"
 	chathandler "github.com/slipe-fun/skid-backend/internal/transport/http/chat"
 	friendhandler "github.com/slipe-fun/skid-backend/internal/transport/http/friend"
@@ -50,7 +50,7 @@ func main() {
 		panic(err)
 	}
 
-	googleService := oauth2.NewGoogleAuthService(
+	googleService := google.NewGoogleAuthService(
 		cfg.GoogleAuth.ClientId,
 		cfg.GoogleAuth.ClientSecret,
 		cfg.GoogleAuth.RedirectURL,
@@ -64,8 +64,8 @@ func main() {
 	keysRepo := keysrepo.NewKeysRepo(db, chatRepo)
 	friendRepo := friendrepo.NewFriendRepo(db)
 
-	jwtSvc := service.NewJWTService(cfg.JWT.Secret)
-	tokenSvc := service.NewTokenService(jwtSvc)
+	jwtSvc := authservice.NewJWTService(cfg.JWT.Secret)
+	tokenSvc := authservice.NewTokenService(jwtSvc)
 
 	sessionApp := sessionapp.NewSessionApp(sessionRepo, userRepo, jwtSvc, tokenSvc)
 	verificationApp := verificationapp.NewAuthApp(verificationRepo)
@@ -78,7 +78,7 @@ func main() {
 
 	hub := types.NewHub(sessionApp, chatApp, messageApp, userApp, jwtSvc, tokenSvc)
 
-	authHandler := authhandler.NewAuthHandler(authApp, (*oauth2.GoogleAuthService)(googleService))
+	authHandler := authhandler.NewAuthHandler(authApp, (*google.GoogleAuthService)(googleService))
 	userHandler := userhandler.NewUserHandler(userApp, friendApp)
 	chatHandler := chathandler.NewChatHandler(chatApp, userApp, messageApp, hub)
 	messageHandler := messagehandler.NewMessageHandler(chatApp, userApp, messageApp, hub)

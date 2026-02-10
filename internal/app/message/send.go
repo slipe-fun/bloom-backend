@@ -2,9 +2,10 @@ package message
 
 import (
 	"github.com/slipe-fun/skid-backend/internal/domain"
-	"github.com/slipe-fun/skid-backend/internal/service"
-	"github.com/slipe-fun/skid-backend/internal/service/crypto"
-	"github.com/slipe-fun/skid-backend/internal/service/logger"
+	"github.com/slipe-fun/skid-backend/internal/pkg/crypto"
+	"github.com/slipe-fun/skid-backend/internal/pkg/crypto/validations"
+	"github.com/slipe-fun/skid-backend/internal/pkg/logger"
+	"github.com/slipe-fun/skid-backend/internal/pointer"
 )
 
 func (m *MessageApp) Send(token, encryptionType string, message *domain.SocketMessage) (*domain.MessageWithReply, *domain.Chat, *domain.Session, error) {
@@ -45,7 +46,7 @@ func (m *MessageApp) Send(token, encryptionType string, message *domain.SocketMe
 			Ciphertext: message.Ciphertext,
 			Nonce:      message.Nonce,
 			ChatID:     message.ChatID,
-			ReplyTo:    service.Intptr(message.ReplyTo),
+			ReplyTo:    pointer.Intptr(message.ReplyTo),
 		})
 		if err != nil {
 			logger.LogError(err.Error(), "message-app")
@@ -66,7 +67,7 @@ func (m *MessageApp) Send(token, encryptionType string, message *domain.SocketMe
 			return nil, nil, nil, domain.Failed("invalid message signature")
 		}
 
-		if err := crypto.ValidateCEKFields(
+		if err := validations.ValidateCEKFields(
 			message.CEKWrap,
 			message.CEKWrapIV,
 			message.CEKWrapSalt,
@@ -82,18 +83,18 @@ func (m *MessageApp) Send(token, encryptionType string, message *domain.SocketMe
 			Ciphertext: message.Ciphertext,
 			Nonce:      message.Nonce,
 			ChatID:     message.ChatID,
-			ReplyTo:    service.Intptr(message.ReplyTo),
+			ReplyTo:    pointer.Intptr(message.ReplyTo),
 
-			EncapsulatedKey:       service.Strptr(message.EncapsulatedKey),
-			Signature:             service.Strptr(message.Signature),
-			SignedPayload:         service.Strptr(message.SignedPayload),
-			CEKWrap:               service.Strptr(message.CEKWrap),
-			CEKWrapIV:             service.Strptr(message.CEKWrapIV),
-			CEKWrapSalt:           service.Strptr(message.CEKWrapSalt),
-			EncapsulatedKeySender: service.Strptr(message.EncapsulatedKeySender),
-			CEKWrapSender:         service.Strptr(message.CEKWrapSender),
-			CEKWrapSenderIV:       service.Strptr(message.CEKWrapSenderIV),
-			CEKWrapSenderSalt:     service.Strptr(message.CEKWrapSenderSalt),
+			EncapsulatedKey:       pointer.Strptr(message.EncapsulatedKey),
+			Signature:             pointer.Strptr(message.Signature),
+			SignedPayload:         pointer.Strptr(message.SignedPayload),
+			CEKWrap:               pointer.Strptr(message.CEKWrap),
+			CEKWrapIV:             pointer.Strptr(message.CEKWrapIV),
+			CEKWrapSalt:           pointer.Strptr(message.CEKWrapSalt),
+			EncapsulatedKeySender: pointer.Strptr(message.EncapsulatedKeySender),
+			CEKWrapSender:         pointer.Strptr(message.CEKWrapSender),
+			CEKWrapSenderIV:       pointer.Strptr(message.CEKWrapSenderIV),
+			CEKWrapSenderSalt:     pointer.Strptr(message.CEKWrapSenderSalt),
 		})
 		if err != nil {
 			logger.LogError(err.Error(), "message-app")

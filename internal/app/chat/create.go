@@ -2,8 +2,8 @@ package chat
 
 import (
 	"github.com/slipe-fun/skid-backend/internal/domain"
-	"github.com/slipe-fun/skid-backend/internal/service/crypto"
-	"github.com/slipe-fun/skid-backend/internal/service/logger"
+	"github.com/slipe-fun/skid-backend/internal/pkg/crypto"
+	"github.com/slipe-fun/skid-backend/internal/pkg/logger"
 )
 
 func (c *ChatApp) CreateChat(tokenStr string, recipient int) (*domain.Chat, *domain.Session, error) {

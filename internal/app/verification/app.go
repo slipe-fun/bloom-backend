@@ -1,14 +1,14 @@
 package verification
 
 import (
-	VerificationRepo "github.com/slipe-fun/skid-backend/internal/repository/verification"
+	"github.com/slipe-fun/skid-backend/internal/repository/verification"
 )
 
 type VerificationApp struct {
-	verification *VerificationRepo.VerificationRepo
+	verification *verification.VerificationRepo
 }
 
-func NewAuthApp(verification *VerificationRepo.VerificationRepo) *VerificationApp {
+func NewAuthApp(verification *verification.VerificationRepo) *VerificationApp {
 	return &VerificationApp{
 		verification: verification,
 	}

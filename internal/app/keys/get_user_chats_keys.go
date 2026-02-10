@@ -2,7 +2,7 @@ package keys
 
 import (
 	"github.com/slipe-fun/skid-backend/internal/domain"
-	"github.com/slipe-fun/skid-backend/internal/service/logger"
+	"github.com/slipe-fun/skid-backend/internal/pkg/logger"
 )
 
 func (k *KeysApp) GetUserChatsKeys(tokenStr string) (*domain.EncryptedKeys, error) {

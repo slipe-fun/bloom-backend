@@ -1,18 +1,18 @@
 package chat
 
 import (
-	SessionApp "github.com/slipe-fun/skid-backend/internal/app/session"
-	ChatRepo "github.com/slipe-fun/skid-backend/internal/repository/chat"
-	"github.com/slipe-fun/skid-backend/internal/service"
+	"github.com/slipe-fun/skid-backend/internal/app/session"
+	"github.com/slipe-fun/skid-backend/internal/auth"
+	"github.com/slipe-fun/skid-backend/internal/repository/chat"
 )
 
 type ChatApp struct {
-	sessionApp *SessionApp.SessionApp
-	chats      *ChatRepo.ChatRepo
-	tokenSvc   *service.TokenService
+	sessionApp *session.SessionApp
+	chats      *chat.ChatRepo
+	tokenSvc   *auth.TokenService
 }
 
-func NewChatApp(sessionApp *SessionApp.SessionApp, chats *ChatRepo.ChatRepo, tokenSvc *service.TokenService) *ChatApp {
+func NewChatApp(sessionApp *session.SessionApp, chats *chat.ChatRepo, tokenSvc *auth.TokenService) *ChatApp {
 	return &ChatApp{
 		sessionApp: sessionApp,
 		chats:      chats,

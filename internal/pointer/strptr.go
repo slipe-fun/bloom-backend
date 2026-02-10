@@ -1,4 +1,4 @@
-package service
+package pointer
 
 func Strptr(s string) *string {
 	if s == "" {

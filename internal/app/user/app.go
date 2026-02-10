@@ -1,22 +1,22 @@
 package user
 
 import (
-	SessionApp "github.com/slipe-fun/skid-backend/internal/app/session"
-	UserRepo "github.com/slipe-fun/skid-backend/internal/repository/user"
-	"github.com/slipe-fun/skid-backend/internal/service"
+	"github.com/slipe-fun/skid-backend/internal/app/session"
+	"github.com/slipe-fun/skid-backend/internal/auth"
+	"github.com/slipe-fun/skid-backend/internal/repository/user"
 )
 
 type UserApp struct {
-	sessionApp *SessionApp.SessionApp
-	users      *UserRepo.UserRepo
-	jwtSvc     *service.JWTService
-	tokenSvc   *service.TokenService
+	sessionApp *session.SessionApp
+	users      *user.UserRepo
+	jwtSvc     *auth.JWTService
+	tokenSvc   *auth.TokenService
 }
 
-func NewUserApp(sessionApp *SessionApp.SessionApp,
-	users *UserRepo.UserRepo,
-	jwtSvc *service.JWTService,
-	tokenSvc *service.TokenService) *UserApp {
+func NewUserApp(sessionApp *session.SessionApp,
+	users *user.UserRepo,
+	jwtSvc *auth.JWTService,
+	tokenSvc *auth.TokenService) *UserApp {
 	return &UserApp{
 		sessionApp: sessionApp,
 		users:      users,

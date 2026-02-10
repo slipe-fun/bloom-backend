@@ -1,4 +1,4 @@
-package service
+package generator
 
 import (
 	"crypto/rand"

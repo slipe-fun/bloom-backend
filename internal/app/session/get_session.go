@@ -2,8 +2,8 @@ package session
 
 import (
 	"github.com/slipe-fun/skid-backend/internal/domain"
-	"github.com/slipe-fun/skid-backend/internal/service"
-	"github.com/slipe-fun/skid-backend/internal/service/logger"
+	"github.com/slipe-fun/skid-backend/internal/pkg/crypto"
+	"github.com/slipe-fun/skid-backend/internal/pkg/logger"
 )
 
 func (s *SessionApp) GetSession(token string) (*domain.Session, error) {
@@ -19,7 +19,7 @@ func (s *SessionApp) GetSession(token string) (*domain.Session, error) {
 		return nil, domain.Unauthorized("user not found")
 	}
 
-	session, err := s.session.GetByToken(service.HashSHA256(token))
+	session, err := s.session.GetByToken(crypto.HashSHA256(token))
 	if err != nil {
 		logger.LogError(err.Error(), "session-app")
 		return nil, domain.Unauthorized("session not found")

@@ -5,7 +5,7 @@ import (
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/slipe-fun/skid-backend/internal/domain"
-	"github.com/slipe-fun/skid-backend/internal/service"
+	"github.com/slipe-fun/skid-backend/internal/pkg/crypto/validations"
 	"github.com/slipe-fun/skid-backend/internal/transport/http"
 )
 
@@ -51,7 +51,7 @@ func (h *ChatHandler) AddChatKeys(c *fiber.Ctx) error {
 		})
 	}
 
-	keysCheck := service.CheckKeysLength(req.KyberPublicKey, req.EcdhPublicKey, req.EdPublicKey)
+	keysCheck := validations.CheckKeysLength(req.KyberPublicKey, req.EcdhPublicKey, req.EdPublicKey)
 	if keysCheck != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
 			"error":   keysCheck.Error(),

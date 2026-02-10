@@ -4,7 +4,7 @@ import (
 	"encoding/base64"
 
 	"github.com/slipe-fun/skid-backend/internal/domain"
-	"github.com/slipe-fun/skid-backend/internal/service/logger"
+	"github.com/slipe-fun/skid-backend/internal/pkg/logger"
 )
 
 func (k *KeysApp) CreateKeys(tokenStr string, keys *domain.EncryptedKeys) (*domain.EncryptedKeys, error) {

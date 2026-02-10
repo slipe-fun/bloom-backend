@@ -1,23 +1,23 @@
 package message
 
 import (
-	ChatApp "github.com/slipe-fun/skid-backend/internal/app/chat"
-	SessionApp "github.com/slipe-fun/skid-backend/internal/app/session"
-	MessageRepo "github.com/slipe-fun/skid-backend/internal/repository/message"
-	"github.com/slipe-fun/skid-backend/internal/service"
+	"github.com/slipe-fun/skid-backend/internal/app/chat"
+	"github.com/slipe-fun/skid-backend/internal/app/session"
+	"github.com/slipe-fun/skid-backend/internal/auth"
+	"github.com/slipe-fun/skid-backend/internal/repository/message"
 )
 
 type MessageApp struct {
-	sessionApp *SessionApp.SessionApp
-	messages   *MessageRepo.MessageRepo
-	chats      *ChatApp.ChatApp
-	tokenSvc   *service.TokenService
+	sessionApp *session.SessionApp
+	messages   *message.MessageRepo
+	chats      *chat.ChatApp
+	tokenSvc   *auth.TokenService
 }
 
-func NewMessageApp(sessionApp *SessionApp.SessionApp,
-	messages *MessageRepo.MessageRepo,
-	chats *ChatApp.ChatApp,
-	tokenSvc *service.TokenService) *MessageApp {
+func NewMessageApp(sessionApp *session.SessionApp,
+	messages *message.MessageRepo,
+	chats *chat.ChatApp,
+	tokenSvc *auth.TokenService) *MessageApp {
 	return &MessageApp{
 		sessionApp: sessionApp,
 		messages:   messages,

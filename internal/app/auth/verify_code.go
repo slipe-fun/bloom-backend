@@ -4,7 +4,7 @@ import (
 	"time"
 
 	"github.com/slipe-fun/skid-backend/internal/domain"
-	"github.com/slipe-fun/skid-backend/internal/service/logger"
+	"github.com/slipe-fun/skid-backend/internal/pkg/logger"
 )
 
 func (a *AuthApp) VerifyCode(email string, code string) (string, *domain.User, error) {

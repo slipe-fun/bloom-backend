@@ -4,7 +4,7 @@ import (
 	"time"
 
 	"github.com/slipe-fun/skid-backend/internal/domain"
-	"github.com/slipe-fun/skid-backend/internal/service/logger"
+	"github.com/slipe-fun/skid-backend/internal/pkg/logger"
 )
 
 func (m *MessageApp) UpdateMessagesSeenStatus(token string, chatID int, messageIDs []int) (*[]int, *time.Time, *domain.Chat, *domain.Session, error) {

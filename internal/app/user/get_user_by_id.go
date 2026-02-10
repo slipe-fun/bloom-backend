@@ -2,7 +2,7 @@ package user
 
 import (
 	"github.com/slipe-fun/skid-backend/internal/domain"
-	"github.com/slipe-fun/skid-backend/internal/service/logger"
+	"github.com/slipe-fun/skid-backend/internal/pkg/logger"
 )
 
 func (u *UserApp) GetUserById(id int) (*domain.User, error) {

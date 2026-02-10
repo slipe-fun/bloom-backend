@@ -2,7 +2,7 @@ package friend
 
 import (
 	"github.com/slipe-fun/skid-backend/internal/domain"
-	"github.com/slipe-fun/skid-backend/internal/service/logger"
+	"github.com/slipe-fun/skid-backend/internal/pkg/logger"
 )
 
 func (f *FriendApp) GetFriends(token, status string, limit, offset int) ([]domain.Friend, error) {

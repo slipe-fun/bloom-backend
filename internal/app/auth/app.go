@@ -1,29 +1,29 @@
 package auth
 
 import (
-	SessionApp "github.com/slipe-fun/skid-backend/internal/app/session"
-	VerificationApp "github.com/slipe-fun/skid-backend/internal/app/verification"
-	UserRepo "github.com/slipe-fun/skid-backend/internal/repository/user"
-	VerificationRepo "github.com/slipe-fun/skid-backend/internal/repository/verification"
-	"github.com/slipe-fun/skid-backend/internal/service"
-	"github.com/slipe-fun/skid-backend/internal/service/oauth2"
+	"github.com/slipe-fun/skid-backend/internal/app/session"
+	verificationapp "github.com/slipe-fun/skid-backend/internal/app/verification"
+	"github.com/slipe-fun/skid-backend/internal/auth"
+	"github.com/slipe-fun/skid-backend/internal/oauth/google"
+	"github.com/slipe-fun/skid-backend/internal/repository/user"
+	verificationrepo "github.com/slipe-fun/skid-backend/internal/repository/verification"
 )
 
 type AuthApp struct {
-	sessionApp *SessionApp.SessionApp
-	users      *UserRepo.UserRepo
-	codesRepo  *VerificationRepo.VerificationRepo
-	codesApp   *VerificationApp.VerificationApp
-	jwtSvc     *service.JWTService
-	google     *oauth2.GoogleAuthService
+	sessionApp *session.SessionApp
+	users      *user.UserRepo
+	codesRepo  *verificationrepo.VerificationRepo
+	codesApp   *verificationapp.VerificationApp
+	jwtSvc     *auth.JWTService
+	google     *google.GoogleAuthService
 }
 
-func NewAuthApp(sessionApp *SessionApp.SessionApp,
-	users *UserRepo.UserRepo,
-	codesRepo *VerificationRepo.VerificationRepo,
-	codesApp *VerificationApp.VerificationApp,
-	jwt *service.JWTService,
-	google *oauth2.GoogleAuthService) *AuthApp {
+func NewAuthApp(sessionApp *session.SessionApp,
+	users *user.UserRepo,
+	codesRepo *verificationrepo.VerificationRepo,
+	codesApp *verificationapp.VerificationApp,
+	jwt *auth.JWTService,
+	google *google.GoogleAuthService) *AuthApp {
 	return &AuthApp{
 		sessionApp: sessionApp,
 		users:      users,

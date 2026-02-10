@@ -1,23 +1,23 @@
 package keys
 
 import (
-	ChatApp "github.com/slipe-fun/skid-backend/internal/app/chat"
-	SessionApp "github.com/slipe-fun/skid-backend/internal/app/session"
-	UserApp "github.com/slipe-fun/skid-backend/internal/app/user"
-	KeysRepo "github.com/slipe-fun/skid-backend/internal/repository/keys"
+	"github.com/slipe-fun/skid-backend/internal/app/chat"
+	"github.com/slipe-fun/skid-backend/internal/app/session"
+	"github.com/slipe-fun/skid-backend/internal/app/user"
+	"github.com/slipe-fun/skid-backend/internal/repository/keys"
 )
 
 type KeysApp struct {
-	sessionApp *SessionApp.SessionApp
-	keys       *KeysRepo.KeysRepo
-	users      *UserApp.UserApp
-	chats      *ChatApp.ChatApp
+	sessionApp *session.SessionApp
+	keys       *keys.KeysRepo
+	users      *user.UserApp
+	chats      *chat.ChatApp
 }
 
-func NewKeysApp(sessionApp *SessionApp.SessionApp,
-	keys *KeysRepo.KeysRepo,
-	users *UserApp.UserApp,
-	chats *ChatApp.ChatApp) *KeysApp {
+func NewKeysApp(sessionApp *session.SessionApp,
+	keys *keys.KeysRepo,
+	users *user.UserApp,
+	chats *chat.ChatApp) *KeysApp {
 	return &KeysApp{
 		sessionApp: sessionApp,
 		keys:       keys,

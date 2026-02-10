@@ -2,8 +2,8 @@ package session
 
 import (
 	"github.com/slipe-fun/skid-backend/internal/domain"
-	"github.com/slipe-fun/skid-backend/internal/service"
-	"github.com/slipe-fun/skid-backend/internal/service/logger"
+	"github.com/slipe-fun/skid-backend/internal/pkg/crypto"
+	"github.com/slipe-fun/skid-backend/internal/pkg/logger"
 )
 
 func (s *SessionApp) CreateSession(user_id int) (string, error) {
@@ -20,7 +20,7 @@ func (s *SessionApp) CreateSession(user_id int) (string, error) {
 	}
 
 	_, err = s.session.Create(&domain.Session{
-		Token:  service.HashSHA256(token),
+		Token:  crypto.HashSHA256(token),
 		UserID: user.ID,
 	})
 	if err != nil {
