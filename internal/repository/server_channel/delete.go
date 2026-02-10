@@ -1,4 +1,4 @@
-package ServerChannelRepo
+package server
 
 func (r *ServerChannelRepo) Delete(id int) error {
 	query := `DELETE FROM server_channels WHERE id = $1`

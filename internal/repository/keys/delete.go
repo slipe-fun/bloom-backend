@@ -1,4 +1,4 @@
-package KeysRepo
+package keys
 
 func (k *KeysRepo) Delete(user_id int) error {
 	query := `DELETE FROM keys WHERE user_id = $1`

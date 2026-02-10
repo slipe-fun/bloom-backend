@@ -1,4 +1,4 @@
-package ChatRepo
+package chat
 
 import (
 	"github.com/jmoiron/sqlx"

@@ -1,4 +1,4 @@
-package ServerMemberRepo
+package server
 
 import "github.com/jmoiron/sqlx"
 

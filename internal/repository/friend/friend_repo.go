@@ -1,4 +1,4 @@
-package FriendRepo
+package friend
 
 import "github.com/jmoiron/sqlx"
 

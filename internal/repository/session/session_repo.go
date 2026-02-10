@@ -1,4 +1,4 @@
-package SessionRepo
+package session
 
 import (
 	"github.com/jmoiron/sqlx"

@@ -1,4 +1,4 @@
-package FriendRepo
+package friend
 
 func (r *FriendRepo) EditStatus(userID, friendID int, status string) error {
 	query := `

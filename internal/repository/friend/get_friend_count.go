@@ -1,4 +1,4 @@
-package FriendRepo
+package friend
 
 func (r *FriendRepo) GetFriendCount(userID int) (int, error) {
 	query := `

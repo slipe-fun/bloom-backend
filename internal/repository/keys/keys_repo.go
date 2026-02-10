@@ -1,4 +1,4 @@
-package KeysRepo
+package keys
 
 import (
 	"github.com/jmoiron/sqlx"

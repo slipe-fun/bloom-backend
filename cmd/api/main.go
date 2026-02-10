@@ -18,24 +18,24 @@ import (
 	verificationapp "github.com/slipe-fun/skid-backend/internal/app/verification"
 	"github.com/slipe-fun/skid-backend/internal/config"
 	"github.com/slipe-fun/skid-backend/internal/repository"
-	ChatRepo "github.com/slipe-fun/skid-backend/internal/repository/chat"
-	FriendRepo "github.com/slipe-fun/skid-backend/internal/repository/friend"
-	KeysRepo "github.com/slipe-fun/skid-backend/internal/repository/keys"
-	MessageRepo "github.com/slipe-fun/skid-backend/internal/repository/message"
-	SessionRepo "github.com/slipe-fun/skid-backend/internal/repository/session"
-	UserRepo "github.com/slipe-fun/skid-backend/internal/repository/user"
-	VerificationRepo "github.com/slipe-fun/skid-backend/internal/repository/verification"
+	chatrepo "github.com/slipe-fun/skid-backend/internal/repository/chat"
+	friendrepo "github.com/slipe-fun/skid-backend/internal/repository/friend"
+	keysrepo "github.com/slipe-fun/skid-backend/internal/repository/keys"
+	messagerepo "github.com/slipe-fun/skid-backend/internal/repository/message"
+	sessionrepo "github.com/slipe-fun/skid-backend/internal/repository/session"
+	userrepo "github.com/slipe-fun/skid-backend/internal/repository/user"
+	verificationrepo "github.com/slipe-fun/skid-backend/internal/repository/verification"
 	"github.com/slipe-fun/skid-backend/internal/service"
 	"github.com/slipe-fun/skid-backend/internal/service/logger"
 	"github.com/slipe-fun/skid-backend/internal/service/oauth2"
-	"github.com/slipe-fun/skid-backend/internal/transport/http/auth"
-	"github.com/slipe-fun/skid-backend/internal/transport/http/chat"
-	"github.com/slipe-fun/skid-backend/internal/transport/http/friend"
-	"github.com/slipe-fun/skid-backend/internal/transport/http/keys"
-	"github.com/slipe-fun/skid-backend/internal/transport/http/message"
+	authhandler "github.com/slipe-fun/skid-backend/internal/transport/http/auth"
+	chathandler "github.com/slipe-fun/skid-backend/internal/transport/http/chat"
+	friendhandler "github.com/slipe-fun/skid-backend/internal/transport/http/friend"
+	keyshandler "github.com/slipe-fun/skid-backend/internal/transport/http/keys"
+	messagehandler "github.com/slipe-fun/skid-backend/internal/transport/http/message"
 	"github.com/slipe-fun/skid-backend/internal/transport/http/middleware"
-	"github.com/slipe-fun/skid-backend/internal/transport/http/session"
-	"github.com/slipe-fun/skid-backend/internal/transport/http/user"
+	sessionhandler "github.com/slipe-fun/skid-backend/internal/transport/http/session"
+	userhandler "github.com/slipe-fun/skid-backend/internal/transport/http/user"
 	"github.com/slipe-fun/skid-backend/internal/transport/ws/handler"
 	"github.com/slipe-fun/skid-backend/internal/transport/ws/types"
 )
@@ -56,13 +56,13 @@ func main() {
 		cfg.GoogleAuth.RedirectURL,
 	)
 
-	verificationRepo := VerificationRepo.NewVerificationRepo(db)
-	userRepo := UserRepo.NewUserRepo(db, verificationRepo)
-	chatRepo := ChatRepo.NewChatRepo(db, userRepo)
-	messageRepo := MessageRepo.NewMessageRepo(db)
-	sessionRepo := SessionRepo.NewSessionRepo(db, userRepo)
-	keysRepo := KeysRepo.NewKeysRepo(db, chatRepo)
-	friendRepo := FriendRepo.NewFriendRepo(db)
+	verificationRepo := verificationrepo.NewVerificationRepo(db)
+	userRepo := userrepo.NewUserRepo(db, verificationRepo)
+	chatRepo := chatrepo.NewChatRepo(db, userRepo)
+	messageRepo := messagerepo.NewMessageRepo(db)
+	sessionRepo := sessionrepo.NewSessionRepo(db, userRepo)
+	keysRepo := keysrepo.NewKeysRepo(db, chatRepo)
+	friendRepo := friendrepo.NewFriendRepo(db)
 
 	jwtSvc := service.NewJWTService(cfg.JWT.Secret)
 	tokenSvc := service.NewTokenService(jwtSvc)
@@ -78,13 +78,13 @@ func main() {
 
 	hub := types.NewHub(sessionApp, chatApp, messageApp, userApp, jwtSvc, tokenSvc)
 
-	authHandler := auth.NewAuthHandler(authApp, (*oauth2.GoogleAuthService)(googleService))
-	userHandler := user.NewUserHandler(userApp, friendApp)
-	chatHandler := chat.NewChatHandler(chatApp, userApp, messageApp, hub)
-	messageHandler := message.NewMessageHandler(chatApp, userApp, messageApp, hub)
-	sessionHandler := session.NewSessionHandler(sessionApp)
-	keysHandler := keys.NewKeysHandler(keysApp, chatApp)
-	friendHandler := friend.NewFriendHandler(friendApp)
+	authHandler := authhandler.NewAuthHandler(authApp, (*oauth2.GoogleAuthService)(googleService))
+	userHandler := userhandler.NewUserHandler(userApp, friendApp)
+	chatHandler := chathandler.NewChatHandler(chatApp, userApp, messageApp, hub)
+	messageHandler := messagehandler.NewMessageHandler(chatApp, userApp, messageApp, hub)
+	sessionHandler := sessionhandler.NewSessionHandler(sessionApp)
+	keysHandler := keyshandler.NewKeysHandler(keysApp, chatApp)
+	friendHandler := friendhandler.NewFriendHandler(friendApp)
 
 	fiberApp := fiber.New()
 

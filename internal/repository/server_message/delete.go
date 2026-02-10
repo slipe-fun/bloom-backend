@@ -1,4 +1,4 @@
-package ServerMessageRepo
+package server
 
 func (r *ServerMessageRepo) Delete(id int) error {
 	query := `DELETE FROM server_messages WHERE id = $1`

@@ -1,4 +1,4 @@
-package SessionRepo
+package session
 
 func (r *SessionRepo) Delete(id int) error {
 	query := `DELETE FROM sessions WHERE id = $1`

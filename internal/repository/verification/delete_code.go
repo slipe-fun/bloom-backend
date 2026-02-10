@@ -1,4 +1,4 @@
-package VerificationRepo
+package verification
 
 import (
 	"errors"

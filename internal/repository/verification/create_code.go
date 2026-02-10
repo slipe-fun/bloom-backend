@@ -1,4 +1,4 @@
-package VerificationRepo
+package verification
 
 import "github.com/slipe-fun/skid-backend/internal/domain"
 

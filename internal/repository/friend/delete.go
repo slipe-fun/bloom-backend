@@ -1,4 +1,4 @@
-package FriendRepo
+package friend
 
 func (r *FriendRepo) Delete(userID int, friendID int) error {
 	query := `

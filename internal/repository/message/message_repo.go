@@ -1,4 +1,4 @@
-package MessageRepo
+package message
 
 import "github.com/jmoiron/sqlx"
 

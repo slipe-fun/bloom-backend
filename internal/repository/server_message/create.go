@@ -1,4 +1,4 @@
-package ServerMessageRepo
+package server
 
 import "github.com/slipe-fun/skid-backend/internal/domain"
 

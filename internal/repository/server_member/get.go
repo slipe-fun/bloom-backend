@@ -1,4 +1,4 @@
-package ServerMemberRepo
+package server
 
 import "github.com/slipe-fun/skid-backend/internal/domain"
 

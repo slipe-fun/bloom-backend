@@ -1,4 +1,4 @@
-package ServerChannelRepo
+package server
 
 import "github.com/jmoiron/sqlx"
 
