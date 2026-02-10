@@ -69,12 +69,12 @@ func main() {
 
 	sessionApp := sessionapp.NewSessionApp(sessionRepo, userRepo, jwtSvc, tokenSvc)
 	verificationApp := verificationapp.NewAuthApp(verificationRepo)
-	authApp := authapp.NewAuthApp(sessionApp, userRepo, verificationRepo, verificationApp, jwtSvc, googleService)
-	userApp := userapp.NewUserApp(sessionApp, userRepo, jwtSvc, tokenSvc)
-	chatApp := chatapp.NewChatApp(sessionApp, chatRepo, tokenSvc)
-	messageApp := messageapp.NewMessageApp(sessionApp, messageRepo, chatApp, tokenSvc)
-	keysApp := keysapp.NewKeysApp(sessionApp, keysRepo, userApp, chatApp)
-	friendApp := friendapp.NewFriendApp(sessionApp, friendRepo, userRepo, tokenSvc)
+	authApp := authapp.NewAuthApp(sessionApp, userRepo, verificationRepo, verificationApp, googleService)
+	userApp := userapp.NewUserApp(sessionApp, userRepo)
+	chatApp := chatapp.NewChatApp(sessionApp, chatRepo)
+	messageApp := messageapp.NewMessageApp(sessionApp, messageRepo, chatApp)
+	keysApp := keysapp.NewKeysApp(sessionApp, keysRepo)
+	friendApp := friendapp.NewFriendApp(sessionApp, friendRepo, userRepo)
 
 	hub := types.NewHub(sessionApp, chatApp, messageApp, userApp, jwtSvc, tokenSvc)
 
