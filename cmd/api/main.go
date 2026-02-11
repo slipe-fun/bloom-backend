@@ -108,6 +108,9 @@ func main() {
 		}()
 	}
 
+	authMiddleware := middleware.NewAuthMiddleware(sessionApp)
+	_ = authMiddleware
+
 	fiberApp.Post("/auth/verify-code", authHandler.VerifyCode)
 	fiberApp.Post("/auth/request-code", authHandler.RequestCode)
 	fiberApp.Get("/oauth2/google/redirect", authHandler.GoogleRedirect)
