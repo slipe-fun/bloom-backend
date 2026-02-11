@@ -7,9 +7,9 @@ type UserApp interface {
 	GetUserByID(id int) (*domain.User, error)
 	SearchUsersByUsername(username string, limit, offset int) ([]*domain.User, error)
 	IsUserWithEmailExists(email string) (bool, error)
-	EditUser(token string, editedUser *domain.User) (*domain.User, error)
+	EditUser(user_id int, editedUser *domain.User) (*domain.User, error)
 }
 
 type FriendApp interface {
-	GetFriendCount(token string) (int, error)
+	GetFriendCount(user_id int) (int, error)
 }

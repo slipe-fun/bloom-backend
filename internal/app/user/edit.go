@@ -9,19 +9,10 @@ import (
 	"github.com/slipe-fun/skid-backend/internal/pkg/logger"
 )
 
-func (u *UserApp) EditUser(token string, editedUser *domain.User) (*domain.User, error) {
-	session, err := u.sessionApp.GetSession(token)
-	if err != nil {
-		return nil, err
-	}
-
-	user, err := u.users.GetByID(editedUser.ID)
+func (u *UserApp) EditUser(user_id int, editedUser *domain.User) (*domain.User, error) {
+	user, err := u.users.GetByID(user_id)
 	if err != nil {
 		logger.LogError(err.Error(), "user-app")
-		return nil, domain.Failed("failed to get user")
-	}
-
-	if session.UserID != user.ID {
 		return nil, domain.Failed("failed to get user")
 	}
 

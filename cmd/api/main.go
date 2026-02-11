@@ -109,7 +109,6 @@ func main() {
 	}
 
 	authMiddleware := middleware.NewAuthMiddleware(sessionApp)
-	_ = authMiddleware
 
 	fiberApp.Post("/auth/verify-code", authHandler.VerifyCode)
 	fiberApp.Post("/auth/request-code", authHandler.RequestCode)
@@ -117,8 +116,8 @@ func main() {
 	fiberApp.Get("/oauth2/google/exchange-code", authHandler.ExchangeCode)
 	fiberApp.Post("/auth/register", authHandler.Register)
 
-	fiberApp.Get("/user/me", userHandler.GetUser)
-	fiberApp.Post("/user/edit", userHandler.EditUser)
+	fiberApp.Get("/user/me", authMiddleware.Handle(), userHandler.GetUser)
+	fiberApp.Post("/user/edit", authMiddleware.Handle(), userHandler.EditUser)
 	fiberApp.Get("/user/search", userHandler.SearchByUsername)
 	fiberApp.Get("/user/exists", userHandler.IsUserWithEmailExists)
 	fiberApp.Get("/user/:id", userHandler.GetUserByID)
