@@ -8,6 +8,7 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/websocket/v2"
 
+	"github.com/gofiber/fiber/v2/middleware/recover"
 	authapp "github.com/slipe-fun/skid-backend/internal/app/auth"
 	chatapp "github.com/slipe-fun/skid-backend/internal/app/chat"
 	friendapp "github.com/slipe-fun/skid-backend/internal/app/friend"
@@ -87,6 +88,8 @@ func main() {
 	friendHandler := friendhandler.NewFriendHandler(friendApp, hub)
 
 	fiberApp := fiber.New()
+
+	fiberApp.Use(recover.New())
 
 	if cfg.RateLimit.Enabled {
 		rateLimiter := middleware.NewAdaptiveRateLimiter(cfg.RateLimitWindow())

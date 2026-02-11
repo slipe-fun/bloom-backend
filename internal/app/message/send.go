@@ -8,7 +8,7 @@ import (
 	"github.com/slipe-fun/skid-backend/internal/pointer"
 )
 
-func (m *MessageApp) Send(token, encryptionType string, message *domain.SocketMessage) (*domain.MessageWithReply, *domain.Chat, *domain.Session, error) {
+func (m *MessageApp) Send(token string, encryptionType domain.EncryptionType, message *domain.SocketMessage) (*domain.MessageWithReply, *domain.Chat, *domain.Session, error) {
 	session, err := m.sessionApp.GetSession(token)
 	if err != nil {
 		return nil, nil, nil, err
@@ -41,7 +41,7 @@ func (m *MessageApp) Send(token, encryptionType string, message *domain.SocketMe
 
 	var createdMessage *domain.MessageWithReply
 	switch encryptionType {
-	case "server":
+	case domain.ServerEncryption:
 		message, err := m.messages.Create(&domain.Message{
 			Ciphertext: message.Ciphertext,
 			Nonce:      message.Nonce,
@@ -57,7 +57,7 @@ func (m *MessageApp) Send(token, encryptionType string, message *domain.SocketMe
 			Message:        *message,
 			ReplyToMessage: replyTo,
 		}
-	case "client":
+	case domain.ClientEncryption:
 		if err := crypto.VerifySignature(
 			member.EdPublicKey,
 			message.SignedPayload,

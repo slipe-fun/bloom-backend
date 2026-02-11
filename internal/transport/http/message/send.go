@@ -51,14 +51,15 @@ func (h *MessageHandler) Send(c *fiber.Ctx) error {
 		})
 	}
 
-	if req.Type != "server" && req.Type != "client" {
+	encryptionType := domain.EncryptionType(req.Type)
+	if !encryptionType.IsValid() {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
 			"error":   "invalid_request",
 			"message": "invalid request",
 		})
 	}
 
-	if req.Type == "client" {
+	if encryptionType == domain.ClientEncryption {
 		if req.EncapsulatedKey == "" || req.Signature == "" || req.SignedPayload == "" ||
 			req.CEKWrap == "" || req.CEKWrapIV == "" || req.CEKWrapSalt == "" ||
 			req.EncapsulatedKeySender == "" || req.CEKWrapSender == "" || req.CEKWrapSenderIV == "" || req.CEKWrapSenderSalt == "" {
@@ -69,7 +70,7 @@ func (h *MessageHandler) Send(c *fiber.Ctx) error {
 		}
 	}
 
-	message, chat, session, err := h.messageApp.Send(token, req.Type, &domain.SocketMessage{
+	message, chat, session, err := h.messageApp.Send(token, encryptionType, &domain.SocketMessage{
 		Ciphertext:            req.Ciphertext,
 		Nonce:                 req.Nonce,
 		ChatID:                req.ChatID,
