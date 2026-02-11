@@ -11,7 +11,7 @@ func (m *MessageApp) GetChatLastReadMessage(token string, chatID int) (*domain.M
 		return nil, err
 	}
 
-	chat, err := m.chats.GetChatByID(token, chatID)
+	chat, err := m.chats.GetChatByID(session.UserID, chatID)
 	if err != nil {
 		logger.LogError(err.Error(), "chat-app")
 		return nil, domain.NotFound("chat not found")

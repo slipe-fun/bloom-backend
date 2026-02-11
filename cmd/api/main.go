@@ -138,9 +138,9 @@ func main() {
 	fiberApp.Post("/chats/keys/private", keysHandler.SaveChatKeys)
 	fiberApp.Get("/chats/keys/private", keysHandler.GetUserChatsKeys)
 
-	fiberApp.Get("/message/:id", messageHandler.GetMessageByID)
-	fiberApp.Post("/message/send", messageHandler.Send)
-	fiberApp.Post("/message/seen", messageHandler.Seen)
+	fiberApp.Get("/message/:id", authMiddleware.Handle(), messageHandler.GetMessageByID)
+	fiberApp.Post("/message/send", authMiddleware.Handle(), messageHandler.Send)
+	fiberApp.Post("/message/seen", authMiddleware.Handle(), messageHandler.Seen)
 
 	fiberApp.Get("/sessions", authMiddleware.Handle(), sessionHandler.GetUserSessions)
 	fiberApp.Get("/session", authMiddleware.Handle(), sessionHandler.GetSessionByToken)

@@ -4,11 +4,11 @@ import "github.com/slipe-fun/skid-backend/internal/domain"
 
 type ChatApp interface {
 	CreateChat(token string, recipient int) (*domain.Chat, *domain.Session, error)
-	GetChatByID(token string, id int) (*domain.Chat, error)
+	GetChatByID(user_id int, id int) (*domain.Chat, error)
 	GetChatsByUserID(token string) ([]*domain.ChatWithLastMessage, error)
 	GetChatWithUsers(token string, recipient int) (*domain.Chat, error)
 	GetOtherMember(chat *domain.Chat, memberID int) *domain.Member
-	AddKeys(token string, chat *domain.Chat, kyberPublicKey string, ecdhPublicKey string, edPublicKey string) error
+	AddKeys(user_id int, chat *domain.Chat, kyberPublicKey string, ecdhPublicKey string, edPublicKey string) error
 }
 
 type MessageApp interface {

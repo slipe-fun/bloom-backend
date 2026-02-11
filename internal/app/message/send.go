@@ -8,33 +8,28 @@ import (
 	"github.com/slipe-fun/skid-backend/internal/pointer"
 )
 
-func (m *MessageApp) Send(token string, encryptionType domain.EncryptionType, message *domain.SocketMessage) (*domain.MessageWithReply, *domain.Chat, *domain.Session, error) {
-	session, err := m.sessionApp.GetSession(token)
+func (m *MessageApp) Send(user_id int, encryptionType domain.EncryptionType, message *domain.SocketMessage) (*domain.MessageWithReply, *domain.Chat, error) {
+	chat, err := m.chats.GetChatByID(user_id, message.ChatID)
 	if err != nil {
-		return nil, nil, nil, err
-	}
-
-	chat, err := m.chats.GetChatByID(token, message.ChatID)
-	if err != nil {
-		return nil, nil, nil, domain.NotFound("chat not found")
+		return nil, nil, domain.NotFound("chat not found")
 	}
 
 	var member *domain.Member
 	for i, m := range chat.Members {
-		if m.ID == session.UserID {
+		if m.ID == user_id {
 			member = &chat.Members[i]
 			break
 		}
 	}
 	if member == nil {
-		return nil, nil, nil, domain.NotFound("chat not found")
+		return nil, nil, domain.NotFound("chat not found")
 	}
 
 	var replyTo *domain.Message
 	if message.ReplyTo != 0 {
 		reply_to_message, err := m.messages.GetByID(message.ReplyTo)
 		if err != nil || reply_to_message == nil || reply_to_message.ChatID != chat.ID {
-			return nil, nil, nil, domain.NotFound("reply to message not found")
+			return nil, nil, domain.NotFound("reply to message not found")
 		}
 		replyTo = reply_to_message
 	}
@@ -50,7 +45,7 @@ func (m *MessageApp) Send(token string, encryptionType domain.EncryptionType, me
 		})
 		if err != nil {
 			logger.LogError(err.Error(), "message-app")
-			return nil, nil, nil, domain.Failed("failed to create message")
+			return nil, nil, domain.Failed("failed to create message")
 		}
 
 		createdMessage = &domain.MessageWithReply{
@@ -64,7 +59,7 @@ func (m *MessageApp) Send(token string, encryptionType domain.EncryptionType, me
 			message.Signature,
 		); err != nil {
 			logger.LogError("invalid message signature", "message-app")
-			return nil, nil, nil, domain.Failed("invalid message signature")
+			return nil, nil, domain.Failed("invalid message signature")
 		}
 
 		if err := validations.ValidateCEKFields(
@@ -76,7 +71,7 @@ func (m *MessageApp) Send(token string, encryptionType domain.EncryptionType, me
 			message.CEKWrapSenderIV,
 			message.CEKWrapSenderSalt,
 		); err != nil {
-			return nil, nil, nil, domain.Failed("invalid CEK fields")
+			return nil, nil, domain.Failed("invalid CEK fields")
 		}
 
 		message, err := m.messages.Create(&domain.Message{
@@ -98,7 +93,7 @@ func (m *MessageApp) Send(token string, encryptionType domain.EncryptionType, me
 		})
 		if err != nil {
 			logger.LogError(err.Error(), "message-app")
-			return nil, nil, nil, domain.Failed("failed to create message")
+			return nil, nil, domain.Failed("failed to create message")
 		}
 
 		createdMessage = &domain.MessageWithReply{
@@ -106,8 +101,8 @@ func (m *MessageApp) Send(token string, encryptionType domain.EncryptionType, me
 			ReplyToMessage: replyTo,
 		}
 	default:
-		return nil, nil, nil, domain.Failed("unsupported encryption type")
+		return nil, nil, domain.Failed("unsupported encryption type")
 	}
 
-	return createdMessage, chat, session, nil
+	return createdMessage, chat, nil
 }

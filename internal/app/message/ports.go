@@ -21,6 +21,6 @@ type MessageRepo interface {
 }
 
 type ChatApp interface {
-	GetChatByID(token string, id int) (*domain.Chat, error)
+	GetChatByID(user_id int, id int) (*domain.Chat, error)
 	HasMember(chat *domain.Chat, memberID int) bool
 }

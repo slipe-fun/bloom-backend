@@ -5,14 +5,9 @@ import (
 	"github.com/slipe-fun/skid-backend/internal/pkg/logger"
 )
 
-func (c *ChatApp) AddKeys(token string, chat *domain.Chat, kyberPublicKey string, ecdhPublicKey string, edPublicKey string) error {
-	session, err := c.sessionApp.GetSession(token)
-	if err != nil {
-		return err
-	}
-
+func (c *ChatApp) AddKeys(user_id int, chat *domain.Chat, kyberPublicKey string, ecdhPublicKey string, edPublicKey string) error {
 	for i := range chat.Members {
-		if chat.Members[i].ID == session.UserID {
+		if chat.Members[i].ID == user_id {
 			chat.Members[i].KyberPublicKey = kyberPublicKey
 			chat.Members[i].EcdhPublicKey = ecdhPublicKey
 			chat.Members[i].EdPublicKey = edPublicKey

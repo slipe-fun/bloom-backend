@@ -6,20 +6,13 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/slipe-fun/skid-backend/internal/domain"
 	"github.com/slipe-fun/skid-backend/internal/pkg/crypto/validations"
-	"github.com/slipe-fun/skid-backend/internal/transport/http"
 )
 
 func (h *ChatHandler) AddChatKeys(c *fiber.Ctx) error {
-	token, err := http.ExtractBearerToken(c)
-	if err != nil {
-		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
-			"error": "invalid_token",
-		})
-	}
-
-	session, err := h.wsHub.SessionApp.GetSession(token)
-	if err != nil {
-		return err
+	sessionVal := c.Locals("session")
+	session, ok := sessionVal.(*domain.Session)
+	if !ok {
+		return fiber.ErrUnauthorized
 	}
 
 	chatID, err := c.ParamsInt("id")
@@ -59,7 +52,7 @@ func (h *ChatHandler) AddChatKeys(c *fiber.Ctx) error {
 		})
 	}
 
-	chat, err := h.chatApp.GetChatByID(token, chatID)
+	chat, err := h.chatApp.GetChatByID(session.UserID, chatID)
 	if appErr, ok := err.(*domain.AppError); ok {
 		return c.Status(appErr.Status).JSON(fiber.Map{
 			"error":   appErr.Code,
@@ -67,7 +60,7 @@ func (h *ChatHandler) AddChatKeys(c *fiber.Ctx) error {
 		})
 	}
 
-	updateChatErr := h.chatApp.AddKeys(token, chat, req.KyberPublicKey, req.EcdhPublicKey, req.EdPublicKey)
+	updateChatErr := h.chatApp.AddKeys(session.UserID, chat, req.KyberPublicKey, req.EcdhPublicKey, req.EdPublicKey)
 	if appErr, ok := updateChatErr.(*domain.AppError); ok {
 		return c.Status(appErr.Status).JSON(fiber.Map{
 			"error":   appErr.Code,

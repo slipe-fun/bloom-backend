@@ -6,12 +6,12 @@ import (
 )
 
 func (m *MessageApp) GetChatMessagesAfter(token string, chatID, afterID, count int) ([]*domain.MessageWithReply, error) {
-	_, err := m.sessionApp.GetSession(token)
+	session, err := m.sessionApp.GetSession(token)
 	if err != nil {
 		return nil, err
 	}
 
-	chat, err := m.chats.GetChatByID(token, chatID)
+	chat, err := m.chats.GetChatByID(session.UserID, chatID)
 	if err != nil {
 		return nil, err
 	}
