@@ -69,9 +69,7 @@ func (h *Hub) RegisterUser(userID int, client *Client) {
 }
 
 func (h *Hub) UnregisterUser(userID int) {
-	if _, ok := h.ClientsByUserID[userID]; ok {
-		delete(h.ClientsByUserID, userID)
-	}
+	delete(h.ClientsByUserID, userID)
 }
 
 func (h *Hub) SendToUser(userID int, message []byte) {
