@@ -5,7 +5,7 @@ import (
 	"github.com/slipe-fun/skid-backend/internal/domain"
 )
 
-func (h *UserHandler) GetUserById(c *fiber.Ctx) error {
+func (h *UserHandler) GetUserByID(c *fiber.Ctx) error {
 	id, err := c.ParamsInt("id")
 	if err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
@@ -14,7 +14,7 @@ func (h *UserHandler) GetUserById(c *fiber.Ctx) error {
 		})
 	}
 
-	user, err := h.userApp.GetUserById(id)
+	user, err := h.userApp.GetUserByID(id)
 	if appErr, ok := err.(*domain.AppError); ok {
 		return c.Status(appErr.Status).JSON(fiber.Map{
 			"error":   appErr.Code,

@@ -9,7 +9,7 @@ type SessionApp interface {
 type ChatRepo interface {
 	Create(chat *domain.Chat) (*domain.Chat, error)
 	UpdateChat(chat *domain.Chat) error
-	GetById(id int) (*domain.Chat, error)
+	GetByID(id int) (*domain.Chat, error)
 	GetWithUsers(id, recipient int) (*domain.Chat, error)
-	GetByUserId(userId int) ([]*domain.ChatWithLastMessage, error)
+	GetByUserID(userID int) ([]*domain.ChatWithLastMessage, error)
 }

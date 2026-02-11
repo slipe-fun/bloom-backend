@@ -5,8 +5,8 @@ import (
 	"github.com/slipe-fun/skid-backend/internal/pkg/logger"
 )
 
-func (u *UserApp) GetUserById(id int) (*domain.User, error) {
-	user, err := u.users.GetById(id)
+func (u *UserApp) GetUserByID(id int) (*domain.User, error) {
+	user, err := u.users.GetByID(id)
 	if err != nil {
 		logger.LogError(err.Error(), "user-app")
 		return nil, domain.NotFound("user not found")

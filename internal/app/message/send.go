@@ -14,7 +14,7 @@ func (m *MessageApp) Send(token, encryptionType string, message *domain.SocketMe
 		return nil, nil, nil, err
 	}
 
-	chat, err := m.chats.GetChatById(token, message.ChatID)
+	chat, err := m.chats.GetChatByID(token, message.ChatID)
 	if err != nil {
 		return nil, nil, nil, domain.NotFound("chat not found")
 	}
@@ -32,7 +32,7 @@ func (m *MessageApp) Send(token, encryptionType string, message *domain.SocketMe
 
 	var replyTo *domain.Message
 	if message.ReplyTo != 0 {
-		reply_to_message, err := m.messages.GetById(message.ReplyTo)
+		reply_to_message, err := m.messages.GetByID(message.ReplyTo)
 		if err != nil || reply_to_message == nil || reply_to_message.ChatID != chat.ID {
 			return nil, nil, nil, domain.NotFound("reply to message not found")
 		}

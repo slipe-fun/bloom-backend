@@ -12,13 +12,13 @@ func (s *SessionApp) DeleteSession(id int, token string) error {
 		return domain.Unauthorized("failed to extract token")
 	}
 
-	_, err = s.users.GetById(userID)
+	_, err = s.users.GetByID(userID)
 	if err != nil {
 		logger.LogError(err.Error(), "session-app")
 		return domain.NotFound("user not found")
 	}
 
-	session, err := s.session.GetById(id)
+	session, err := s.session.GetByID(id)
 	if err != nil {
 		logger.LogError(err.Error(), "session-app")
 		return domain.NotFound("session not found")

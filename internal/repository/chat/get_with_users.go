@@ -33,7 +33,7 @@ func (r *ChatRepo) GetWithUsers(id int, recipient int) (*domain.Chat, error) {
 
 	for i := range chat.Members {
 		member := chat.Members[i]
-		user, err := r.userRepo.GetById(member.ID)
+		user, err := r.userRepo.GetByID(member.ID)
 		if err != nil {
 			continue
 		}

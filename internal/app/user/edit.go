@@ -15,7 +15,7 @@ func (u *UserApp) EditUser(token string, editedUser *domain.User) (*domain.User,
 		return nil, err
 	}
 
-	user, err := u.users.GetById(editedUser.ID)
+	user, err := u.users.GetByID(editedUser.ID)
 	if err != nil {
 		logger.LogError(err.Error(), "user-app")
 		return nil, domain.Failed("failed to get user")

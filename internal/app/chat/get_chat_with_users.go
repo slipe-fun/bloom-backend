@@ -5,8 +5,8 @@ import (
 	"github.com/slipe-fun/skid-backend/internal/pkg/logger"
 )
 
-func (c *ChatApp) GetChatWithUsers(tokenStr string, recipient int) (*domain.Chat, error) {
-	session, err := c.sessionApp.GetSession(tokenStr)
+func (c *ChatApp) GetChatWithUsers(token string, recipient int) (*domain.Chat, error) {
+	session, err := c.sessionApp.GetSession(token)
 	if err != nil {
 		return nil, err
 	}

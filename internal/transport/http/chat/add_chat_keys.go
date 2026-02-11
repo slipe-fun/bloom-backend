@@ -22,12 +22,12 @@ func (h *ChatHandler) AddChatKeys(c *fiber.Ctx) error {
 		return err
 	}
 
-	chatId, err := c.ParamsInt("id")
+	chatID, err := c.ParamsInt("id")
 	if err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "invalid_params"})
 	}
 
-	if chatId == 0 {
+	if chatID == 0 {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "no_chat"})
 	}
 
@@ -59,7 +59,7 @@ func (h *ChatHandler) AddChatKeys(c *fiber.Ctx) error {
 		})
 	}
 
-	chat, err := h.chatApp.GetChatById(token, chatId)
+	chat, err := h.chatApp.GetChatByID(token, chatID)
 	if appErr, ok := err.(*domain.AppError); ok {
 		return c.Status(appErr.Status).JSON(fiber.Map{
 			"error":   appErr.Code,

@@ -7,8 +7,8 @@ import (
 	"github.com/slipe-fun/skid-backend/internal/pkg/logger"
 )
 
-func (k *KeysApp) CreateKeys(tokenStr string, keys *domain.EncryptedKeys) (*domain.EncryptedKeys, error) {
-	session, err := k.sessionApp.GetSession(tokenStr)
+func (k *KeysApp) CreateKeys(token string, keys *domain.EncryptedKeys) (*domain.EncryptedKeys, error) {
+	session, err := k.sessionApp.GetSession(token)
 	if err != nil {
 		return nil, err
 	}
@@ -35,7 +35,7 @@ func (k *KeysApp) CreateKeys(tokenStr string, keys *domain.EncryptedKeys) (*doma
 		return nil, domain.InvalidData("invalid salt")
 	}
 
-	existingKeys, err := k.keys.GetByUserId(session.UserID)
+	existingKeys, err := k.keys.GetByUserID(session.UserID)
 	if err == nil {
 		existingKeys.Ciphertext = keys.Ciphertext
 		existingKeys.Nonce = keys.Nonce

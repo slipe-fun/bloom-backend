@@ -5,13 +5,13 @@ import (
 	"github.com/slipe-fun/skid-backend/internal/pkg/logger"
 )
 
-func (m *MessageApp) GetChatMessages(tokenStr string, chatId int) ([]*domain.MessageWithReply, error) {
-	_, err := m.sessionApp.GetSession(tokenStr)
+func (m *MessageApp) GetChatMessages(token string, chatID int) ([]*domain.MessageWithReply, error) {
+	_, err := m.sessionApp.GetSession(token)
 	if err != nil {
 		return nil, err
 	}
 
-	chat, err := m.chats.GetChatById(tokenStr, chatId)
+	chat, err := m.chats.GetChatByID(token, chatID)
 	if err != nil {
 		return nil, err
 	}
@@ -29,7 +29,7 @@ func (m *MessageApp) GetChatMessages(tokenStr string, chatId int) ([]*domain.Mes
 		}
 
 		if msg.ReplyTo != nil {
-			replyToMessage, err := m.messages.GetById(*msg.ReplyTo)
+			replyToMessage, err := m.messages.GetByID(*msg.ReplyTo)
 			if err == nil && replyToMessage != nil && replyToMessage.ChatID == msg.ChatID {
 				messageWithReply.ReplyToMessage = replyToMessage
 			}

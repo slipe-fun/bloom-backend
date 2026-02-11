@@ -2,7 +2,7 @@ package server
 
 import "github.com/slipe-fun/skid-backend/internal/domain"
 
-func (r *ServerRepo) GetById(id int) (*domain.Server, error) {
+func (r *ServerRepo) GetByID(id int) (*domain.Server, error) {
 	var server domain.Server
 
 	query := `SELECT id, owner_id, created_at, name, description FROM servers WHERE id = $1`

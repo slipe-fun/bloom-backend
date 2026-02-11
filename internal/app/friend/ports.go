@@ -16,5 +16,5 @@ type FriendRepo interface {
 }
 
 type UserRepo interface {
-	GetById(id int) (*domain.User, error)
+	GetByID(id int) (*domain.User, error)
 }

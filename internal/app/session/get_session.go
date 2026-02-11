@@ -13,7 +13,7 @@ func (s *SessionApp) GetSession(token string) (*domain.Session, error) {
 		return nil, domain.Unauthorized("failed to extract token")
 	}
 
-	_, err = s.users.GetById(userID)
+	_, err = s.users.GetByID(userID)
 	if err != nil {
 		logger.LogError(err.Error(), "session-app")
 		return nil, domain.Unauthorized("user not found")

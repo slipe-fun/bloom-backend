@@ -6,7 +6,7 @@ import (
 	"github.com/slipe-fun/skid-backend/internal/transport/http"
 )
 
-func (h *MessageHandler) GetMessageById(c *fiber.Ctx) error {
+func (h *MessageHandler) GetMessageByID(c *fiber.Ctx) error {
 	token, err := http.ExtractBearerToken(c)
 	if err != nil {
 		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
@@ -23,7 +23,7 @@ func (h *MessageHandler) GetMessageById(c *fiber.Ctx) error {
 		})
 	}
 
-	message, err := h.messageApp.GetMessageById(token, id)
+	message, err := h.messageApp.GetMessageByID(token, id)
 	if appErr, ok := err.(*domain.AppError); ok {
 		return c.Status(appErr.Status).JSON(fiber.Map{
 			"error":   appErr.Code,

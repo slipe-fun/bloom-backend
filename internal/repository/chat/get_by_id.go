@@ -6,7 +6,7 @@ import (
 	"github.com/slipe-fun/skid-backend/internal/domain"
 )
 
-func (r *ChatRepo) GetById(id int) (*domain.Chat, error) {
+func (r *ChatRepo) GetByID(id int) (*domain.Chat, error) {
 	var chat domain.Chat
 	var membersJSON []byte
 
@@ -21,7 +21,7 @@ func (r *ChatRepo) GetById(id int) (*domain.Chat, error) {
 
 	for i := range chat.Members {
 		member := chat.Members[i]
-		user, err := r.userRepo.GetById(member.ID)
+		user, err := r.userRepo.GetByID(member.ID)
 		if err != nil {
 			continue
 		}

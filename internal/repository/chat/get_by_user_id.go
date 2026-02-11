@@ -6,7 +6,7 @@ import (
 	"github.com/slipe-fun/skid-backend/internal/domain"
 )
 
-func (r *ChatRepo) GetByUserId(userID int) ([]*domain.ChatWithLastMessage, error) {
+func (r *ChatRepo) GetByUserID(userID int) ([]*domain.ChatWithLastMessage, error) {
 	rows, err := r.db.Query(`
 		SELECT id, members, encryption_key
 		FROM chats
@@ -33,7 +33,7 @@ func (r *ChatRepo) GetByUserId(userID int) ([]*domain.ChatWithLastMessage, error
 
 		for i := range chat.Members {
 			member := chat.Members[i]
-			user, err := r.userRepo.GetById(member.ID)
+			user, err := r.userRepo.GetByID(member.ID)
 			if err != nil {
 				continue
 			}

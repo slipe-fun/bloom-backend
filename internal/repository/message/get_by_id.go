@@ -2,7 +2,7 @@ package message
 
 import "github.com/slipe-fun/skid-backend/internal/domain"
 
-func (r *MessageRepo) GetById(id int) (*domain.Message, error) {
+func (r *MessageRepo) GetByID(id int) (*domain.Message, error) {
 	var message domain.Message
 
 	query := `SELECT 

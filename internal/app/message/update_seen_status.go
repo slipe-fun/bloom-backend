@@ -13,7 +13,7 @@ func (m *MessageApp) UpdateMessagesSeenStatus(token string, chatID int, messageI
 		return nil, nil, nil, nil, err
 	}
 
-	chat, err := m.chats.GetChatById(token, chatID)
+	chat, err := m.chats.GetChatByID(token, chatID)
 	if err != nil {
 		return nil, nil, nil, nil, err
 	}
@@ -24,7 +24,7 @@ func (m *MessageApp) UpdateMessagesSeenStatus(token string, chatID int, messageI
 
 	var validMessages []int
 	for i := range messageIDs {
-		message, err := m.messages.GetById(messageIDs[i])
+		message, err := m.messages.GetByID(messageIDs[i])
 		if err != nil {
 			continue
 		}

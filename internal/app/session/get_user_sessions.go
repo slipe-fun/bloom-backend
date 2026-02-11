@@ -13,13 +13,13 @@ func (s *SessionApp) GetUserSessions(token string) ([]*domain.Session, error) {
 		return nil, domain.Unauthorized("session not found")
 	}
 
-	user, err := s.users.GetById(session.UserID)
+	user, err := s.users.GetByID(session.UserID)
 	if err != nil {
 		logger.LogError(err.Error(), "session-app")
 		return nil, domain.NotFound("user not found")
 	}
 
-	sessions, err := s.session.GetByUserId(user.ID)
+	sessions, err := s.session.GetByUserID(user.ID)
 	if err != nil {
 		logger.LogError(err.Error(), "session-app")
 		return nil, domain.Failed("failed to get user sessions")

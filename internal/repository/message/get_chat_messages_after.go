@@ -4,7 +4,7 @@ import (
 	"github.com/slipe-fun/skid-backend/internal/domain"
 )
 
-func (r *MessageRepo) GetChatMessagesAfter(chatId, afterId, count int) ([]*domain.Message, error) {
+func (r *MessageRepo) GetChatMessagesAfter(chatID, afterID, count int) ([]*domain.Message, error) {
 	rows, err := r.db.Query(`
 	SELECT 
 		id,
@@ -27,7 +27,7 @@ func (r *MessageRepo) GetChatMessagesAfter(chatId, afterId, count int) ([]*domai
 	WHERE chat_id = $1 AND id > $2 
 	ORDER BY id DESC
 	LIMIT $3
-	`, chatId, afterId, count)
+	`, chatID, afterID, count)
 
 	if err != nil {
 		return nil, err

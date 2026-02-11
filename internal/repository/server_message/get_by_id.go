@@ -2,7 +2,7 @@ package server
 
 import "github.com/slipe-fun/skid-backend/internal/domain"
 
-func (r *ServerMessageRepo) GetById(id int) (*domain.ServerMessage, error) {
+func (r *ServerMessageRepo) GetByID(id int) (*domain.ServerMessage, error) {
 	query := `SELECT id, server_id, member_id, channel_id, content, sent_at FROM server_messages WHERE id = $1`
 
 	row := r.db.QueryRow(query, id)

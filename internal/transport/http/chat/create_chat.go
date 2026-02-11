@@ -35,7 +35,7 @@ func (h *ChatHandler) CreateChat(c *fiber.Ctx) error {
 		})
 	}
 
-	user, err := h.userApp.GetUserById(req.Recipient)
+	user, err := h.userApp.GetUserByID(req.Recipient)
 	if appErr, ok := err.(*domain.AppError); ok {
 		return c.Status(appErr.Status).JSON(fiber.Map{
 			"error":   appErr.Code,

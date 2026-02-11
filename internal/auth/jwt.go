@@ -26,8 +26,8 @@ func (s *JWTService) GenerateToken(userID int) (string, error) {
 	return token.SignedString([]byte(s.secret))
 }
 
-func (s *JWTService) VerifyToken(tokenStr string) (*jwt.Token, error) {
-	return jwt.Parse(tokenStr, func(token *jwt.Token) (interface{}, error) {
+func (s *JWTService) VerifyToken(token string) (*jwt.Token, error) {
+	return jwt.Parse(token, func(token *jwt.Token) (interface{}, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
 			return nil, jwt.ErrTokenInvalidSubject
 		}

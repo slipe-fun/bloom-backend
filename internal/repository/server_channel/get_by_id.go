@@ -2,7 +2,7 @@ package server
 
 import "github.com/slipe-fun/skid-backend/internal/domain"
 
-func (r *ServerChannelRepo) GetById(id int) (*domain.ServerChannel, error) {
+func (r *ServerChannelRepo) GetByID(id int) (*domain.ServerChannel, error) {
 	query := `SELECT id, server_id, name, type, position, created_at FROM server_channels WHERE id = $1`
 
 	var serverChannel domain.ServerChannel

@@ -18,7 +18,7 @@ func (f *FriendApp) SendRequest(token string, receiverID int) error {
 		return domain.InvalidData("cannot add yourself as friend")
 	}
 
-	receiver, err := f.users.GetById(receiverID)
+	receiver, err := f.users.GetByID(receiverID)
 	if err != nil {
 		logger.LogError(err.Error(), "user-app")
 		return domain.NotFound("receiver not found")

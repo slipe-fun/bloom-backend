@@ -7,7 +7,7 @@ type SessionApp interface {
 }
 
 type UserRepo interface {
-	GetById(id int) (*domain.User, error)
+	GetByID(id int) (*domain.User, error)
 	GetByUsername(username string) (*domain.User, error)
 	GetByEmail(email string) (*domain.User, error)
 	Edit(user *domain.User) error

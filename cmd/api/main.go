@@ -51,7 +51,7 @@ func main() {
 	}
 
 	googleService := google.NewGoogleAuthService(
-		cfg.GoogleAuth.ClientId,
+		cfg.GoogleAuth.ClientID,
 		cfg.GoogleAuth.ClientSecret,
 		cfg.GoogleAuth.RedirectURL,
 	)
@@ -115,15 +115,15 @@ func main() {
 	fiberApp.Post("/user/edit", userHandler.EditUser)
 	fiberApp.Get("/user/search", userHandler.SearchByUsername)
 	fiberApp.Get("/user/exists", userHandler.IsUserWithEmailExists)
-	fiberApp.Get("/user/:id", userHandler.GetUserById)
+	fiberApp.Get("/user/:id", userHandler.GetUserByID)
 
 	fiberApp.Get("/friends/:status", friendHandler.GetFriends)
 	fiberApp.Post("/friend/request", friendHandler.SendRequest)
 	fiberApp.Post("/friend/delete", friendHandler.DeleteFriend)
 
 	fiberApp.Post("/chat/create", chatHandler.CreateChat)
-	fiberApp.Get("/chats", chatHandler.GetChatsByUserId)
-	fiberApp.Get("/chat/:id", chatHandler.GetChatById)
+	fiberApp.Get("/chats", chatHandler.GetChatsByUserID)
+	fiberApp.Get("/chat/:id", chatHandler.GetChatByID)
 	fiberApp.Get("/chat/:id/read", chatHandler.GetChatLastReadMessage)
 	fiberApp.Get("/chat/:id/messages", chatHandler.GetChatMessages)
 	fiberApp.Get("/chat/:c_id/messages/after/:m_id", chatHandler.GetChatMessagesAfter)
@@ -133,7 +133,7 @@ func main() {
 	fiberApp.Post("/chats/keys/private", keysHandler.SaveChatKeys)
 	fiberApp.Get("/chats/keys/private", keysHandler.GetUserChatsKeys)
 
-	fiberApp.Get("/message/:id", messageHandler.GetMessageById)
+	fiberApp.Get("/message/:id", messageHandler.GetMessageByID)
 	fiberApp.Post("/message/send", messageHandler.Send)
 	fiberApp.Post("/message/seen", messageHandler.Seen)
 

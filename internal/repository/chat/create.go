@@ -24,7 +24,7 @@ func (r *ChatRepo) Create(chat *domain.Chat) (*domain.Chat, error) {
 
 	for i := range created.Members {
 		member := created.Members[i]
-		user, err := r.userRepo.GetById(member.ID)
+		user, err := r.userRepo.GetByID(member.ID)
 		if err != nil {
 			continue
 		}

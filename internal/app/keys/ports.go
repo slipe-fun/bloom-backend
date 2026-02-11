@@ -9,7 +9,7 @@ type SessionApp interface {
 }
 
 type KeysRepo interface {
-	GetByUserId(user_id int) (*domain.EncryptedKeys, error)
+	GetByUserID(user_id int) (*domain.EncryptedKeys, error)
 	Edit(keys *domain.EncryptedKeys) error
 	Create(keys *domain.EncryptedKeys) (*domain.EncryptedKeys, error)
 }

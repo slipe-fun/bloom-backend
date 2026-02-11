@@ -5,18 +5,18 @@ import (
 	"github.com/slipe-fun/skid-backend/internal/pkg/logger"
 )
 
-func (m *MessageApp) GetChatMessagesAfter(tokenStr string, chatId, afterId, count int) ([]*domain.MessageWithReply, error) {
-	_, err := m.sessionApp.GetSession(tokenStr)
+func (m *MessageApp) GetChatMessagesAfter(token string, chatID, afterID, count int) ([]*domain.MessageWithReply, error) {
+	_, err := m.sessionApp.GetSession(token)
 	if err != nil {
 		return nil, err
 	}
 
-	chat, err := m.chats.GetChatById(tokenStr, chatId)
+	chat, err := m.chats.GetChatByID(token, chatID)
 	if err != nil {
 		return nil, err
 	}
 
-	messages, err := m.messages.GetChatMessagesAfter(chat.ID, afterId, count)
+	messages, err := m.messages.GetChatMessagesAfter(chat.ID, afterID, count)
 	if err != nil {
 		logger.LogError(err.Error(), "message-app")
 		return nil, domain.NotFound("messages not found")
@@ -29,7 +29,7 @@ func (m *MessageApp) GetChatMessagesAfter(tokenStr string, chatId, afterId, coun
 		}
 
 		if msg.ReplyTo != nil {
-			replyToMessage, err := m.messages.GetById(*msg.ReplyTo)
+			replyToMessage, err := m.messages.GetByID(*msg.ReplyTo)
 			if err == nil && replyToMessage != nil && replyToMessage.ChatID == msg.ChatID {
 				messageWithReply.ReplyToMessage = replyToMessage
 			}

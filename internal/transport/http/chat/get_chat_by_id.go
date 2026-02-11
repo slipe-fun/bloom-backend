@@ -6,7 +6,7 @@ import (
 	"github.com/slipe-fun/skid-backend/internal/transport/http"
 )
 
-func (h *ChatHandler) GetChatById(c *fiber.Ctx) error {
+func (h *ChatHandler) GetChatByID(c *fiber.Ctx) error {
 	token, err := http.ExtractBearerToken(c)
 	if err != nil {
 		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
@@ -23,7 +23,7 @@ func (h *ChatHandler) GetChatById(c *fiber.Ctx) error {
 		})
 	}
 
-	chat, err := h.chatApp.GetChatById(token, id)
+	chat, err := h.chatApp.GetChatByID(token, id)
 	if appErr, ok := err.(*domain.AppError); ok {
 		return c.Status(appErr.Status).JSON(fiber.Map{
 			"error":   appErr.Code,

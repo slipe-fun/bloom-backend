@@ -14,13 +14,13 @@ func NewTokenService(jwtSvc *JWTService) *TokenService {
 	return &TokenService{jwtSvc: jwtSvc}
 }
 
-func (t *TokenService) ExtractUserID(tokenStr string) (int, error) {
-	token, err := t.jwtSvc.VerifyToken(tokenStr)
-	if err != nil || !token.Valid {
+func (t *TokenService) ExtractUserID(token string) (int, error) {
+	jwtToken, err := t.jwtSvc.VerifyToken(token)
+	if err != nil || !jwtToken.Valid {
 		return 0, errors.New("invalid token")
 	}
 
-	claims, ok := token.Claims.(jwt.MapClaims)
+	claims, ok := jwtToken.Claims.(jwt.MapClaims)
 	if !ok {
 		return 0, errors.New("invalid claims")
 	}

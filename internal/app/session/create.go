@@ -7,7 +7,7 @@ import (
 )
 
 func (s *SessionApp) CreateSession(user_id int) (string, error) {
-	user, err := s.users.GetById(user_id)
+	user, err := s.users.GetByID(user_id)
 	if err != nil {
 		logger.LogError(err.Error(), "session-app")
 		return "", domain.NotFound("user not found")
