@@ -5,13 +5,8 @@ import (
 	"github.com/slipe-fun/skid-backend/internal/pkg/logger"
 )
 
-func (m *MessageApp) GetChatMessagesBefore(token string, chatID, beforeID, count int) ([]*domain.MessageWithReply, error) {
-	session, err := m.sessionApp.GetSession(token)
-	if err != nil {
-		return nil, err
-	}
-
-	chat, err := m.chats.GetChatByID(session.UserID, chatID)
+func (m *MessageApp) GetChatMessagesBefore(user_id, chatID, beforeID, count int) ([]*domain.MessageWithReply, error) {
+	chat, err := m.chats.GetChatByID(user_id, chatID)
 	if err != nil {
 		return nil, err
 	}

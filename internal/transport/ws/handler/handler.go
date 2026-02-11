@@ -42,7 +42,7 @@ func HandleWS(hub *types.Hub) func(c *websocket.Conn) {
 			}
 		}
 
-		chats, err := hub.Chats.GetChatsByUserID(clientToken)
+		chats, err := hub.Chats.GetChatsByUserID(session.UserID)
 		if err != nil {
 			c.WriteMessage(websocket.TextMessage, []byte("Get chats error"))
 			return

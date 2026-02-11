@@ -6,23 +6,18 @@ import (
 	"github.com/slipe-fun/skid-backend/internal/pkg/logger"
 )
 
-func (c *ChatApp) CreateChat(token string, recipient int) (*domain.Chat, *domain.Session, error) {
-	session, err := c.sessionApp.GetSession(token)
-	if err != nil {
-		return nil, nil, err
-	}
-
+func (c *ChatApp) CreateChat(user_id, recipient int) (*domain.Chat, error) {
 	encryptionKey, err := crypto.GenerateEncryptionKey()
 	if err != nil {
 		logger.LogError(err.Error(), "chat-app")
-		return nil, nil, domain.Failed("failed to generate encryption key")
+		return nil, domain.Failed("failed to generate encryption key")
 	}
 
 	encKey := encryptionKey
 	chat, err := c.chats.Create(&domain.Chat{
 		Members: []domain.Member{
 			{
-				ID:             session.UserID,
+				ID:             user_id,
 				KyberPublicKey: "",
 				EcdhPublicKey:  "",
 				EdPublicKey:    "",
@@ -39,8 +34,8 @@ func (c *ChatApp) CreateChat(token string, recipient int) (*domain.Chat, *domain
 
 	if err != nil {
 		logger.LogError(err.Error(), "chat-app")
-		return nil, nil, domain.Failed("failed to create chat")
+		return nil, domain.Failed("failed to create chat")
 	}
 
-	return chat, session, nil
+	return chat, nil
 }

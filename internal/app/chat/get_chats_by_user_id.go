@@ -5,14 +5,8 @@ import (
 	"github.com/slipe-fun/skid-backend/internal/pkg/logger"
 )
 
-func (c *ChatApp) GetChatsByUserID(token string) ([]*domain.ChatWithLastMessage, error) {
-	session, err := c.sessionApp.GetSession(token)
-	if err != nil {
-		return nil, err
-	}
-
-	chats, err := c.chats.GetByUserID(session.UserID)
-
+func (c *ChatApp) GetChatsByUserID(user_id int) ([]*domain.ChatWithLastMessage, error) {
+	chats, err := c.chats.GetByUserID(user_id)
 	if err != nil {
 		logger.LogError(err.Error(), "chat-app")
 		return nil, domain.NotFound("chats not found")
