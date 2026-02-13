@@ -2,11 +2,15 @@ package chat
 
 import (
 	"encoding/json"
+	"time"
 
 	"github.com/slipe-fun/skid-backend/internal/domain"
+	"github.com/slipe-fun/skid-backend/internal/metrics"
 )
 
 func (r *ChatRepo) GetByUserID(userID int) ([]*domain.ChatWithLastMessage, error) {
+	start := time.Now()
+
 	rows, err := r.db.Query(`
 		SELECT id, members, encryption_key
 		FROM chats
@@ -15,6 +19,11 @@ func (r *ChatRepo) GetByUserID(userID int) ([]*domain.ChatWithLastMessage, error
 			WHERE (m->>'id')::int = $1
 		)
 	`, userID)
+
+	duration := time.Since(start)
+
+	metrics.ObserveDB("chats_get_with_user_id", duration, err)
+
 	if err != nil {
 		return nil, err
 	}

@@ -1,6 +1,11 @@
 package user
 
-import "github.com/slipe-fun/skid-backend/internal/domain"
+import (
+	"time"
+
+	"github.com/slipe-fun/skid-backend/internal/domain"
+	"github.com/slipe-fun/skid-backend/internal/metrics"
+)
 
 func (r *UserRepo) Edit(user *domain.User) error {
 	query := `
@@ -13,7 +18,13 @@ func (r *UserRepo) Edit(user *domain.User) error {
         RETURNING id, username, email, display_name, description, date
     `
 
+	start := time.Now()
+
 	_, err := r.db.Exec(query, user.Username, user.Email, user.DisplayName, user.Description, user.ID)
+
+	duration := time.Since(start)
+
+	metrics.ObserveDB("user_edit", duration, err)
 
 	if err != nil {
 		return err

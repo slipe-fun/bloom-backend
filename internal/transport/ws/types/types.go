@@ -4,6 +4,7 @@ import (
 	"github.com/gofiber/websocket/v2"
 	ChatApp "github.com/slipe-fun/skid-backend/internal/app/chat"
 	SessionApp "github.com/slipe-fun/skid-backend/internal/app/session"
+	"github.com/slipe-fun/skid-backend/internal/metrics"
 )
 
 type Client struct {
@@ -66,10 +67,12 @@ func (h *Hub) Broadcast(room string, message []byte) {
 
 func (h *Hub) RegisterUser(userID int, client *Client) {
 	h.ClientsByUserID[userID] = client
+	metrics.ActiveWebsocketConnections.Inc()
 }
 
 func (h *Hub) UnregisterUser(userID int) {
 	delete(h.ClientsByUserID, userID)
+	metrics.ActiveWebsocketConnections.Dec()
 }
 
 func (h *Hub) SendToUser(userID int, message []byte) {

@@ -1,6 +1,11 @@
 package message
 
-import "github.com/slipe-fun/skid-backend/internal/domain"
+import (
+	"time"
+
+	"github.com/slipe-fun/skid-backend/internal/domain"
+	"github.com/slipe-fun/skid-backend/internal/metrics"
+)
 
 func (r *MessageRepo) GetByID(id int) (*domain.Message, error) {
 	var message domain.Message
@@ -23,7 +28,14 @@ func (r *MessageRepo) GetByID(id int) (*domain.Message, error) {
 		COALESCE(cek_wrap_sender_salt, '') AS cek_wrap_sender_salt,
 		COALESCE(reply_to, 0) AS reply_to
 	FROM messages WHERE id = $1`
+
+	start := time.Now()
+
 	err := r.db.Get(&message, query, id)
+
+	duration := time.Since(start)
+
+	metrics.ObserveDB("message_get_by_id", duration, err)
 
 	if err != nil {
 		return nil, err

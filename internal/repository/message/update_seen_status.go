@@ -3,6 +3,8 @@ package message
 import (
 	"fmt"
 	"time"
+
+	"github.com/slipe-fun/skid-backend/internal/metrics"
 )
 
 func (r *MessageRepo) UpdateMessagesSeenStatus(messages []int, seenTime time.Time) error {
@@ -26,6 +28,13 @@ func (r *MessageRepo) UpdateMessagesSeenStatus(messages []int, seenTime time.Tim
 		WHERE id IN (%s)
 	`, placeholders)
 
+	start := time.Now()
+
 	_, err := r.db.Exec(query, args...)
+
+	duration := time.Since(start)
+
+	metrics.ObserveDB("message_update_seen_status", duration, err)
+
 	return err
 }

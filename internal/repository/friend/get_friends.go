@@ -1,6 +1,11 @@
 package friend
 
-import "github.com/slipe-fun/skid-backend/internal/domain"
+import (
+	"time"
+
+	"github.com/slipe-fun/skid-backend/internal/domain"
+	"github.com/slipe-fun/skid-backend/internal/metrics"
+)
 
 func (r *FriendRepo) GetFriends(userID int, status string, limit, offset int) ([]domain.Friend, error) {
 	query := `SELECT
@@ -19,7 +24,15 @@ func (r *FriendRepo) GetFriends(userID int, status string, limit, offset int) ([
 			`
 
 	var friends []domain.Friend
+
+	start := time.Now()
+
 	err := r.db.Select(&friends, query, userID, status, limit, offset)
+
+	duration := time.Since(start)
+
+	metrics.ObserveDB("friends_get", duration, err)
+
 	if err != nil {
 		return nil, err
 	}

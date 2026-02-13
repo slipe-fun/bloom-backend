@@ -8,7 +8,9 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/websocket/v2"
 
+	"github.com/gofiber/fiber/v2/middleware/adaptor"
 	"github.com/gofiber/fiber/v2/middleware/recover"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 	authapp "github.com/slipe-fun/skid-backend/internal/app/auth"
 	chatapp "github.com/slipe-fun/skid-backend/internal/app/chat"
 	friendapp "github.com/slipe-fun/skid-backend/internal/app/friend"
@@ -19,6 +21,7 @@ import (
 	verificationapp "github.com/slipe-fun/skid-backend/internal/app/verification"
 	authservice "github.com/slipe-fun/skid-backend/internal/auth"
 	"github.com/slipe-fun/skid-backend/internal/config"
+	"github.com/slipe-fun/skid-backend/internal/metrics"
 	"github.com/slipe-fun/skid-backend/internal/oauth/google"
 	"github.com/slipe-fun/skid-backend/internal/pkg/logger"
 	"github.com/slipe-fun/skid-backend/internal/repository"
@@ -50,6 +53,8 @@ func main() {
 	if err := logger.Init("logs/app.log"); err != nil {
 		panic(err)
 	}
+
+	metrics.Init()
 
 	googleService := google.NewGoogleAuthService(
 		cfg.GoogleAuth.ClientID,
@@ -108,6 +113,8 @@ func main() {
 		}()
 	}
 
+	fiberApp.Use(middleware.MetricsMiddleware())
+
 	authMiddleware := middleware.NewAuthMiddleware(sessionApp)
 
 	fiberApp.Post("/auth/verify-code", authHandler.VerifyCode)
@@ -145,6 +152,8 @@ func main() {
 	fiberApp.Get("/sessions", authMiddleware.Handle(), sessionHandler.GetUserSessions)
 	fiberApp.Get("/session", authMiddleware.Handle(), sessionHandler.GetSessionByToken)
 	fiberApp.Post("/session/:id/delete", authMiddleware.Handle(), sessionHandler.DeleteSession)
+
+	fiberApp.Get("/metrics", adaptor.HTTPHandler(promhttp.Handler()))
 
 	fiberApp.Get("/ws", websocket.New(handler.HandleWS(hub)))
 

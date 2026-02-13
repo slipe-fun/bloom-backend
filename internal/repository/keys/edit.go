@@ -1,6 +1,11 @@
 package keys
 
-import "github.com/slipe-fun/skid-backend/internal/domain"
+import (
+	"time"
+
+	"github.com/slipe-fun/skid-backend/internal/domain"
+	"github.com/slipe-fun/skid-backend/internal/metrics"
+)
 
 func (k *KeysRepo) Edit(keys *domain.EncryptedKeys) error {
 	query := `
@@ -12,7 +17,13 @@ func (k *KeysRepo) Edit(keys *domain.EncryptedKeys) error {
         RETURNING id, user_id, ciphertext, nonce, salt
     `
 
+	start := time.Now()
+
 	_, err := k.db.Exec(query, keys.Ciphertext, keys.Nonce, keys.Salt, keys.UserID)
+
+	duration := time.Since(start)
+
+	metrics.ObserveDB("keys_edit", duration, err)
 
 	if err != nil {
 		return err

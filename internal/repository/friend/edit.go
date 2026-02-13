@@ -1,6 +1,11 @@
 package friend
 
-import "github.com/slipe-fun/skid-backend/internal/domain"
+import (
+	"time"
+
+	"github.com/slipe-fun/skid-backend/internal/domain"
+	"github.com/slipe-fun/skid-backend/internal/metrics"
+)
 
 func (r *FriendRepo) EditStatus(userID, friendID int, status domain.FriendStatus) error {
 	query := `
@@ -11,6 +16,13 @@ func (r *FriendRepo) EditStatus(userID, friendID int, status domain.FriendStatus
 		 OR (user_id = $3 AND friend_id = $2)
 	`
 
+	start := time.Now()
+
 	_, err := r.db.Exec(query, status, userID, friendID)
+
+	duration := time.Since(start)
+
+	metrics.ObserveDB("friend_edit", duration, err)
+
 	return err
 }

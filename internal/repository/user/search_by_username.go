@@ -1,7 +1,10 @@
 package user
 
 import (
+	"time"
+
 	"github.com/slipe-fun/skid-backend/internal/domain"
+	"github.com/slipe-fun/skid-backend/internal/metrics"
 )
 
 func (r *UserRepo) SearchUsersByUsername(query string, limit, offset int) ([]*domain.User, error) {
@@ -27,7 +30,14 @@ func (r *UserRepo) SearchUsersByUsername(query string, limit, offset int) ([]*do
 	LIMIT $2 OFFSET $3;
 	`
 
+	start := time.Now()
+
 	rows, err := r.db.Query(sqlQuery, query, limit, offset)
+
+	duration := time.Since(start)
+
+	metrics.ObserveDB("users_search_by_username_and_displayname", duration, err)
+
 	if err != nil {
 		return nil, err
 	}

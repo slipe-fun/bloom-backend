@@ -1,10 +1,15 @@
 package message
 
 import (
+	"time"
+
 	"github.com/slipe-fun/skid-backend/internal/domain"
+	"github.com/slipe-fun/skid-backend/internal/metrics"
 )
 
 func (r *MessageRepo) GetChatMessagesAfter(chatID, afterID, count int) ([]*domain.Message, error) {
+	start := time.Now()
+
 	rows, err := r.db.Query(`
 	SELECT 
 		id,
@@ -28,6 +33,10 @@ func (r *MessageRepo) GetChatMessagesAfter(chatID, afterID, count int) ([]*domai
 	ORDER BY id DESC
 	LIMIT $3
 	`, chatID, afterID, count)
+
+	duration := time.Since(start)
+
+	metrics.ObserveDB("messages_get_from_chat_after", duration, err)
 
 	if err != nil {
 		return nil, err

@@ -2,8 +2,10 @@ package chat
 
 import (
 	"encoding/json"
+	"time"
 
 	"github.com/slipe-fun/skid-backend/internal/domain"
+	"github.com/slipe-fun/skid-backend/internal/metrics"
 )
 
 func (r *ChatRepo) GetWithUsers(id int, recipient int) (*domain.Chat, error) {
@@ -24,7 +26,15 @@ func (r *ChatRepo) GetWithUsers(id int, recipient int) (*domain.Chat, error) {
 		WHERE (m->>'id')::int = $2
 	);
 	`
+
+	start := time.Now()
+
 	err := r.db.QueryRow(query, id, recipient).Scan(&chat.ID, &membersJSON, &chat.EncryptionKey)
+
+	duration := time.Since(start)
+
+	metrics.ObserveDB("chat_get_with_bot_users", duration, err)
+
 	if err != nil {
 		return nil, err
 	}
