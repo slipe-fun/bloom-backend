@@ -7,36 +7,36 @@ import (
 	"github.com/slipe-fun/skid-backend/internal/pkg/logger"
 )
 
-func (a *AuthApp) VerifyCode(email string, code string) (string, *domain.User, error) {
+func (a *AuthApp) VerifyCode(email string, code string) (string, *domain.Session, *domain.User, error) {
 	user, err := a.users.GetByEmail(email)
 
 	if err != nil {
 		logger.LogError(err.Error(), "auth-app")
-		return "", nil, domain.NotFound("code not found")
+		return "", nil, nil, domain.NotFound("code not found")
 	}
 
 	verificationCode, err := a.codesRepo.GetByEmailAndCode(email, code)
 	if err != nil {
 		logger.LogError(err.Error(), "auth-app")
-		return "", nil, domain.NotFound("code not found")
+		return "", nil, nil, domain.NotFound("code not found")
 	}
 
 	now := time.Now().UTC()
 
 	if verificationCode.ExpiresAt.Before(now) {
-		return "", nil, domain.Expired("code has expired")
+		return "", nil, nil, domain.Expired("code has expired")
 	}
 
-	token, err := a.sessionApp.CreateSession(user.ID)
+	token, session, err := a.sessionApp.CreateSession(user.ID)
 	if err != nil {
-		return "", nil, err
+		return "", nil, nil, err
 	}
 
 	err = a.codesRepo.DeleteByEmailAndCode(email, code)
 	if err != nil {
 		logger.LogError(err.Error(), "auth-app")
-		return "", nil, domain.Failed("failed to delete old code")
+		return "", nil, nil, domain.Failed("failed to delete old code")
 	}
 
-	return token, user, nil
+	return token, session, user, nil
 }

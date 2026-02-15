@@ -32,7 +32,7 @@ func (h *AuthHandler) VerifyCode(c *fiber.Ctx) error {
 		})
 	}
 
-	token, user, err := h.authApp.VerifyCode(req.Email, req.Code)
+	token, session, user, err := h.authApp.VerifyCode(req.Email, req.Code)
 	if appErr, ok := err.(*domain.AppError); ok {
 		return c.Status(appErr.Status).JSON(fiber.Map{
 			"error":   appErr.Code,
@@ -41,7 +41,8 @@ func (h *AuthHandler) VerifyCode(c *fiber.Ctx) error {
 	}
 
 	return c.JSON(fiber.Map{
-		"token": token,
+		"token":      token,
+		"session_id": session.ID,
 		"user": fiber.Map{
 			"id":           user.ID,
 			"username":     user.Username,

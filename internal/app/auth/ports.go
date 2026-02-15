@@ -6,7 +6,7 @@ import (
 )
 
 type SessionApp interface {
-	CreateSession(user_id int) (string, error)
+	CreateSession(user_id int) (string, *domain.Session, error)
 }
 
 type UserRepo interface {
