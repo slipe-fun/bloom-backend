@@ -10,6 +10,7 @@ import (
 func (r *UserRepo) GetAllUsers(limit, offset int) ([]*domain.User, error) {
 	query := `SELECT id, username, display_name, description, date 
 			  FROM users
+			  ORDER BY id DESC
 			  LIMIT $1 OFFSET $2`
 
 	start := time.Now()
