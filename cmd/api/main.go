@@ -88,7 +88,7 @@ func main() {
 	userHandler := userhandler.NewUserHandler(userApp, friendApp)
 	chatHandler := chathandler.NewChatHandler(chatApp, userApp, messageApp, hub)
 	messageHandler := messagehandler.NewMessageHandler(chatApp, messageApp, hub)
-	sessionHandler := sessionhandler.NewSessionHandler(sessionApp)
+	sessionHandler := sessionhandler.NewSessionHandler(sessionApp, chatRepo)
 	keysHandler := keyshandler.NewKeysHandler(keysApp)
 	friendHandler := friendhandler.NewFriendHandler(friendApp, hub)
 
@@ -128,6 +128,7 @@ func main() {
 	fiberApp.Get("/user/search", userHandler.SearchByUsername)
 	fiberApp.Get("/user/exists", userHandler.IsUserWithEmailExists)
 	fiberApp.Get("/user/:id", userHandler.GetUserByID)
+	fiberApp.Get("/user/:id/key-bundle", authMiddleware.Handle(), sessionHandler.GetUserKeyBundle)
 
 	fiberApp.Get("/friends/:status", authMiddleware.Handle(), friendHandler.GetFriends)
 	fiberApp.Post("/friend/request", authMiddleware.Handle(), friendHandler.SendRequest)

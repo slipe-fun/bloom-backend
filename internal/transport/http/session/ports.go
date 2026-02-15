@@ -7,3 +7,7 @@ type SessionApp interface {
 	GetSession(token string) (*domain.Session, error)
 	GetUserSessions(user_id int) ([]*domain.Session, error)
 }
+
+type ChatsRepo interface {
+	GetWithUsers(id, recipient int) (*domain.Chat, error)
+}
