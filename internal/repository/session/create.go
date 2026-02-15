@@ -10,14 +10,14 @@ import (
 func (r *SessionRepo) Create(session *domain.Session) (*domain.Session, error) {
 	query := `INSERT INTO sessions (token, user_id) 
 	          VALUES ($1, $2) 
-	          RETURNING id, token, user_id, created_at`
+	          RETURNING id, token, user_id, identity_pub, ecdh_pub, kyber_pub, revoked_at, created_at`
 
 	var created domain.Session
 
 	start := time.Now()
 
 	err := r.db.QueryRow(query, session.Token, session.UserID).
-		Scan(&created.ID, &created.Token, &created.UserID, &created.CreatedAt)
+		Scan(&created.ID, &created.Token, &created.UserID, &created.IdentityPublicKey, &created.EcdhPublicKey, &created.KyberPublicKey, &created.RevokedAt, &created.CreatedAt)
 
 	duration := time.Since(start)
 
