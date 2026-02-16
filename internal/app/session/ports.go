@@ -8,6 +8,7 @@ type SessionRepo interface {
 	GetByID(id int) (*domain.Session, error)
 	GetByToken(token string) (*domain.Session, error)
 	GetByUserID(id int) ([]*domain.Session, error)
+	GetByIDs(ids []int) ([]*domain.Session, error)
 	Delete(id int) error
 }
 

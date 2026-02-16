@@ -12,3 +12,11 @@ type EncryptedChatKeys struct {
 	Salt            string    `db:"salt" json:"salt"`
 	CreatedAt       time.Time `db:"created_at" json:"created_at"`
 }
+
+type RawEncryptedChatKeys struct {
+	SessionID       int    `json:"session_id"`
+	EncryptedKey    string `json:"encrypted_key"`
+	EncapsulatedKey string `json:"encapsulated_key"`
+	Nonce           string `json:"nonce"`
+	Salt            string `json:"salt"`
+}
