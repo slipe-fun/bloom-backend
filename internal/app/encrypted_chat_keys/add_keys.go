@@ -42,7 +42,7 @@ func (k *EncryptedChatKeysApp) AddKeys(userID, chatID int, keys []*domain.Encryp
 		sessionIDs = append(sessionIDs, key.SessionID)
 	}
 
-	sessions, err := k.session.GetByIDs(sessionIDs)
+	sessions, err := k.session.GetSessionByIDs(sessionIDs)
 	if err != nil {
 		return nil, domain.Failed("failed to get provided sessions")
 	}

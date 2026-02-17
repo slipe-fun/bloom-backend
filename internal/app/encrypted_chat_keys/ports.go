@@ -7,8 +7,8 @@ type EncryptedChatKeysRepo interface {
 }
 
 type SessionApp interface {
-	GetByID(id int) (*domain.Session, error)
-	GetByIDs(ids []int) ([]*domain.Session, error)
+	GetSessionByID(id int) (*domain.Session, error)
+	GetSessionByIDs(ids []int) ([]*domain.Session, error)
 }
 
 type ChatRepo interface {
