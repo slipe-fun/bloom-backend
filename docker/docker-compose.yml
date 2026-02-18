@@ -1,14 +1,14 @@
 services:
   api:
-    build: 
+    build:
       context: ..
-      dockerfile: docker/Dockerfile    
+      dockerfile: docker/Dockerfile
     container_name: api
     restart: unless-stopped
     ports:
-      - "23848:8080"
+      - "8080:8080"
     networks:
-      - internal
+      - app_net
 
   prometheus:
     image: prom/prometheus
@@ -18,7 +18,7 @@ services:
     volumes:
       - ./prometheus.yml:/etc/prometheus/prometheus.yml
     networks:
-      - internal
+      - app_net
 
   grafana:
     image: grafana/grafana
@@ -26,8 +26,8 @@ services:
     ports:
       - "3000:3000"
     networks:
-      - internal
+      - app_net
 
 networks:
-  internal:
+  app_net:
     driver: bridge
