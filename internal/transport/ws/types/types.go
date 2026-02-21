@@ -8,23 +8,24 @@ import (
 )
 
 type Client struct {
-	Conn  *websocket.Conn
-	Rooms map[string]bool
+	Conn   *websocket.Conn
+	Rooms  map[string]bool
+	UserID int
 }
 
 type Hub struct {
 	Clients         map[string]map[*Client]bool
-	ClientsByUserID map[int]*Client
+	ClientsByUserID map[int]map[*Client]bool
 	SessionApp      *SessionApp.SessionApp
 	Chats           *ChatApp.ChatApp
 }
 
-func NewHub(SessionApp *SessionApp.SessionApp, Chats *ChatApp.ChatApp) *Hub {
+func NewHub(sessionApp *SessionApp.SessionApp, chats *ChatApp.ChatApp) *Hub {
 	return &Hub{
-		SessionApp:      SessionApp,
+		SessionApp:      sessionApp,
 		Clients:         make(map[string]map[*Client]bool),
-		ClientsByUserID: make(map[int]*Client),
-		Chats:           Chats,
+		ClientsByUserID: make(map[int]map[*Client]bool),
+		Chats:           chats,
 	}
 }
 
@@ -57,30 +58,40 @@ func (h *Hub) LeaveAllRooms(client *Client) {
 	}
 }
 
-func (h *Hub) Broadcast(room string, message []byte) {
-	if clients, ok := h.Clients[room]; ok {
-		for client := range clients {
-			client.Conn.WriteMessage(websocket.TextMessage, message)
-		}
-	}
-}
-
 func (h *Hub) RegisterUser(userID int, client *Client) {
-	h.ClientsByUserID[userID] = client
+	if h.ClientsByUserID[userID] == nil {
+		h.ClientsByUserID[userID] = make(map[*Client]bool)
+	}
+	h.ClientsByUserID[userID][client] = true
 	metrics.ActiveWebsocketConnections.Inc()
 }
 
-func (h *Hub) UnregisterUser(userID int) {
-	delete(h.ClientsByUserID, userID)
+func (h *Hub) UnregisterUser(userID int, client *Client) {
+	if clients, ok := h.ClientsByUserID[userID]; ok {
+		delete(clients, client)
+		if len(clients) == 0 {
+			delete(h.ClientsByUserID, userID)
+		}
+	}
 	metrics.ActiveWebsocketConnections.Dec()
 }
 
 func (h *Hub) SendToUser(userID int, message []byte) {
-	if client, ok := h.ClientsByUserID[userID]; ok {
-		err := client.Conn.WriteMessage(websocket.TextMessage, message)
-		if err != nil {
-			h.UnregisterUser(userID)
-			client.Conn.Close()
+	if clients, ok := h.ClientsByUserID[userID]; ok {
+		for client := range clients {
+			err := client.Conn.WriteMessage(websocket.TextMessage, message)
+			if err != nil {
+				h.UnregisterUser(userID, client)
+				client.Conn.Close()
+			}
+		}
+	}
+}
+
+func (h *Hub) Broadcast(room string, message []byte) {
+	if clients, ok := h.Clients[room]; ok {
+		for client := range clients {
+			client.Conn.WriteMessage(websocket.TextMessage, message)
 		}
 	}
 }

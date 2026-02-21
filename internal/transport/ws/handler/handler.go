@@ -20,35 +20,20 @@ func HandleWS(hub *types.Hub) func(c *websocket.Conn) {
 			return
 		}
 
-		client := &types.Client{Conn: c}
-
-		if hub.ClientsByUserID == nil {
-			hub.ClientsByUserID = make(map[int]*types.Client)
+		client := &types.Client{
+			Conn:   c,
+			UserID: session.UserID,
 		}
-		hub.ClientsByUserID[session.UserID] = client
 
 		hub.RegisterUser(session.UserID, client)
-
 		defer func() {
-			hub.UnregisterUser(session.UserID)
+			hub.UnregisterUser(session.UserID, client)
 			hub.LeaveAllRooms(client)
 			c.Close()
 		}()
 
-		for {
-			_, _, err := c.ReadMessage()
-			if err != nil {
-				break
-			}
-		}
-
 		chats, err := hub.Chats.GetChatsByUserID(session.UserID)
-		if err != nil {
-			c.WriteMessage(websocket.TextMessage, []byte("Get chats error"))
-			return
-		}
-
-		if len(chats) > 0 {
+		if err == nil && len(chats) > 0 {
 			for _, chat := range chats {
 				events.Join(hub, client, "chat"+strconv.Itoa(chat.ID))
 			}
@@ -69,5 +54,12 @@ func HandleWS(hub *types.Hub) func(c *websocket.Conn) {
 				}
 			}
 		}()
+
+		for {
+			_, _, err := c.ReadMessage()
+			if err != nil {
+				break
+			}
+		}
 	}
 }
