@@ -1,6 +1,8 @@
 package encryptedchatkeys
 
 import (
+	"encoding/json"
+
 	"github.com/gofiber/fiber/v2"
 	"github.com/slipe-fun/skid-backend/internal/domain"
 )
@@ -20,7 +22,6 @@ func (h *EncryptedChatKeysHandler) AddKeys(c *fiber.Ctx) error {
 		})
 	}
 
-	// Сразу слайс, чтобы принимать JSON массив
 	var req []*domain.RawEncryptedChatKeys
 	if err := c.BodyParser(&req); err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
@@ -64,7 +65,7 @@ func (h *EncryptedChatKeysHandler) AddKeys(c *fiber.Ctx) error {
 		})
 	}
 
-	createdKeys, err := h.keys.AddKeys(session.UserID, chatID, keys)
+	createdKeys, recipientID, err := h.keys.AddKeys(session.UserID, chatID, keys)
 	if err != nil {
 		if appErr, ok := err.(*domain.AppError); ok {
 			return c.Status(appErr.Status).JSON(fiber.Map{
@@ -78,6 +79,26 @@ func (h *EncryptedChatKeysHandler) AddKeys(c *fiber.Ctx) error {
 			"message": "something went wrong",
 		})
 	}
+
+	outMsg := struct {
+		Type   string                      `json:"type"`
+		ChatID int                         `json:"chat_id"`
+		Keys   []*domain.EncryptedChatKeys `json:"keys"`
+	}{
+		Type:   "keys.new",
+		ChatID: chatID,
+		Keys:   createdKeys,
+	}
+
+	b, err := json.Marshal(outMsg)
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"error":   "internal_error",
+			"message": "internal error",
+		})
+	}
+
+	h.wsHub.SendToUser(recipientID, b)
 
 	return c.JSON(createdKeys)
 }

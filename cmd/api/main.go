@@ -95,7 +95,7 @@ func main() {
 	messageHandler := messagehandler.NewMessageHandler(chatApp, messageApp, hub)
 	sessionHandler := sessionhandler.NewSessionHandler(sessionApp, chatRepo)
 	keysHandler := keyshandler.NewKeysHandler(keysApp)
-	encryptedChatKeysHandler := encryptedchatkeyshandler.NewEncryptedChatKeysHandlerApp(encryptedChatKeysApp)
+	encryptedChatKeysHandler := encryptedchatkeyshandler.NewEncryptedChatKeysHandlerApp(encryptedChatKeysApp, hub)
 	friendHandler := friendhandler.NewFriendHandler(friendApp, hub)
 
 	fiberApp := fiber.New()
