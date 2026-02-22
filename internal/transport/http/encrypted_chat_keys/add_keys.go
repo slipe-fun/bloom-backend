@@ -56,6 +56,7 @@ func (h *EncryptedChatKeysHandler) AddKeys(c *fiber.Ctx) error {
 		keys = append(keys, &domain.EncryptedChatKeys{
 			ChatID:          chatID,
 			SessionID:       key.SessionID,
+			FromSessionID:   session.ID,
 			EncryptedKey:    key.EncryptedKey,
 			EncapsulatedKey: key.EncapsulatedKey,
 			CekWrap:         key.CekWrap,
@@ -81,13 +82,15 @@ func (h *EncryptedChatKeysHandler) AddKeys(c *fiber.Ctx) error {
 	}
 
 	outMsg := struct {
-		Type   string                      `json:"type"`
-		ChatID int                         `json:"chat_id"`
-		Keys   []*domain.EncryptedChatKeys `json:"keys"`
+		Type          string                      `json:"type"`
+		ChatID        int                         `json:"chat_id"`
+		FromSessionID int                         `json:"from_session_id"`
+		Keys          []*domain.EncryptedChatKeys `json:"keys"`
 	}{
-		Type:   "keys.new",
-		ChatID: chatID,
-		Keys:   createdKeys,
+		Type:          "keys.new",
+		ChatID:        chatID,
+		FromSessionID: session.ID,
+		Keys:          createdKeys,
 	}
 
 	b, err := json.Marshal(outMsg)

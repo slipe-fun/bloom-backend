@@ -6,6 +6,7 @@ type EncryptedChatKeys struct {
 	ID              int       `db:"id" json:"id"`
 	ChatID          int       `db:"chat_id" json:"chat_id"`
 	SessionID       int       `db:"session_id" json:"session_id"`
+	FromSessionID   int       `db:"from_session_id" json:"from_session_id"`
 	EncryptedKey    string    `db:"encrypted_key" json:"encrypted_key"`
 	EncapsulatedKey string    `db:"encapsulated_key" json:"encapsulated_key"`
 	CekWrap         string    `db:"cek_wrap" json:"cek_wrap"`

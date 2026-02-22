@@ -15,6 +15,7 @@ func (r *EncryptedChatKeysRepo) GetByID(id int) (*domain.EncryptedChatKeys, erro
 			id,
 			chat_id,
 			session_id,
+			from_session_id,
 			encrypted_key,
 			encapsulated_key,
 			cek_wrap,
