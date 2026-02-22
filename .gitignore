@@ -35,4 +35,5 @@ go.work.sum
 
 configs/config.yaml
 logs/*
+docker/.env
 test.go
