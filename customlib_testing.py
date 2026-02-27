@@ -11,7 +11,7 @@ def printfail(fail_text: str, route: str, fail_type: str = "UNKNOWN"):
     fail_left += " "*spaces_count
 
     fail_left += " FAIL: "
-    print(fail_left+route+"\1xb[0m")
+    print(fail_left+route+"\x1b[0m")
     print("\x1b[31;1m"+fail_text+"\x1b[0m")
 
 def printsuccess(route: str, success_type: str = ""):
