@@ -105,7 +105,7 @@ missing_routes_text = [x[0] for x in missing_routes]
 while True:
     # Autocomplete Route input
     # route = input("Route: ")
-    print("\n\x1b[1mEnter the route to generate it's testing code:\x1b[0m ")
+    print("\n\x1b[1mEnter the route to generate its testing code:\x1b[0m ")
     cw_route = "/"
     best_guess = missing_routes[0][0]
     print(end=f"/\x1b[2m{best_guess[1:]}\x1b[0m", flush=True)
@@ -220,7 +220,12 @@ while True:
     if yrn("Want me to add this line to tests.py for you?"):
         with open("tests.py", "r") as file:
             tests_code = file.read()
-        add_at = min([(tests_code+"t.g(\"").index("t.g(\""),
-                      (tests_code+"t.p(\"").index("t.p(\"")])
+        ANCHOR_COMMENT = "# Test generator, please add the tests here:"
+        try:
+            add_at = tests_code.index(ANCHOR_COMMENT)+1
+        except:
+            print("Idfk where to add dat shit, man... Can you comment it?")
+            print(f"Just write `{ANCHOR_COMMENT}` and I'll add stuff on the next line.")
+            exit()
         result_file_code = tests_code[:add_at]+result_code+"\n"+tests_code[add_at:]
-        with open("test2.py", "w") as file: file.write(result_file_code)
+        with open("tests.py", "w") as file: file.write(result_file_code)
