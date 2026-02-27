@@ -35,7 +35,6 @@ class Test:
         self.method = method
         self.status_code = s_code
     def __call__(self):
-        print("Testing", self.route)
         if   self.method == "GET": # Could use match case
             resp = requests.get(server+self.route, self.request_data)
         elif self.method == "POST":
