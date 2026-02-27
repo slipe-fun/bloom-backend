@@ -185,9 +185,9 @@ while True:
             request_data = None
 
         if method == "GET":
-            result_code = f"t.g({route}, result=\"error\", request_data={repr(request_data)}, status_code={status_code})"
+            result_code = f"t.g({repr(route)}, result=\"error\", request_data={repr(request_data)}, status_code={status_code})"
         elif method == "POST":
-            result_code = f"t.p({route}, result=\"error\", request_data={repr(request_data)}, status_code={status_code})"
+            result_code = f"t.p({repr(route)}, result=\"error\", request_data={repr(request_data)}, status_code={status_code})"
     elif behavior == "w":
         request_data = input("Request data (just press enter if none): ")
         response_data = input("Response data: ")
@@ -198,9 +198,9 @@ while True:
             request_data = None
 
         if method == "GET":
-            result_code = f"t.g({route}, result=\"error\", request_data={repr(request_data)}, status_code={status_code})"
+            result_code = f"t.g({repr(route)}, result=\"error\", request_data={repr(request_data)}, status_code={status_code})"
         elif method == "POST":
-            result_code = f"t.p({route}, result={repr(response_data)}, request_data={repr(request_data)}, status_code={status_code})"
+            result_code = f"t.p({repr(route)}, result={repr(response_data)}, request_data={repr(request_data)}, status_code={status_code})"
     elif behavior == "l":
         request_data = input("Request data (just press enter if none): ")
 
@@ -209,9 +209,9 @@ while True:
         if request_data.strip() == "":
             request_data = None
         if method == "GET":
-            result_code = f"t.g({route}, result={repr(response)}, request_data={repr(request_data)}, status_code={status_code})"
+            result_code = f"t.g({repr(route)}, result={repr(response)}, request_data={repr(request_data)}, status_code={status_code})"
         elif method == "POST":
-            result_code = f"t.p({route}, result={repr(response)}, request_data={repr(request_data)}, status_code={status_code})"
+            result_code = f"t.p({repr(route)}, result={repr(response)}, request_data={repr(request_data)}, status_code={status_code})"
         else:
             raise NameError("Invalid method, what could possibly cause this??")
     print(result_code)
