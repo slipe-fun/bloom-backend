@@ -74,6 +74,7 @@ class Test:
 
 def g(route: str, result="error", request_data: dict = None, status_code: int = None): # GET request
     tests.append(Test(route=route, result=result, request_data=request_data, s_code=status_code))
+    test_routes.update((route,))
 
 def list_missing():
     with open("cmd/api/main.go") as file:
@@ -89,9 +90,13 @@ def list_missing():
 
         start_route = line.index('t("/')
         end_route = line.index('", ')
-        print(line[start_route+3:end_route])
+        route = (line[start_route+3:end_route])
+        if route not in test_routes:
+            print("Not added:", route)
+        
 
 def run_tests():
     [test() for test in tests]
 
 tests = []
+test_routes = set()
