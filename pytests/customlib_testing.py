@@ -105,8 +105,8 @@ def list_missing(quiet: bool = False):
         else:
             print(line)
             raise SyntaxError("What happened here?? Can't detect the method")
-        
-        cc_missing_tests.append((route, method))
+        if route not in test_routes:
+            cc_missing_tests.append((route, method))
         
     return cc_missing_tests
 
