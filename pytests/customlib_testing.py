@@ -72,7 +72,11 @@ class Test:
 
 
 def g(route: str, result="error", request_data: dict = None, status_code: int = None): # GET request
-    tests.append(Test(route=route, result=result, request_data=request_data, s_code=status_code))
+    tests.append(Test(route=route, result=result, request_data=request_data, s_code=status_code, method="GET"))
+    test_routes.update((route,))
+
+def p(route: str, result="error", request_data: dict = None, status_code: int = None): # POST request
+    tests.append(Test(route=route, result=result, request_data=request_data, s_code=status_code, method="POST"))
     test_routes.update((route,))
 
 def list_missing(quiet: bool = False):
