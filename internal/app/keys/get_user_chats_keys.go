@@ -5,7 +5,7 @@ import (
 	"github.com/slipe-fun/skid-backend/internal/pkg/logger"
 )
 
-func (k *KeysApp) GetUserChatsKeys(user_id int) (*domain.EncryptedKeys, error) {
+func (k *KeysApp) GetUserChatKeys(user_id int) (*domain.EncryptedKeys, error) {
 	keys, err := k.keys.GetByUserID(user_id)
 	if err != nil {
 		logger.LogError(err.Error(), "keys-app")

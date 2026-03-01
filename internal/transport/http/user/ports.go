@@ -6,7 +6,7 @@ type UserApp interface {
 	GetAllUsers(limit, offset int) ([]*domain.User, error)
 	GetUserByID(id int) (*domain.User, error)
 	SearchUsersByUsername(username string, limit, offset int) ([]*domain.User, error)
-	IsUserWithEmailExists(email string) (bool, error)
+	DoesUserExistGivenEmail(email string) (bool, error)
 	EditUser(user_id int, editedUser *domain.User) (*domain.User, error)
 }
 

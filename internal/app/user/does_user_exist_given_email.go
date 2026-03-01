@@ -5,7 +5,7 @@ import (
 	"github.com/slipe-fun/skid-backend/internal/pkg/logger"
 )
 
-func (u *UserApp) IsUserWithEmailExists(email string) (bool, error) {
+func (u *UserApp) DoesUserExistGivenEmail(email string) (bool, error) {
 	_, err := u.users.GetByEmail(email)
 	if err != nil {
 		logger.LogError(err.Error(), "user-app")

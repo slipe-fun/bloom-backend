@@ -5,7 +5,7 @@ import (
 	"github.com/slipe-fun/skid-backend/internal/domain"
 )
 
-func (h *UserHandler) IsUserWithEmailExists(c *fiber.Ctx) error {
+func (h *UserHandler) DoesUserExistGivenEmail(c *fiber.Ctx) error {
 	email := c.Query("email", "")
 	if email == "" {
 		return c.JSON(fiber.Map{
@@ -15,7 +15,7 @@ func (h *UserHandler) IsUserWithEmailExists(c *fiber.Ctx) error {
 		})
 	}
 
-	_, err := h.userApp.IsUserWithEmailExists(email)
+	_, err := h.userApp.DoesUserExistGivenEmail(email)
 	if appErr, ok := err.(*domain.AppError); ok {
 		return c.Status(appErr.Status).JSON(fiber.Map{
 			"exists":  false,
