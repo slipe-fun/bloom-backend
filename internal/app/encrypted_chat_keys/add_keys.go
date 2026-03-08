@@ -60,6 +60,23 @@ func (k *EncryptedChatKeysApp) AddKeys(userID, recipientID, chatID int, keys []*
 		}
 	}
 
+	oldKeys, err := k.keys.GetBySessionIDsAndChatID(sessionIDs, chatID)
+	if err != nil {
+		return nil, 0, domain.Failed("failed to fetch existing keys")
+	}
+
+	if len(oldKeys) > 0 {
+		oldIDs := make([]int, 0, len(oldKeys))
+		for _, k := range oldKeys {
+			oldIDs = append(oldIDs, k.ID)
+		}
+
+		err = k.keys.DeleteByIDs(oldIDs)
+		if err != nil {
+			return nil, 0, domain.Failed("failed to delete old keys")
+		}
+	}
+
 	createdKeys, err := k.keys.Create(keys)
 	if err != nil {
 		return nil, 0, domain.Failed("failed to create encrypted chat keys")
