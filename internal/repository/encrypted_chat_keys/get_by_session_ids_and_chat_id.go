@@ -3,6 +3,7 @@ package keys
 import (
 	"time"
 
+	"github.com/lib/pq"
 	"github.com/slipe-fun/skid-backend/internal/domain"
 	"github.com/slipe-fun/skid-backend/internal/metrics"
 )
@@ -32,7 +33,7 @@ func (r *EncryptedChatKeysRepo) GetBySessionIDsAndChatID(sessionIDs []int, chatI
 	`
 
 	start := time.Now()
-	err := r.db.Select(&keys, query, chatID, sessionIDs)
+	err := r.db.Select(&keys, query, chatID, pq.Array(sessionIDs))
 	duration := time.Since(start)
 	metrics.ObserveDB("encrypted_chat_keys_get_by_session_ids_and_chat", duration, err)
 

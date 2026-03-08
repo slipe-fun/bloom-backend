@@ -3,6 +3,7 @@ package keys
 import (
 	"time"
 
+	"github.com/lib/pq"
 	"github.com/slipe-fun/skid-backend/internal/metrics"
 )
 
@@ -17,7 +18,7 @@ func (r *EncryptedChatKeysRepo) DeleteByIDs(ids []int) error {
 	`
 
 	start := time.Now()
-	_, err := r.db.Exec(query, ids)
+	_, err := r.db.Exec(query, pq.Array(ids))
 	duration := time.Since(start)
 	metrics.ObserveDB("encrypted_chat_keys_delete_by_ids", duration, err)
 
