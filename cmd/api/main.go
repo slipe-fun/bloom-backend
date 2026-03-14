@@ -9,6 +9,7 @@ import (
 	"github.com/gofiber/websocket/v2"
 
 	"github.com/gofiber/fiber/v2/middleware/adaptor"
+	"github.com/gofiber/fiber/v2/middleware/cors"
 	"github.com/gofiber/fiber/v2/middleware/recover"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	authapp "github.com/slipe-fun/skid-backend/internal/app/auth"
@@ -101,6 +102,7 @@ func main() {
 	fiberApp := fiber.New()
 
 	fiberApp.Use(recover.New())
+	fiberApp.Use(cors.New())
 
 	if cfg.RateLimit.Enabled {
 		rateLimiter := middleware.NewAdaptiveRateLimiter(cfg.RateLimitWindow())
