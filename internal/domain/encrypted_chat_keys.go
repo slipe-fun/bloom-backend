@@ -25,3 +25,8 @@ type RawEncryptedChatKeys struct {
 	Salt            string `json:"salt"`
 	Nonce           string `json:"nonce"`
 }
+
+type EnrichedChatKey struct {
+	*EncryptedChatKeys
+	SenderPublicKeys map[string]string `json:"sender_public_keys"`
+}
