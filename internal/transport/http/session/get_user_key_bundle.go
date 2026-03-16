@@ -85,6 +85,6 @@ func (h *SessionHandler) GetUserKeyBundle(c *fiber.Ctx) error {
 		})
 	}
 
-	return c.JSON(sessions)
+	return c.JSON(resp)
 
 }
