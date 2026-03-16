@@ -1,54 +1,31 @@
 package chat
 
-import (
-	"encoding/json"
-	"time"
+import "github.com/lib/pq"
 
-	"github.com/slipe-fun/skid-backend/internal/domain"
-	"github.com/slipe-fun/skid-backend/internal/metrics"
-)
-
-func (r *ChatRepo) GetWithUsers(id int, recipient int) (*domain.Chat, error) {
-	var chat domain.Chat
-	var membersJSON []byte
-
+func (r *ChatRepo) GetExistingChatUsers(userID int, ids []int) ([]int, error) {
 	query := `
-	SELECT id, members, encryption_key
-	FROM chats
-	WHERE EXISTS (
-		SELECT 1
-		FROM jsonb_array_elements(members) AS m
-		WHERE (m->>'id')::int = $1
-	)
-	AND EXISTS (
-		SELECT 1
-		FROM jsonb_array_elements(members) AS m
-		WHERE (m->>'id')::int = $2
-	);
+	SELECT DISTINCT (m2->>'id')::int AS user_id
+	FROM chats c
+	JOIN jsonb_array_elements(c.members) m1 ON TRUE
+	JOIN jsonb_array_elements(c.members) m2 ON TRUE
+	WHERE (m1->>'id')::int = $1
+	AND (m2->>'id')::int = ANY($2::int[])
+	AND (m2->>'id')::int != $1;
 	`
 
-	start := time.Now()
-
-	err := r.db.QueryRow(query, id, recipient).Scan(&chat.ID, &membersJSON, &chat.EncryptionKey)
-
-	duration := time.Since(start)
-
-	metrics.ObserveDB("chat_get_with_bot_users", duration, err)
-
+	rows, err := r.db.Query(query, userID, pq.Array(ids))
 	if err != nil {
 		return nil, err
 	}
+	defer rows.Close()
 
-	json.Unmarshal(membersJSON, &chat.Members)
+	var result []int
 
-	for i := range chat.Members {
-		member := chat.Members[i]
-		user, err := r.userRepo.GetByID(member.ID)
-		if err != nil {
-			continue
-		}
-		chat.Members[i].Username = user.Username
+	for rows.Next() {
+		var id int
+		rows.Scan(&id)
+		result = append(result, id)
 	}
 
-	return &chat, nil
+	return result, nil
 }

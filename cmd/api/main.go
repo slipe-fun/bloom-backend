@@ -136,7 +136,7 @@ func main() {
 	fiberApp.Get("/user/search", userHandler.SearchByUsername)
 	fiberApp.Get("/user/exists", userHandler.IsUserWithEmailExists)
 	fiberApp.Get("/user/:id", userHandler.GetUserByID)
-	fiberApp.Get("/user/:id/key-bundle", authMiddleware.Handle(), sessionHandler.GetUserKeyBundle)
+	fiberApp.Get("/users/key-bundle", authMiddleware.Handle(), sessionHandler.GetUserKeyBundle)
 
 	fiberApp.Get("/users", userHandler.GetAllUsers)
 
