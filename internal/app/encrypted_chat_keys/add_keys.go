@@ -7,80 +7,117 @@ import (
 	"github.com/slipe-fun/skid-backend/internal/pkg/logger"
 )
 
-func (k *EncryptedChatKeysApp) AddKeys(userID, recipientID, chatID int, keys []*domain.EncryptedChatKeys) ([]*domain.EncryptedChatKeys, int, error) {
-	chat, err := k.chats.GetByID(chatID)
-	if err != nil {
-		logger.LogError(err.Error(), "encrypted-chat-keys-app")
-		return nil, 0, domain.NotFound("failed to chat")
+type chatSessionPair struct {
+	ChatID    int
+	SessionID int
+}
+
+func (k *EncryptedChatKeysApp) AddKeys(userID int, batch []domain.AddKeyBatchItem) ([]*domain.EncryptedChatKeys, error) {
+	if len(batch) == 0 {
+		return nil, nil
 	}
 
-	isUserInChat := false
-	isRecipientInChat := false
+	uniqueChatIDsMap := make(map[int]struct{})
+	uniqueSessionIDsMap := make(map[int]struct{})
+	seenPairs := make(map[chatSessionPair]struct{})
 
-	for _, member := range chat.Members {
-		if member.ID == userID {
-			isUserInChat = true
-		}
-		if member.ID == recipientID {
-			isRecipientInChat = true
-		}
-	}
+	var chatIDs []int
+	var sessionIDs []int
+	var deduplicatedBatch []domain.AddKeyBatchItem
 
-	if !isUserInChat {
-		return nil, 0, errors.New("user is not a member of the chat")
-	}
-
-	if !isRecipientInChat {
-		return nil, 0, errors.New("recipient is not a member of the chat")
-	}
-
-	seen := make(map[int]struct{}, len(keys))
-	sessionIDs := make([]int, 0, len(keys))
-
-	for _, key := range keys {
-		if _, exists := seen[key.SessionID]; exists {
+	for _, item := range batch {
+		pair := chatSessionPair{ChatID: item.ChatID, SessionID: item.Key.SessionID}
+		if _, exists := seenPairs[pair]; exists {
 			continue
 		}
-		seen[key.SessionID] = struct{}{}
-		sessionIDs = append(sessionIDs, key.SessionID)
+		seenPairs[pair] = struct{}{}
+		deduplicatedBatch = append(deduplicatedBatch, item)
+
+		if _, exists := uniqueChatIDsMap[item.ChatID]; !exists {
+			uniqueChatIDsMap[item.ChatID] = struct{}{}
+			chatIDs = append(chatIDs, item.ChatID)
+		}
+		if _, exists := uniqueSessionIDsMap[item.Key.SessionID]; !exists {
+			uniqueSessionIDsMap[item.Key.SessionID] = struct{}{}
+			sessionIDs = append(sessionIDs, item.Key.SessionID)
+		}
+	}
+
+	chats, err := k.chats.GetByIDs(chatIDs)
+	if err != nil {
+		logger.LogError(err.Error(), "encrypted-chat-keys-app")
+		return nil, domain.Failed("failed to fetch chats")
+	}
+
+	chatMembersCache := make(map[int]map[int]bool)
+	for _, chat := range chats {
+		membersMap := make(map[int]bool, len(chat.Members))
+		for _, member := range chat.Members {
+			membersMap[member.ID] = true
+		}
+		chatMembersCache[chat.ID] = membersMap
 	}
 
 	sessions, err := k.session.GetSessionByIDs(sessionIDs)
 	if err != nil {
-		return nil, 0, domain.Failed("failed to get provided sessions")
+		return nil, domain.Failed("failed to fetch sessions")
 	}
 
-	if len(sessions) != len(sessionIDs) {
-		return nil, 0, domain.InvalidData("one or more sessions not found")
-	}
-
+	sessionOwnerMap := make(map[int]int)
 	for _, s := range sessions {
-		if s.UserID != recipientID {
-			return nil, 0, domain.InvalidData("one of provided sessions ids is not belongs to recipient")
-		}
+		sessionOwnerMap[s.ID] = s.UserID
 	}
 
-	oldKeys, err := k.keys.GetBySessionIDsAndChatID(sessionIDs, chatID)
+	validKeysToInsert := make([]*domain.EncryptedChatKeys, 0, len(deduplicatedBatch))
+
+	for _, item := range deduplicatedBatch {
+		members, chatExists := chatMembersCache[item.ChatID]
+		if !chatExists {
+			return nil, domain.InvalidData("chat not found")
+		}
+		if !members[userID] {
+			return nil, errors.New("user is not a member of the chat")
+		}
+		if !members[item.RecipientID] {
+			return nil, errors.New("recipient is not a member of the chat")
+		}
+
+		sessionOwnerID, sessionExists := sessionOwnerMap[item.Key.SessionID]
+		if !sessionExists {
+			return nil, domain.InvalidData("session not found")
+		}
+		if sessionOwnerID != item.RecipientID {
+			return nil, domain.InvalidData("one of provided sessions does not belong to the recipient")
+		}
+
+		item.Key.ChatID = item.ChatID
+		validKeysToInsert = append(validKeysToInsert, item.Key)
+	}
+
+	oldKeys, err := k.keys.GetBySessionIDsAndChatIDs(sessionIDs, chatIDs)
 	if err != nil {
-		return nil, 0, domain.Failed("failed to fetch existing keys")
+		return nil, domain.Failed("failed to fetch existing keys")
 	}
 
-	if len(oldKeys) > 0 {
-		oldIDs := make([]int, 0, len(oldKeys))
-		for _, k := range oldKeys {
-			oldIDs = append(oldIDs, k.ID)
+	var oldIDsToDelete []int
+	for _, oldKey := range oldKeys {
+		pair := chatSessionPair{ChatID: oldKey.ChatID, SessionID: oldKey.SessionID}
+		if _, isBeingReplaced := seenPairs[pair]; isBeingReplaced {
+			oldIDsToDelete = append(oldIDsToDelete, oldKey.ID)
 		}
+	}
 
-		err = k.keys.DeleteByIDs(oldIDs)
+	if len(oldIDsToDelete) > 0 {
+		err = k.keys.DeleteByIDs(oldIDsToDelete)
 		if err != nil {
-			return nil, 0, domain.Failed("failed to delete old keys")
+			return nil, domain.Failed("failed to delete old keys")
 		}
 	}
 
-	createdKeys, err := k.keys.Create(keys)
+	createdKeys, err := k.keys.Create(validKeysToInsert)
 	if err != nil {
-		return nil, 0, domain.Failed("failed to create encrypted chat keys")
+		return nil, domain.Failed("failed to create encrypted chat keys")
 	}
 
-	return createdKeys, recipientID, nil
+	return createdKeys, nil
 }

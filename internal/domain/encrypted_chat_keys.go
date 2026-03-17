@@ -1,6 +1,8 @@
 package domain
 
-import "time"
+import (
+	"time"
+)
 
 type EncryptedChatKeys struct {
 	ID              int       `db:"id" json:"id"`
@@ -29,4 +31,10 @@ type RawEncryptedChatKeys struct {
 type EnrichedChatKey struct {
 	*EncryptedChatKeys
 	SenderPublicKeys map[string]string `json:"sender_public_keys"`
+}
+
+type AddKeyBatchItem struct {
+	ChatID      int
+	RecipientID int
+	Key         *EncryptedChatKeys
 }

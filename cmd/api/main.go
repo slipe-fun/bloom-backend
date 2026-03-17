@@ -147,7 +147,7 @@ func main() {
 	fiberApp.Post("/chat/create", authMiddleware.Handle(), chatHandler.CreateChat)
 	fiberApp.Get("/chats", authMiddleware.Handle(), chatHandler.GetChatsByUserID)
 	fiberApp.Get("/chats/encryption-keys", authMiddleware.Handle(), encryptedChatKeysHandler.GetBySessionID)
-	fiberApp.Post("/chat/:id/member/:r_id/encryption-keys", authMiddleware.Handle(), encryptedChatKeysHandler.AddKeys)
+	fiberApp.Post("/chats/encryption-keys", authMiddleware.Handle(), encryptedChatKeysHandler.AddKeys)
 	fiberApp.Get("/chat/:id", authMiddleware.Handle(), chatHandler.GetChatByID)
 	fiberApp.Get("/chat/:id/read", authMiddleware.Handle(), chatHandler.GetChatLastReadMessage)
 	fiberApp.Get("/chat/:id/messages", authMiddleware.Handle(), chatHandler.GetChatMessages)
