@@ -1,8 +1,6 @@
 package encryptedchatkeys
 
 import (
-	"errors"
-
 	"github.com/slipe-fun/skid-backend/internal/domain"
 	"github.com/slipe-fun/skid-backend/internal/pkg/logger"
 )
@@ -69,29 +67,35 @@ func (k *EncryptedChatKeysApp) AddKeys(userID int, batch []domain.AddKeyBatchIte
 	}
 
 	validKeysToInsert := make([]*domain.EncryptedChatKeys, 0, len(deduplicatedBatch))
+	validPairs := make(map[chatSessionPair]struct{})
 
 	for _, item := range deduplicatedBatch {
 		members, chatExists := chatMembersCache[item.ChatID]
 		if !chatExists {
-			return nil, domain.InvalidData("chat not found")
+			continue
 		}
 		if !members[userID] {
-			return nil, errors.New("user is not a member of the chat")
+			continue
 		}
 		if !members[item.RecipientID] {
-			return nil, errors.New("recipient is not a member of the chat")
+			continue
 		}
 
 		sessionOwnerID, sessionExists := sessionOwnerMap[item.Key.SessionID]
 		if !sessionExists {
-			return nil, domain.InvalidData("session not found")
+			continue
 		}
 		if sessionOwnerID != item.RecipientID {
-			return nil, domain.InvalidData("one of provided sessions does not belong to the recipient")
+			continue
 		}
 
 		item.Key.ChatID = item.ChatID
 		validKeysToInsert = append(validKeysToInsert, item.Key)
+		validPairs[chatSessionPair{ChatID: item.ChatID, SessionID: item.Key.SessionID}] = struct{}{}
+	}
+
+	if len(validKeysToInsert) == 0 {
+		return []*domain.EncryptedChatKeys{}, nil
 	}
 
 	oldKeys, err := k.keys.GetBySessionIDsAndChatIDs(sessionIDs, chatIDs)
@@ -102,7 +106,7 @@ func (k *EncryptedChatKeysApp) AddKeys(userID int, batch []domain.AddKeyBatchIte
 	var oldIDsToDelete []int
 	for _, oldKey := range oldKeys {
 		pair := chatSessionPair{ChatID: oldKey.ChatID, SessionID: oldKey.SessionID}
-		if _, isBeingReplaced := seenPairs[pair]; isBeingReplaced {
+		if _, isBeingReplaced := validPairs[pair]; isBeingReplaced {
 			oldIDsToDelete = append(oldIDsToDelete, oldKey.ID)
 		}
 	}
