@@ -82,7 +82,7 @@ func main() {
 	verificationApp := verificationapp.NewAuthApp(verificationRepo)
 	authApp := authapp.NewAuthApp(sessionApp, userRepo, verificationRepo, verificationApp, googleService)
 	userApp := userapp.NewUserApp(userRepo)
-	chatApp := chatapp.NewChatApp(chatRepo)
+	chatApp := chatapp.NewChatApp(chatRepo, messageRepo)
 	messageApp := messageapp.NewMessageApp(messageRepo, chatApp)
 	keysApp := keysapp.NewKeysApp(keysRepo)
 	encryptedChatKeysApp := encryptedchatkeysapp.NewEncryptedChatKeysApp(encryptedChatKeysRepo, chatRepo, sessionApp)

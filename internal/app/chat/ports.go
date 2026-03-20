@@ -9,3 +9,7 @@ type ChatRepo interface {
 	GetWithUsers(id, recipient int) (*domain.Chat, error)
 	GetByUserID(userID int) ([]*domain.ChatWithLastMessage, error)
 }
+
+type MessageRepo interface {
+	GetChatLastReadMessage(chatID int) (*domain.Message, error)
+}

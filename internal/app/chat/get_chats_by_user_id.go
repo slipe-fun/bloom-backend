@@ -12,5 +12,13 @@ func (c *ChatApp) GetChatsByUserID(user_id int) ([]*domain.ChatWithLastMessage, 
 		return nil, domain.NotFound("chats not found")
 	}
 
+	for chat := range chats {
+		lastReadMessage, err := c.messages.GetChatLastReadMessage(chats[chat].ID)
+		if err != nil {
+			continue
+		}
+		chats[chat].LastReadMessageID = &lastReadMessage.ID
+	}
+
 	return chats, nil
 }

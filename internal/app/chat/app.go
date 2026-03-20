@@ -1,11 +1,13 @@
 package chat
 
 type ChatApp struct {
-	chats ChatRepo
+	chats    ChatRepo
+	messages MessageRepo
 }
 
-func NewChatApp(chats ChatRepo) *ChatApp {
+func NewChatApp(chats ChatRepo, messages MessageRepo) *ChatApp {
 	return &ChatApp{
-		chats: chats,
+		chats:    chats,
+		messages: messages,
 	}
 }
