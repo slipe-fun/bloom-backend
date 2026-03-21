@@ -51,19 +51,13 @@ func (r *ChatRepo) GetByUserID(userID int) ([]*domain.ChatWithLastMessage, error
 
 		var msg domain.Message
 		err = r.db.QueryRow(`
-			SELECT id, ciphertext, nonce, chat_id, encapsulated_key, signature,
-			       signed_payload, cek_wrap, cek_wrap_iv, cek_wrap_salt,
-				   encapsulated_key_sender, cek_wrap_sender, cek_wrap_sender_iv,
-				   cek_wrap_sender_salt, seen, reply_to
+			SELECT id, ciphertext, nonce, chat_id, seen, reply_to
 			FROM messages
 			WHERE chat_id = $1
 			ORDER BY id DESC
 			LIMIT 1
 		`, chat.ID).Scan(
-			&msg.ID, &msg.Ciphertext, &msg.Nonce, &msg.ChatID, &msg.EncapsulatedKey,
-			&msg.Signature, &msg.SignedPayload, &msg.CEKWrap, &msg.CEKWrapIV, &msg.CEKWrapSalt,
-			&msg.EncapsulatedKeySender, &msg.CEKWrapSender, &msg.CEKWrapSenderIV, &msg.CEKWrapSenderSalt,
-			&msg.Seen, &msg.ReplyTo,
+			&msg.ID, &msg.Ciphertext, &msg.Nonce, &msg.ChatID, &msg.Seen, &msg.ReplyTo,
 		)
 		if err == nil {
 			chat.LastMessage = &msg
