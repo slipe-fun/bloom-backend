@@ -8,7 +8,6 @@ type ChatApp interface {
 	GetChatsByUserID(user_id int) ([]*domain.ChatWithLastMessage, error)
 	GetChatWithUsers(user_id, recipient int) (*domain.Chat, error)
 	GetOtherMember(chat *domain.Chat, memberID int) *domain.Member
-	AddKeys(user_id int, chat *domain.Chat, kyberPublicKey string, ecdhPublicKey string, edPublicKey string) error
 }
 
 type MessageApp interface {

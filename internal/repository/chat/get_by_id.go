@@ -35,6 +35,16 @@ func (r *ChatRepo) GetByID(id int) (*domain.Chat, error) {
 			continue
 		}
 		chat.Members[i].Username = user.Username
+
+		if user.DisplayName != nil {
+			chat.Members[i].DisplayName = *user.DisplayName
+		}
+
+		if user.Description != nil {
+			chat.Members[i].Description = *user.Description
+		}
+
+		chat.Members[i].Date = user.Date
 	}
 
 	return &chat, nil

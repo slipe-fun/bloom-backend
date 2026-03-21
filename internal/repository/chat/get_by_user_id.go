@@ -47,6 +47,16 @@ func (r *ChatRepo) GetByUserID(userID int) ([]*domain.ChatWithLastMessage, error
 				continue
 			}
 			chat.Members[i].Username = user.Username
+
+			if user.DisplayName != nil {
+				chat.Members[i].DisplayName = *user.DisplayName
+			}
+
+			if user.Description != nil {
+				chat.Members[i].Description = *user.Description
+			}
+
+			chat.Members[i].Date = user.Date
 		}
 
 		var msg domain.Message

@@ -17,16 +17,10 @@ func (c *ChatApp) CreateChat(user_id, recipient int) (*domain.Chat, error) {
 	chat, err := c.chats.Create(&domain.Chat{
 		Members: []domain.Member{
 			{
-				ID:             user_id,
-				KyberPublicKey: "",
-				EcdhPublicKey:  "",
-				EdPublicKey:    "",
+				ID: user_id,
 			},
 			{
-				ID:             recipient,
-				KyberPublicKey: "",
-				EcdhPublicKey:  "",
-				EdPublicKey:    "",
+				ID: recipient,
 			},
 		},
 		EncryptionKey: &encKey,

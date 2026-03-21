@@ -1,11 +1,13 @@
 package domain
 
+import "time"
+
 type Member struct {
-	ID             int    `json:"id"`
-	Username       string `json:"username,omitempty"`
-	KyberPublicKey string `json:"kyber_public_key"`
-	EcdhPublicKey  string `json:"ecdh_public_key"`
-	EdPublicKey    string `json:"ed_public_key"`
+	ID          int       `json:"id"`
+	Username    string    `json:"username,omitempty"`
+	DisplayName string    `json:"display_name,omitempty"`
+	Description string    `json:"description,omitempty"`
+	Date        time.Time `json:"date"`
 }
 
 type Chat struct {
