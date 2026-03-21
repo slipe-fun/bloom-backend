@@ -15,9 +15,9 @@ type Chat struct {
 }
 
 type ChatWithLastMessage struct {
-	ID                int      `json:"id"`
-	Members           []Member `json:"members"`
-	EncryptionKey     *string  `json:"encryption_key"`
-	LastMessage       *Message `json:"last_message,omitempty"`
-	LastReadMessageID *int     `json:"last_read_message_id,omitempty"`
+	ID              int      `json:"id"`
+	Members         []Member `json:"members"`
+	EncryptionKey   *string  `json:"encryption_key"`
+	LastMessage     *Message `json:"last_message,omitempty"`
+	LastReadMessage *Message `json:"last_read_message,omitempty"`
 }

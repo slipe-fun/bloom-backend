@@ -17,7 +17,7 @@ func (c *ChatApp) GetChatsByUserID(user_id int) ([]*domain.ChatWithLastMessage, 
 		if err != nil {
 			continue
 		}
-		chats[chat].LastReadMessageID = &lastReadMessage.ID
+		chats[chat].LastReadMessage = lastReadMessage
 	}
 
 	return chats, nil
