@@ -12,7 +12,6 @@ import (
 	"github.com/gofiber/fiber/v2/middleware/cors"
 	"github.com/gofiber/fiber/v2/middleware/recover"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
-	authapp "github.com/slipe-fun/skid-backend/internal/app/auth"
 	chatapp "github.com/slipe-fun/skid-backend/internal/app/chat"
 	encryptedchatkeysapp "github.com/slipe-fun/skid-backend/internal/app/encrypted_chat_keys"
 	friendapp "github.com/slipe-fun/skid-backend/internal/app/friend"
@@ -20,11 +19,9 @@ import (
 	messageapp "github.com/slipe-fun/skid-backend/internal/app/message"
 	sessionapp "github.com/slipe-fun/skid-backend/internal/app/session"
 	userapp "github.com/slipe-fun/skid-backend/internal/app/user"
-	verificationapp "github.com/slipe-fun/skid-backend/internal/app/verification"
 	authservice "github.com/slipe-fun/skid-backend/internal/auth"
 	"github.com/slipe-fun/skid-backend/internal/config"
 	"github.com/slipe-fun/skid-backend/internal/metrics"
-	"github.com/slipe-fun/skid-backend/internal/oauth/google"
 	"github.com/slipe-fun/skid-backend/internal/pkg/logger"
 	"github.com/slipe-fun/skid-backend/internal/repository"
 	chatrepo "github.com/slipe-fun/skid-backend/internal/repository/chat"
@@ -34,8 +31,6 @@ import (
 	messagerepo "github.com/slipe-fun/skid-backend/internal/repository/message"
 	sessionrepo "github.com/slipe-fun/skid-backend/internal/repository/session"
 	userrepo "github.com/slipe-fun/skid-backend/internal/repository/user"
-	verificationrepo "github.com/slipe-fun/skid-backend/internal/repository/verification"
-	authhandler "github.com/slipe-fun/skid-backend/internal/transport/http/auth"
 	chathandler "github.com/slipe-fun/skid-backend/internal/transport/http/chat"
 	encryptedchatkeyshandler "github.com/slipe-fun/skid-backend/internal/transport/http/encrypted_chat_keys"
 	friendhandler "github.com/slipe-fun/skid-backend/internal/transport/http/friend"
@@ -60,13 +55,6 @@ func main() {
 
 	metrics.Init()
 
-	googleService := google.NewGoogleAuthService(
-		cfg.GoogleAuth.ClientID,
-		cfg.GoogleAuth.ClientSecret,
-		cfg.GoogleAuth.RedirectURL,
-	)
-
-	verificationRepo := verificationrepo.NewVerificationRepo(db)
 	userRepo := userrepo.NewUserRepo(db)
 	chatRepo := chatrepo.NewChatRepo(db, userRepo)
 	messageRepo := messagerepo.NewMessageRepo(db)
@@ -79,8 +67,7 @@ func main() {
 	tokenSvc := authservice.NewTokenService(jwtSvc)
 
 	sessionApp := sessionapp.NewSessionApp(sessionRepo, userRepo, jwtSvc, tokenSvc)
-	verificationApp := verificationapp.NewAuthApp(verificationRepo)
-	authApp := authapp.NewAuthApp(sessionApp, userRepo, verificationRepo, verificationApp, googleService)
+	// authApp := authapp.NewAuthApp(sessionApp)
 	userApp := userapp.NewUserApp(userRepo)
 	chatApp := chatapp.NewChatApp(chatRepo, messageRepo)
 	messageApp := messageapp.NewMessageApp(messageRepo, chatApp)
@@ -90,7 +77,7 @@ func main() {
 
 	hub := types.NewHub(sessionApp, chatApp)
 
-	authHandler := authhandler.NewAuthHandler(authApp)
+	// authHandler := authhandler.NewAuthHandler(authApp)
 	userHandler := userhandler.NewUserHandler(userApp, friendApp)
 	chatHandler := chathandler.NewChatHandler(chatApp, userApp, messageApp, hub)
 	messageHandler := messagehandler.NewMessageHandler(chatApp, messageApp, hub)
@@ -125,16 +112,9 @@ func main() {
 
 	authMiddleware := middleware.NewAuthMiddleware(sessionApp)
 
-	fiberApp.Post("/auth/verify-code", authHandler.VerifyCode)
-	fiberApp.Post("/auth/request-code", authHandler.RequestCode)
-	fiberApp.Get("/oauth2/google/redirect", authHandler.GoogleRedirect)
-	fiberApp.Get("/oauth2/google/exchange-code", authHandler.ExchangeCode)
-	fiberApp.Post("/auth/register", authHandler.Register)
-
 	fiberApp.Get("/user/me", authMiddleware.Handle(), userHandler.GetUser)
 	fiberApp.Post("/user/edit", authMiddleware.Handle(), userHandler.EditUser)
 	fiberApp.Get("/user/search", userHandler.SearchByUsername)
-	fiberApp.Get("/user/exists", userHandler.IsUserWithEmailExists)
 	fiberApp.Get("/user/:id", userHandler.GetUserByID)
 	fiberApp.Get("/users/key-bundle", authMiddleware.Handle(), sessionHandler.GetUserKeyBundle)
 

@@ -33,7 +33,6 @@ func (h *UserHandler) GetUser(c *fiber.Ctx) error {
 		"session_id":    session.ID,
 		"username":      user.Username,
 		"display_name":  user.DisplayName,
-		"email":         user.Email,
 		"description":   user.Description,
 		"date":          user.Date,
 		"friends_count": friends_count,

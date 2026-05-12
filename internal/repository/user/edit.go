@@ -11,16 +11,15 @@ func (r *UserRepo) Edit(user *domain.User) error {
 	query := `
         UPDATE users
         SET username = $1,
-            email = $2,
-			display_name = $3,
-			description = $4
-        WHERE id = $5
-        RETURNING id, username, email, display_name, description, date
+			display_name = $2,
+			description = $3
+        WHERE id = $4
+        RETURNING id, username, display_name, description, date
     `
 
 	start := time.Now()
 
-	_, err := r.db.Exec(query, user.Username, user.Email, user.DisplayName, user.Description, user.ID)
+	_, err := r.db.Exec(query, user.Username, user.DisplayName, user.Description, user.ID)
 
 	duration := time.Since(start)
 

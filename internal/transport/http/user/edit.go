@@ -42,7 +42,6 @@ func (h *UserHandler) EditUser(c *fiber.Ctx) error {
 
 	newUser := &domain.User{
 		ID:    user.ID,
-		Email: user.Email,
 		Date:  user.Date,
 	}
 
