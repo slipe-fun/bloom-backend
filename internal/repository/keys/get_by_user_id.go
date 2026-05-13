@@ -7,14 +7,14 @@ import (
 	"github.com/slipe-fun/skid-backend/internal/metrics"
 )
 
-func (k *KeysRepo) GetByUserID(user_id int) (*domain.EncryptedKeys, error) {
+func (k *KeysRepo) GetByUserID(user_id int, keys_type string) (*domain.EncryptedKeys, error) {
 	var keys domain.EncryptedKeys
 
-	query := `SELECT user_id, ciphertext, nonce, salt FROM keys WHERE user_id = $1`
+	query := `SELECT user_id, type, ciphertext, nonce, salt FROM keys WHERE user_id = $1 AND type = $2`
 
 	start := time.Now()
 
-	err := k.db.Get(&keys, query, user_id)
+	err := k.db.Get(&keys, query, user_id, keys_type)
 
 	duration := time.Since(start)
 

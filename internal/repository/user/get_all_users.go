@@ -8,7 +8,7 @@ import (
 )
 
 func (r *UserRepo) GetAllUsers(limit, offset int) ([]*domain.User, error) {
-	query := `SELECT id, username, display_name, description, date 
+	query := `SELECT id, username, display_name, description, kyber_public_key, ecdh_public_key, ed_public_key, date
 			  FROM users
 			  ORDER BY id DESC
 			  LIMIT $1 OFFSET $2`
@@ -30,7 +30,7 @@ func (r *UserRepo) GetAllUsers(limit, offset int) ([]*domain.User, error) {
 
 	for rows.Next() {
 		var user domain.User
-		if err := rows.Scan(&user.ID, &user.Username, &user.DisplayName, &user.Description, &user.Date); err != nil {
+		if err := rows.Scan(&user.ID, &user.Username, &user.DisplayName, &user.Description, &user.KyberPublicKey, &user.EcdhPublicKey, &user.EdPublicKey, &user.Date); err != nil {
 			return nil, err
 		}
 		users = append(users, &user)

@@ -8,16 +8,16 @@ import (
 )
 
 func (k *KeysRepo) Create(keys *domain.EncryptedKeys) (*domain.EncryptedKeys, error) {
-	query := `INSERT INTO keys (user_id, ciphertext, nonce, salt) 
-	          VALUES ($1, $2, $3, $4) 
-	          RETURNING id, user_id, ciphertext, nonce, salt`
+	query := `INSERT INTO keys (user_id, type, ciphertext, nonce, salt) 
+	          VALUES ($1, $2, $3, $4, $5) 
+	          RETURNING id, user_id, type, ciphertext, nonce, salt`
 
 	var created domain.EncryptedKeys
 
 	start := time.Now()
 
-	err := k.db.QueryRow(query, keys.UserID, keys.Ciphertext, keys.Nonce, keys.Salt).
-		Scan(&created.ID, &created.UserID, &created.Ciphertext, &created.Nonce, &created.Salt)
+	err := k.db.QueryRow(query, keys.UserID, keys.Type, keys.Ciphertext, keys.Nonce, keys.Salt).
+		Scan(&created.ID, &created.UserID, &created.Type, &created.Ciphertext, &created.Nonce, &created.Salt)
 
 	duration := time.Since(start)
 

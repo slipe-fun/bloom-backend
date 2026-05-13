@@ -32,7 +32,16 @@ func (h *KeysHandler) SaveChatKeys(c *fiber.Ctx) error {
 		})
 	}
 
+	keys_type := c.Params("type")
+	if !(keys_type == "master" || keys_type == "bundle") {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"error":   "invalid_request",
+			"message": "wrong type",
+		})
+	}
+
 	_, err := h.keysApp.CreateKeys(session.UserID, &domain.EncryptedKeys{
+		Type:       keys_type,
 		Ciphertext: req.Ciphertext,
 		Nonce:      req.Nonce,
 		Salt:       req.Salt,

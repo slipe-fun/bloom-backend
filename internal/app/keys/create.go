@@ -30,18 +30,10 @@ func (k *KeysApp) CreateKeys(user_id int, keys *domain.EncryptedKeys) (*domain.E
 		return nil, domain.InvalidData("invalid salt")
 	}
 
-	existingKeys, err := k.keys.GetByUserID(user_id)
+	_, err = k.keys.GetByUserID(user_id, keys.Type)
 	if err == nil {
-		existingKeys.Ciphertext = keys.Ciphertext
-		existingKeys.Nonce = keys.Nonce
-		existingKeys.Salt = keys.Salt
-
-		err = k.keys.Edit(existingKeys)
-		if err != nil {
-			logger.LogError(err.Error(), "keys-app")
-			return nil, domain.Failed("failed to save keys")
-		}
-		return existingKeys, nil
+		logger.LogError(err.Error(), "keys-app")
+		return nil, domain.Failed("keys is already exists")
 	}
 
 	keys, err = k.keys.Create(&domain.EncryptedKeys{
