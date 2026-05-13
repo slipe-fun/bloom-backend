@@ -10,7 +10,7 @@ import (
 
 func (r *SessionRepo) GetByIDs(ids []int) ([]*domain.Session, error) {
 	query := `
-		SELECT id, token, user_id, identity_pub, ecdh_pub, kyber_pub, revoked_at, created_at
+		SELECT id, token, user_id, revoked_at, created_at
 		FROM sessions
 		WHERE id = ANY($1)
 	`

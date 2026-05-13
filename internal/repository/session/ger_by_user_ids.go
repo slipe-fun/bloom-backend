@@ -12,7 +12,7 @@ func (r *SessionRepo) GetByUserIDs(ids []int) ([]*domain.Session, error) {
 	var sessions []*domain.Session
 
 	query := `
-	SELECT id, token, user_id, identity_pub, ecdh_pub, kyber_pub, revoked_at, created_at
+	SELECT id, token, user_id, revoked_at, created_at
 	FROM sessions
 	WHERE user_id = ANY($1)
 	`

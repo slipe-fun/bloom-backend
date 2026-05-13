@@ -20,14 +20,6 @@ func (h *UserHandler) GetUser(c *fiber.Ctx) error {
 		})
 	}
 
-	friends_count, err := h.friendApp.GetFriendCount(user.ID)
-	if appErr, ok := err.(*domain.AppError); ok {
-		return c.Status(appErr.Status).JSON(fiber.Map{
-			"error":   appErr.Code,
-			"message": appErr.Msg,
-		})
-	}
-
 	return c.JSON(fiber.Map{
 		"id":            user.ID,
 		"session_id":    session.ID,
@@ -35,6 +27,5 @@ func (h *UserHandler) GetUser(c *fiber.Ctx) error {
 		"display_name":  user.DisplayName,
 		"description":   user.Description,
 		"date":          user.Date,
-		"friends_count": friends_count,
 	})
 }

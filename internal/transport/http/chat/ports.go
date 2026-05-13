@@ -11,7 +11,6 @@ type ChatApp interface {
 }
 
 type MessageApp interface {
-	GetChatMessages(user_id, chatID int) ([]*domain.MessageWithReply, error)
 	GetChatMessagesAfter(user_id, chatID, afterID, count int) ([]*domain.MessageWithReply, error)
 	GetChatMessagesBefore(user_id, chatID, beforeID, count int) ([]*domain.MessageWithReply, error)
 	GetChatLastReadMessage(user_id, chatID int) (*domain.Message, error)

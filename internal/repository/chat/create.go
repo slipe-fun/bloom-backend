@@ -11,14 +11,14 @@ import (
 func (r *ChatRepo) Create(chat *domain.Chat) (*domain.Chat, error) {
 	membersJSON, _ := json.Marshal(chat.Members)
 
-	query := `INSERT INTO chats (members, encryption_key) VALUES ($1, $2) RETURNING id, members, encryption_key`
+	query := `INSERT INTO chats (members) VALUES ($1) RETURNING id, members`
 
 	var created domain.Chat
 	var membersBytes []byte
 
 	start := time.Now()
 
-	err := r.db.QueryRow(query, membersJSON, chat.EncryptionKey).Scan(&created.ID, &membersBytes, &created.EncryptionKey)
+	err := r.db.QueryRow(query, membersJSON).Scan(&created.ID, &membersBytes)
 
 	duration := time.Since(start)
 

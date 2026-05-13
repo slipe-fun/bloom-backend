@@ -12,7 +12,6 @@ type MessageRepo interface {
 	GetChatLastReadMessage(chatID int) (*domain.Message, error)
 	GetChatMessagesAfter(chatID, afterID, count int) ([]*domain.Message, error)
 	GetChatMessagesBefore(chatID, beforeID, count int) ([]*domain.Message, error)
-	GetChatMessages(id int) ([]*domain.Message, error)
 	GetByID(id int) (*domain.Message, error)
 }
 

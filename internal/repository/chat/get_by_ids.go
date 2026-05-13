@@ -14,7 +14,7 @@ func (r *ChatRepo) GetByIDs(ids []int) ([]*domain.Chat, error) {
 		return nil, nil
 	}
 
-	query := `SELECT id, members, encryption_key FROM chats WHERE id = ANY($1)`
+	query := `SELECT id, members FROM chats WHERE id = ANY($1)`
 
 	start := time.Now()
 	rows, err := r.db.Query(query, pq.Array(ids))
@@ -31,7 +31,7 @@ func (r *ChatRepo) GetByIDs(ids []int) ([]*domain.Chat, error) {
 		var chat domain.Chat
 		var membersJSON []byte
 
-		if err := rows.Scan(&chat.ID, &membersJSON, &chat.EncryptionKey); err != nil {
+		if err := rows.Scan(&chat.ID, &membersJSON); err != nil {
 			return nil, err
 		}
 

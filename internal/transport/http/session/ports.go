@@ -3,7 +3,6 @@ package session
 import "github.com/slipe-fun/skid-backend/internal/domain"
 
 type SessionApp interface {
-	AddKeys(id, user_id int, identity_pub, ecdh_pub, kyber_pub string) error
 	DeleteSession(user_id, id int) error
 	GetSession(token string) (*domain.Session, error)
 	GetUserSessions(user_id int) ([]*domain.Session, error)

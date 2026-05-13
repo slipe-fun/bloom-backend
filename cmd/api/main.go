@@ -13,8 +13,6 @@ import (
 	"github.com/gofiber/fiber/v2/middleware/recover"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	chatapp "github.com/slipe-fun/skid-backend/internal/app/chat"
-	encryptedchatkeysapp "github.com/slipe-fun/skid-backend/internal/app/encrypted_chat_keys"
-	friendapp "github.com/slipe-fun/skid-backend/internal/app/friend"
 	keysapp "github.com/slipe-fun/skid-backend/internal/app/keys"
 	messageapp "github.com/slipe-fun/skid-backend/internal/app/message"
 	sessionapp "github.com/slipe-fun/skid-backend/internal/app/session"
@@ -25,15 +23,11 @@ import (
 	"github.com/slipe-fun/skid-backend/internal/pkg/logger"
 	"github.com/slipe-fun/skid-backend/internal/repository"
 	chatrepo "github.com/slipe-fun/skid-backend/internal/repository/chat"
-	encryptedchatkeysrepo "github.com/slipe-fun/skid-backend/internal/repository/encrypted_chat_keys"
-	friendrepo "github.com/slipe-fun/skid-backend/internal/repository/friend"
 	keysrepo "github.com/slipe-fun/skid-backend/internal/repository/keys"
 	messagerepo "github.com/slipe-fun/skid-backend/internal/repository/message"
 	sessionrepo "github.com/slipe-fun/skid-backend/internal/repository/session"
 	userrepo "github.com/slipe-fun/skid-backend/internal/repository/user"
 	chathandler "github.com/slipe-fun/skid-backend/internal/transport/http/chat"
-	encryptedchatkeyshandler "github.com/slipe-fun/skid-backend/internal/transport/http/encrypted_chat_keys"
-	friendhandler "github.com/slipe-fun/skid-backend/internal/transport/http/friend"
 	keyshandler "github.com/slipe-fun/skid-backend/internal/transport/http/keys"
 	messagehandler "github.com/slipe-fun/skid-backend/internal/transport/http/message"
 	"github.com/slipe-fun/skid-backend/internal/transport/http/middleware"
@@ -60,9 +54,6 @@ func main() {
 	messageRepo := messagerepo.NewMessageRepo(db)
 	sessionRepo := sessionrepo.NewSessionRepo(db, userRepo)
 	keysRepo := keysrepo.NewKeysRepo(db)
-	encryptedChatKeysRepo := encryptedchatkeysrepo.NewEncryptedChatKeysRepo(db)
-	friendRepo := friendrepo.NewFriendRepo(db)
-
 	jwtSvc := authservice.NewJWTService(cfg.JWT.Secret)
 	tokenSvc := authservice.NewTokenService(jwtSvc)
 
@@ -72,19 +63,15 @@ func main() {
 	chatApp := chatapp.NewChatApp(chatRepo, messageRepo)
 	messageApp := messageapp.NewMessageApp(messageRepo, chatApp)
 	keysApp := keysapp.NewKeysApp(keysRepo)
-	encryptedChatKeysApp := encryptedchatkeysapp.NewEncryptedChatKeysApp(encryptedChatKeysRepo, chatRepo, sessionApp)
-	friendApp := friendapp.NewFriendApp(friendRepo, userRepo)
 
 	hub := types.NewHub(sessionApp, chatApp)
 
 	// authHandler := authhandler.NewAuthHandler(authApp)
-	userHandler := userhandler.NewUserHandler(userApp, friendApp)
+	userHandler := userhandler.NewUserHandler(userApp)
 	chatHandler := chathandler.NewChatHandler(chatApp, userApp, messageApp, hub)
 	messageHandler := messagehandler.NewMessageHandler(chatApp, messageApp, hub)
 	sessionHandler := sessionhandler.NewSessionHandler(sessionApp, chatRepo)
 	keysHandler := keyshandler.NewKeysHandler(keysApp)
-	encryptedChatKeysHandler := encryptedchatkeyshandler.NewEncryptedChatKeysHandlerApp(encryptedChatKeysApp, hub)
-	friendHandler := friendhandler.NewFriendHandler(friendApp, hub)
 
 	fiberApp := fiber.New()
 
@@ -116,21 +103,13 @@ func main() {
 	fiberApp.Post("/user/edit", authMiddleware.Handle(), userHandler.EditUser)
 	fiberApp.Get("/user/search", userHandler.SearchByUsername)
 	fiberApp.Get("/user/:id", userHandler.GetUserByID)
-	fiberApp.Get("/users/key-bundle", authMiddleware.Handle(), sessionHandler.GetUserKeyBundle)
 
 	fiberApp.Get("/users", userHandler.GetAllUsers)
 
-	fiberApp.Get("/friends/:status", authMiddleware.Handle(), friendHandler.GetFriends)
-	fiberApp.Post("/friend/request", authMiddleware.Handle(), friendHandler.SendRequest)
-	fiberApp.Post("/friend/delete", authMiddleware.Handle(), friendHandler.DeleteFriend)
-
 	fiberApp.Post("/chat/create", authMiddleware.Handle(), chatHandler.CreateChat)
 	fiberApp.Get("/chats", authMiddleware.Handle(), chatHandler.GetChatsByUserID)
-	fiberApp.Get("/chats/encryption-keys", authMiddleware.Handle(), encryptedChatKeysHandler.GetBySessionID)
-	fiberApp.Post("/chats/encryption-keys", authMiddleware.Handle(), encryptedChatKeysHandler.AddKeys)
 	fiberApp.Get("/chat/:id", authMiddleware.Handle(), chatHandler.GetChatByID)
 	fiberApp.Get("/chat/:id/read", authMiddleware.Handle(), chatHandler.GetChatLastReadMessage)
-	fiberApp.Get("/chat/:id/messages", authMiddleware.Handle(), chatHandler.GetChatMessages)
 	fiberApp.Get("/chat/:c_id/messages/after/:m_id", authMiddleware.Handle(), chatHandler.GetChatMessagesAfter)
 	fiberApp.Get("/chat/:c_id/messages/before/:m_id", authMiddleware.Handle(), chatHandler.GetChatMessagesBefore)
 
@@ -143,7 +122,6 @@ func main() {
 
 	fiberApp.Get("/sessions", authMiddleware.Handle(), sessionHandler.GetUserSessions)
 	fiberApp.Get("/session", authMiddleware.Handle(), sessionHandler.GetSessionByToken)
-	fiberApp.Post("/session/add-keys", authMiddleware.Handle(), sessionHandler.AddKeys)
 	fiberApp.Post("/session/:id/delete", authMiddleware.Handle(), sessionHandler.DeleteSession)
 
 	fiberApp.Get("/metrics", adaptor.HTTPHandler(promhttp.Handler()))

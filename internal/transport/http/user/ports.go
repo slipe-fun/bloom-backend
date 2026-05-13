@@ -8,7 +8,3 @@ type UserApp interface {
 	SearchUsersByUsername(username string, limit, offset int) ([]*domain.User, error)
 	EditUser(user_id int, editedUser *domain.User) (*domain.User, error)
 }
-
-type FriendApp interface {
-	GetFriendCount(user_id int) (int, error)
-}
