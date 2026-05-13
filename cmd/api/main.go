@@ -113,7 +113,6 @@ func main() {
 	fiberApp.Get("/chat/:c_id/messages/after/:m_id", authMiddleware.Handle(), chatHandler.GetChatMessagesAfter)
 	fiberApp.Get("/chat/:c_id/messages/before/:m_id", authMiddleware.Handle(), chatHandler.GetChatMessagesBefore)
 
-	fiberApp.Post("/user/keys/:type", authMiddleware.Handle(), keysHandler.SaveChatKeys)
 	fiberApp.Get("/user/keys/:type", authMiddleware.Handle(), keysHandler.GetUserKeys)
 
 	fiberApp.Get("/message/:id", authMiddleware.Handle(), messageHandler.GetMessageByID)
