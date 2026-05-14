@@ -20,6 +20,10 @@ type Config struct {
 		Password string
 		DBName   string `mapstructure:"dbname"`
 	}
+	Redis struct {
+		Adress   string
+		Password string
+	}
 	JWT struct {
 		Secret      string
 		ExpireHours int `mapstructure:"expire_hours"`

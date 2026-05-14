@@ -21,6 +21,7 @@ import (
 	"github.com/slipe-fun/skid-backend/internal/config"
 	"github.com/slipe-fun/skid-backend/internal/metrics"
 	"github.com/slipe-fun/skid-backend/internal/pkg/logger"
+	"github.com/slipe-fun/skid-backend/internal/redis"
 	"github.com/slipe-fun/skid-backend/internal/repository"
 	chatrepo "github.com/slipe-fun/skid-backend/internal/repository/chat"
 	keysrepo "github.com/slipe-fun/skid-backend/internal/repository/keys"
@@ -42,6 +43,12 @@ func main() {
 
 	db := repository.InitDB(cfg)
 	defer db.Close()
+
+	rdb, err := redis.InitRedis(cfg)
+	if err != nil {
+		log.Fatalf("Redis error: %v", err)
+	}
+	defer rdb.Close()
 
 	if err := logger.Init("logs/app.log"); err != nil {
 		panic(err)
