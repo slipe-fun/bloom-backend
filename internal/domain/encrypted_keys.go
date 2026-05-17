@@ -7,4 +7,5 @@ type EncryptedKeys struct {
 	Ciphertext string `db:"ciphertext" json:"ciphertext"`
 	Nonce      string `db:"nonce" json:"nonce"`
 	Salt       string `db:"salt" json:"salt"`
+	Signature  string `db:"signature" json:"signature"`
 }

@@ -10,7 +10,7 @@ import (
 func (k *KeysRepo) GetByUserID(user_id int, keys_type string) (*domain.EncryptedKeys, error) {
 	var keys domain.EncryptedKeys
 
-	query := `SELECT user_id, type, ciphertext, nonce, salt FROM keys WHERE user_id = $1 AND type = $2`
+	query := `SELECT user_id, type, ciphertext, nonce, salt, signature FROM keys WHERE user_id = $1 AND type = $2`
 
 	start := time.Now()
 

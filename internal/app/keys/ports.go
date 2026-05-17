@@ -8,3 +8,7 @@ type KeysRepo interface {
 	GetByUserID(user_id int, keys_type string) (*domain.EncryptedKeys, error)
 	Create(keys *domain.EncryptedKeys) (*domain.EncryptedKeys, error)
 }
+
+type UserRepo interface {
+	GetByID(id int) (*domain.User, error)
+}

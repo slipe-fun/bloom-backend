@@ -1,11 +1,13 @@
 package keys
 
 type KeysApp struct {
-	keys KeysRepo
+	keys  KeysRepo
+	users UserRepo
 }
 
-func NewKeysApp(keys KeysRepo) *KeysApp {
+func NewKeysApp(keys KeysRepo, users UserRepo) *KeysApp {
 	return &KeysApp{
-		keys: keys,
+		keys:  keys,
+		users: users,
 	}
 }

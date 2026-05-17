@@ -81,10 +81,10 @@ func main() {
 
 	sessionApp := sessionapp.NewSessionApp(sessionRepo, userRepo, jwtSvc, tokenSvc)
 	authApp := authapp.NewAuthApp(sessionApp, userRepo, credRepo, rdb, webauthnInstance)
-	userApp := userapp.NewUserApp(userRepo)
+	userApp := userapp.NewUserApp(userRepo, keysRepo)
 	chatApp := chatapp.NewChatApp(chatRepo, messageRepo)
 	messageApp := messageapp.NewMessageApp(messageRepo, chatApp)
-	keysApp := keysapp.NewKeysApp(keysRepo)
+	keysApp := keysapp.NewKeysApp(keysRepo, userRepo)
 
 	hub := types.NewHub(sessionApp, chatApp)
 
@@ -97,7 +97,9 @@ func main() {
 
 	fiberApp := fiber.New()
 
-	fiberApp.Use(recover.New())
+	fiberApp.Use(recover.New(recover.Config{
+		EnableStackTrace: true,
+	}))
 	fiberApp.Use(cors.New())
 
 	if cfg.RateLimit.Enabled {
@@ -137,6 +139,8 @@ func main() {
 	userGroup.Get("/search", userHandler.SearchByUsername)
 	userGroup.Get("/:id", userHandler.GetUserByID)
 	userGroup.Get("/keys/:type", authMiddleware.Handle(), keysHandler.GetUserKeys)
+	userGroup.Post("/keys/:type", authMiddleware.Handle(), keysHandler.SaveKeys)
+	userGroup.Post("identity", authMiddleware.Handle(), userHandler.SaveKeys)
 
 	fiberApp.Get("/users", userHandler.GetAllUsers)
 
