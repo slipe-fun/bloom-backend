@@ -2,7 +2,6 @@ package crypto
 
 import (
 	"encoding/json"
-	"fmt"
 
 	"github.com/cloudflare/circl/sign/ed448"
 )
@@ -24,7 +23,6 @@ func VerifyEncryptedMasterKeySignature(pubKey []byte, signature []byte, cipherte
 	if err != nil {
 		return false, err
 	}
-	fmt.Printf("GO JSON STRING: %s\n", message)
 
 	isValid := ed448.Verify(pubKey, message, signature, "")
 
