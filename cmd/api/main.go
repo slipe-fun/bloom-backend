@@ -121,34 +121,41 @@ func main() {
 
 	authMiddleware := middleware.NewAuthMiddleware(sessionApp)
 
-	fiberApp.Post("/auth/register/begin", authHandler.RegisterBegin)
-	fiberApp.Post("/auth/register/finish", authHandler.RegisterFinish)
-	fiberApp.Post("/auth/login/begin", authHandler.LoginBegin)
-	fiberApp.Post("/auth/login/finish", authHandler.LoginFinish)
+	authGroup := fiberApp.Group("/auth")
+	userGroup := fiberApp.Group("/user")
+	chatGroup := fiberApp.Group("/chat")
+	messageGroup := fiberApp.Group("/message")
+	sessionGroup := fiberApp.Group("/session")
 
-	fiberApp.Get("/user/me", authMiddleware.Handle(), userHandler.GetUser)
-	fiberApp.Post("/user/edit", authMiddleware.Handle(), userHandler.EditUser)
-	fiberApp.Get("/user/search", userHandler.SearchByUsername)
-	fiberApp.Get("/user/:id", userHandler.GetUserByID)
+	authGroup.Post("/register/begin", authHandler.RegisterBegin)
+	authGroup.Post("/register/finish", authHandler.RegisterFinish)
+	authGroup.Post("/login/begin", authHandler.LoginBegin)
+	authGroup.Post("/login/finish", authHandler.LoginFinish)
+
+	userGroup.Get("/me", authMiddleware.Handle(), userHandler.GetUser)
+	userGroup.Post("/edit", authMiddleware.Handle(), userHandler.EditUser)
+	userGroup.Get("/search", userHandler.SearchByUsername)
+	userGroup.Get("/:id", userHandler.GetUserByID)
+	userGroup.Get("/keys/:type", authMiddleware.Handle(), keysHandler.GetUserKeys)
 
 	fiberApp.Get("/users", userHandler.GetAllUsers)
 
-	fiberApp.Post("/chat/create", authMiddleware.Handle(), chatHandler.CreateChat)
+	chatGroup.Post("/create", authMiddleware.Handle(), chatHandler.CreateChat)
+	chatGroup.Get("/:id", authMiddleware.Handle(), chatHandler.GetChatByID)
+	chatGroup.Get("/:id/read", authMiddleware.Handle(), chatHandler.GetChatLastReadMessage)
+	chatGroup.Get("/:c_id/messages/after/:m_id", authMiddleware.Handle(), chatHandler.GetChatMessagesAfter)
+	chatGroup.Get("/:c_id/messages/before/:m_id", authMiddleware.Handle(), chatHandler.GetChatMessagesBefore)
+
 	fiberApp.Get("/chats", authMiddleware.Handle(), chatHandler.GetChatsByUserID)
-	fiberApp.Get("/chat/:id", authMiddleware.Handle(), chatHandler.GetChatByID)
-	fiberApp.Get("/chat/:id/read", authMiddleware.Handle(), chatHandler.GetChatLastReadMessage)
-	fiberApp.Get("/chat/:c_id/messages/after/:m_id", authMiddleware.Handle(), chatHandler.GetChatMessagesAfter)
-	fiberApp.Get("/chat/:c_id/messages/before/:m_id", authMiddleware.Handle(), chatHandler.GetChatMessagesBefore)
 
-	fiberApp.Get("/user/keys/:type", authMiddleware.Handle(), keysHandler.GetUserKeys)
+	messageGroup.Get("/:id", authMiddleware.Handle(), messageHandler.GetMessageByID)
+	messageGroup.Post("/send", authMiddleware.Handle(), messageHandler.Send)
+	messageGroup.Post("/seen", authMiddleware.Handle(), messageHandler.Seen)
 
-	fiberApp.Get("/message/:id", authMiddleware.Handle(), messageHandler.GetMessageByID)
-	fiberApp.Post("/message/send", authMiddleware.Handle(), messageHandler.Send)
-	fiberApp.Post("/message/seen", authMiddleware.Handle(), messageHandler.Seen)
+	sessionGroup.Get("/", authMiddleware.Handle(), sessionHandler.GetSessionByToken)
+	sessionGroup.Post("/:id/delete", authMiddleware.Handle(), sessionHandler.DeleteSession)
 
 	fiberApp.Get("/sessions", authMiddleware.Handle(), sessionHandler.GetUserSessions)
-	fiberApp.Get("/session", authMiddleware.Handle(), sessionHandler.GetSessionByToken)
-	fiberApp.Post("/session/:id/delete", authMiddleware.Handle(), sessionHandler.DeleteSession)
 
 	fiberApp.Get("/metrics", adaptor.HTTPHandler(promhttp.Handler()))
 

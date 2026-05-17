@@ -34,7 +34,6 @@ type Config struct {
 		GeneralRequestsPerMinute int  `mapstructure:"general_requests_per_minute"`
 		WindowMinutes            int  `mapstructure:"window_minutes"`
 	} `mapstructure:"rate_limit"`
-
 	WebAuthn struct {
 		RPID          string   `mapstructure:"rpid"`
 		RPDisplayName string   `mapstructure:"rp_display_name"`
