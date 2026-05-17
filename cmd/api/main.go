@@ -8,10 +8,12 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/websocket/v2"
 
+	"github.com/go-webauthn/webauthn/webauthn"
 	"github.com/gofiber/fiber/v2/middleware/adaptor"
 	"github.com/gofiber/fiber/v2/middleware/cors"
 	"github.com/gofiber/fiber/v2/middleware/recover"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
+	authapp "github.com/slipe-fun/skid-backend/internal/app/auth"
 	chatapp "github.com/slipe-fun/skid-backend/internal/app/chat"
 	keysapp "github.com/slipe-fun/skid-backend/internal/app/keys"
 	messageapp "github.com/slipe-fun/skid-backend/internal/app/message"
@@ -24,10 +26,12 @@ import (
 	"github.com/slipe-fun/skid-backend/internal/redis"
 	"github.com/slipe-fun/skid-backend/internal/repository"
 	chatrepo "github.com/slipe-fun/skid-backend/internal/repository/chat"
+	credrepo "github.com/slipe-fun/skid-backend/internal/repository/credential"
 	keysrepo "github.com/slipe-fun/skid-backend/internal/repository/keys"
 	messagerepo "github.com/slipe-fun/skid-backend/internal/repository/message"
 	sessionrepo "github.com/slipe-fun/skid-backend/internal/repository/session"
 	userrepo "github.com/slipe-fun/skid-backend/internal/repository/user"
+	authhandler "github.com/slipe-fun/skid-backend/internal/transport/http/auth"
 	chathandler "github.com/slipe-fun/skid-backend/internal/transport/http/chat"
 	keyshandler "github.com/slipe-fun/skid-backend/internal/transport/http/keys"
 	messagehandler "github.com/slipe-fun/skid-backend/internal/transport/http/message"
@@ -56,7 +60,18 @@ func main() {
 
 	metrics.Init()
 
+	wConfig := &webauthn.Config{
+		RPID:          cfg.WebAuthn.RPID,
+		RPDisplayName: cfg.WebAuthn.RPDisplayName,
+		RPOrigins:     cfg.WebAuthn.RPOrigins,
+	}
+	webauthnInstance, err := webauthn.New(wConfig)
+	if err != nil {
+		log.Fatalf("Failed to initialize WebAuthn: %v", err)
+	}
+
 	userRepo := userrepo.NewUserRepo(db)
+	credRepo := credrepo.NewCredentialRepo(db)
 	chatRepo := chatrepo.NewChatRepo(db, userRepo)
 	messageRepo := messagerepo.NewMessageRepo(db)
 	sessionRepo := sessionrepo.NewSessionRepo(db, userRepo)
@@ -65,7 +80,7 @@ func main() {
 	tokenSvc := authservice.NewTokenService(jwtSvc)
 
 	sessionApp := sessionapp.NewSessionApp(sessionRepo, userRepo, jwtSvc, tokenSvc)
-	// authApp := authapp.NewAuthApp(sessionApp)
+	authApp := authapp.NewAuthApp(sessionApp, userRepo, credRepo, rdb, webauthnInstance)
 	userApp := userapp.NewUserApp(userRepo)
 	chatApp := chatapp.NewChatApp(chatRepo, messageRepo)
 	messageApp := messageapp.NewMessageApp(messageRepo, chatApp)
@@ -73,7 +88,7 @@ func main() {
 
 	hub := types.NewHub(sessionApp, chatApp)
 
-	// authHandler := authhandler.NewAuthHandler(authApp)
+	authHandler := authhandler.NewAuthHandler(authApp)
 	userHandler := userhandler.NewUserHandler(userApp)
 	chatHandler := chathandler.NewChatHandler(chatApp, userApp, messageApp, hub)
 	messageHandler := messagehandler.NewMessageHandler(chatApp, messageApp, hub)
@@ -105,6 +120,11 @@ func main() {
 	fiberApp.Use(middleware.MetricsMiddleware())
 
 	authMiddleware := middleware.NewAuthMiddleware(sessionApp)
+
+	fiberApp.Post("/auth/register/begin", authHandler.RegisterBegin)
+	fiberApp.Post("/auth/register/finish", authHandler.RegisterFinish)
+	fiberApp.Post("/auth/login/begin", authHandler.LoginBegin)
+	fiberApp.Post("/auth/login/finish", authHandler.LoginFinish)
 
 	fiberApp.Get("/user/me", authMiddleware.Handle(), userHandler.GetUser)
 	fiberApp.Post("/user/edit", authMiddleware.Handle(), userHandler.EditUser)
