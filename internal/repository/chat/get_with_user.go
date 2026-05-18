@@ -11,9 +11,10 @@ import (
 func (r *ChatRepo) GetWithUsers(id int, recipient int) (*domain.Chat, error) {
 	var chat domain.Chat
 	var membersJSON []byte
+	var handshakeJSON []byte
 
 	query := `
-	SELECT id, members
+	SELECT id, members, handshake
 	FROM chats
 	WHERE EXISTS (
 		SELECT 1
@@ -29,7 +30,7 @@ func (r *ChatRepo) GetWithUsers(id int, recipient int) (*domain.Chat, error) {
 
 	start := time.Now()
 
-	err := r.db.QueryRow(query, id, recipient).Scan(&chat.ID, &membersJSON)
+	err := r.db.QueryRow(query, id, recipient).Scan(&chat.ID, &membersJSON, &handshakeJSON)
 
 	duration := time.Since(start)
 
@@ -40,6 +41,13 @@ func (r *ChatRepo) GetWithUsers(id int, recipient int) (*domain.Chat, error) {
 	}
 
 	json.Unmarshal(membersJSON, &chat.Members)
+
+	if len(handshakeJSON) > 0 {
+		var hs domain.Handshake
+		if err := json.Unmarshal(handshakeJSON, &hs); err == nil {
+			chat.Handshake = &hs
+		}
+	}
 
 	for i := range chat.Members {
 		member := chat.Members[i]

@@ -2,32 +2,16 @@ package validations
 
 import (
 	"encoding/base64"
-	"errors"
+	"fmt"
 )
 
-func CheckKeysLength(kyberPublicKey string, ecdhPublicKey string, edPublicKey string) error {
-	kyberKey, err := base64.StdEncoding.DecodeString(kyberPublicKey)
+func ValidateCryptoLength(encoded string, expectedSize int) error {
+	data, err := base64.StdEncoding.DecodeString(encoded)
 	if err != nil {
-		return errors.New("invalid_kyber_base64")
+		return fmt.Errorf("invalid base64 encoding")
 	}
-	ecdhKey, err := base64.StdEncoding.DecodeString(ecdhPublicKey)
-	if err != nil {
-		return errors.New("invalid_ecdh_base64")
+	if len(data) != expectedSize {
+		return fmt.Errorf("invalid length: expected %d, got %d", expectedSize, len(data))
 	}
-	edKey, err := base64.StdEncoding.DecodeString(edPublicKey)
-	if err != nil {
-		return errors.New("invalid_ed25519_base64")
-	}
-
-	if len(kyberKey) != 1184 {
-		return errors.New("invalid_kyber_key_length")
-	}
-	if len(ecdhKey) != 56 {
-		return errors.New("invalid_ecdh_key_length")
-	}
-	if len(edKey) != 32 && len(edKey) != 33 {
-		return errors.New("invalid_ed25519_key_length")
-	}
-
 	return nil
 }

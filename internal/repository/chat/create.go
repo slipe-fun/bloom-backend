@@ -11,14 +11,20 @@ import (
 func (r *ChatRepo) Create(chat *domain.Chat) (*domain.Chat, error) {
 	membersJSON, _ := json.Marshal(chat.Members)
 
-	query := `INSERT INTO chats (members) VALUES ($1) RETURNING id, members`
+	var handshakeJSON []byte
+	if chat.Handshake != nil {
+		handshakeJSON, _ = json.Marshal(chat.Handshake)
+	}
+
+	query := `INSERT INTO chats (members, handshake) VALUES ($1, $2) RETURNING id, members, handshake`
 
 	var created domain.Chat
 	var membersBytes []byte
+	var handshakeBytes []byte
 
 	start := time.Now()
 
-	err := r.db.QueryRow(query, membersJSON).Scan(&created.ID, &membersBytes)
+	err := r.db.QueryRow(query, membersJSON, handshakeJSON).Scan(&created.ID, &membersBytes, &handshakeBytes)
 
 	duration := time.Since(start)
 
@@ -30,6 +36,13 @@ func (r *ChatRepo) Create(chat *domain.Chat) (*domain.Chat, error) {
 
 	if err := json.Unmarshal(membersBytes, &created.Members); err != nil {
 		return nil, err
+	}
+
+	if len(handshakeBytes) > 0 {
+		var hs domain.Handshake
+		if err := json.Unmarshal(handshakeBytes, &hs); err == nil {
+			created.Handshake = &hs
+		}
 	}
 
 	for i := range created.Members {

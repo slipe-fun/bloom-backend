@@ -3,7 +3,7 @@ package chat
 import "github.com/slipe-fun/skid-backend/internal/domain"
 
 type ChatApp interface {
-	CreateChat(user_id, recipient int) (*domain.Chat, error)
+	CreateChat(user_id, recipient int, handshake domain.Handshake) (*domain.Chat, error)
 	GetChatByID(user_id int, id int) (*domain.Chat, error)
 	GetChatsByUserID(user_id int) ([]*domain.ChatWithLastMessage, error)
 	GetChatWithUsers(user_id, recipient int) (*domain.Chat, error)

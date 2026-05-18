@@ -5,7 +5,7 @@ import (
 	"github.com/slipe-fun/skid-backend/internal/pkg/logger"
 )
 
-func (c *ChatApp) CreateChat(user_id, recipient int) (*domain.Chat, error) {
+func (c *ChatApp) CreateChat(user_id, recipient int, handshake domain.Handshake) (*domain.Chat, error) {
 	chat, err := c.chats.Create(&domain.Chat{
 		Members: []domain.Member{
 			{
@@ -15,6 +15,7 @@ func (c *ChatApp) CreateChat(user_id, recipient int) (*domain.Chat, error) {
 				ID: recipient,
 			},
 		},
+		Handshake: &handshake,
 	})
 
 	if err != nil {

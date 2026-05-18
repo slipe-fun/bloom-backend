@@ -14,13 +14,21 @@ func (r *ChatRepo) UpdateChat(chat *domain.Chat) error {
 		return err
 	}
 
+	var handshakeJSON []byte
+	if chat.Handshake != nil {
+		handshakeJSON, err = json.Marshal(chat.Handshake)
+		if err != nil {
+			return err
+		}
+	}
+
 	start := time.Now()
 
 	_, err = r.db.Exec(`
         UPDATE chats
-        SET members = $1
-        WHERE id = $2
-    `, membersJSON, chat.ID)
+        SET members = $1, handshake = $2
+        WHERE id = $3
+    `, membersJSON, handshakeJSON, chat.ID)
 
 	duration := time.Since(start)
 

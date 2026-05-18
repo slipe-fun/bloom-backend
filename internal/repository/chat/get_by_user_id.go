@@ -12,7 +12,7 @@ func (r *ChatRepo) GetByUserID(userID int) ([]*domain.ChatWithLastMessage, error
 	start := time.Now()
 
 	rows, err := r.db.Query(`
-		SELECT id, members
+		SELECT id, members, handshake
 		FROM chats
 		WHERE EXISTS (
 			SELECT 1 FROM jsonb_array_elements(members) AS m
@@ -33,11 +33,20 @@ func (r *ChatRepo) GetByUserID(userID int) ([]*domain.ChatWithLastMessage, error
 	for rows.Next() {
 		var chat domain.ChatWithLastMessage
 		var membersJSON []byte
-		if err := rows.Scan(&chat.ID, &membersJSON); err != nil {
+		var handshakeJSON []byte
+
+		if err := rows.Scan(&chat.ID, &membersJSON, &handshakeJSON); err != nil {
 			return nil, err
 		}
 		if err := json.Unmarshal(membersJSON, &chat.Members); err != nil {
 			return nil, err
+		}
+
+		if len(handshakeJSON) > 0 {
+			var hs domain.Handshake
+			if err := json.Unmarshal(handshakeJSON, &hs); err == nil {
+				chat.Handshake = &hs
+			}
 		}
 
 		for i := range chat.Members {
