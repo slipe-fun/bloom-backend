@@ -23,10 +23,13 @@ func (h *UserHandler) GetUserByID(c *fiber.Ctx) error {
 	}
 
 	return c.JSON(fiber.Map{
-		"id":           user.ID,
-		"username":     user.Username,
-		"display_name": user.DisplayName,
-		"description":  user.Description,
-		"date":         user.Date,
+		"id":                user.ID,
+		"username":          user.Username,
+		"display_name":      user.DisplayName,
+		"description":       user.Description,
+		"ml_kem_public_key": user.KyberPublicKey,
+		"ecdh_public_key":   user.EcdhPublicKey,
+		"ed_public_key":     user.EdPublicKey,
+		"date":              user.Date,
 	})
 }
