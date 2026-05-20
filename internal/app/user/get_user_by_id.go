@@ -12,5 +12,9 @@ func (u *UserApp) GetUserByID(id int) (*domain.User, error) {
 		return nil, domain.NotFound("user not found")
 	}
 
+	if user.KyberPublicKey == "" || user.EcdhPublicKey == "" || user.EdPublicKey == "" {
+		return nil, domain.NotFound("user not found")
+	}
+
 	return user, nil
 }

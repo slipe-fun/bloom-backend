@@ -10,6 +10,9 @@ import (
 func (r *UserRepo) GetAllUsers(limit, offset int) ([]*domain.User, error) {
 	query := `SELECT id, username, display_name, description, kyber_public_key, ecdh_public_key, ed_public_key, date
 			  FROM users
+			  WHERE kyber_public_key IS NOT NULL AND kyber_public_key != ''
+					AND ecdh_public_key IS NOT NULL AND ecdh_public_key != ''
+					AND ed_public_key IS NOT NULL AND ed_public_key != ''
 			  ORDER BY id DESC
 			  LIMIT $1 OFFSET $2`
 

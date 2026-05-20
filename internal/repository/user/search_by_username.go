@@ -9,25 +9,27 @@ import (
 
 func (r *UserRepo) SearchUsersByUsername(query string, limit, offset int) ([]*domain.User, error) {
 	sqlQuery := `
-	SELECT id, username, display_name, description, kyber_public_key, ecdh_public_key, ed_public_key, date
-	FROM users
-	WHERE 
-		username ILIKE '%' || $1 || '%'
-		OR display_name ILIKE '%' || $1 || '%'
-		OR similarity(username, cyr_to_lat($1)) > 0.3
-		OR similarity(cyr_to_lat(display_name), cyr_to_lat($1)) > 0.3
-	ORDER BY
-		CASE WHEN username ILIKE $1 THEN 1 ELSE 0 END DESC,
-		
-		CASE WHEN username ILIKE $1 || '%' THEN 1 ELSE 0 END DESC,
-		
-		CASE WHEN display_name ILIKE $1 || '%' THEN 1 ELSE 0 END DESC,
-
-		GREATEST(
-			similarity(username, cyr_to_lat($1)), 
-			similarity(cyr_to_lat(display_name), cyr_to_lat($1))
-		) DESC
-	LIMIT $2 OFFSET $3;
+    SELECT id, username, display_name, description, kyber_public_key, ecdh_public_key, ed_public_key, date
+    FROM users
+    WHERE 
+        (
+            username ILIKE '%' || $1 || '%'
+            OR display_name ILIKE '%' || $1 || '%'
+            OR similarity(username, cyr_to_lat($1)) > 0.3
+            OR similarity(cyr_to_lat(display_name), cyr_to_lat($1)) > 0.3
+        )
+        AND kyber_public_key IS NOT NULL AND kyber_public_key <> ''
+        AND ecdh_public_key IS NOT NULL AND ecdh_public_key <> ''
+        AND ed_public_key IS NOT NULL AND ed_public_key <> ''
+    ORDER BY
+        CASE WHEN username ILIKE $1 THEN 1 ELSE 0 END DESC,
+        CASE WHEN username ILIKE $1 || '%' THEN 1 ELSE 0 END DESC,
+        CASE WHEN display_name ILIKE $1 || '%' THEN 1 ELSE 0 END DESC,
+        GREATEST(
+            similarity(username, cyr_to_lat($1)), 
+            similarity(cyr_to_lat(display_name), cyr_to_lat($1))
+        ) DESC
+    LIMIT $2 OFFSET $3;
 	`
 
 	start := time.Now()
