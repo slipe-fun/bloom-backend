@@ -48,8 +48,8 @@ func (s *AuthApp) BeginRegistration() (string, string, *protocol.CredentialCreat
 	}
 
 	newUser := &domain.User{
-		Username:    username,
-		DisplayName: &username,
+		Username: username,
+		Date:     time.Now(),
 	}
 	createdUser, err := s.users.Create(newUser)
 	if err != nil {
