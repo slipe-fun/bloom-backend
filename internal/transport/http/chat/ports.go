@@ -7,7 +7,7 @@ type ChatApp interface {
 	GetChatByID(user_id int, id int) (*domain.Chat, error)
 	GetChatsByUserID(user_id int) ([]*domain.ChatWithLastMessage, error)
 	GetChatWithUsers(user_id, recipient int) (*domain.Chat, error)
-	GetOtherMember(chat *domain.Chat, memberID int) *domain.Member
+	GetOtherMember(chat *domain.Chat, memberID int) *domain.User
 }
 
 type MessageApp interface {

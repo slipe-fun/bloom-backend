@@ -7,7 +7,7 @@ import (
 
 func (c *ChatApp) CreateChat(user_id, recipient int, handshake domain.Handshake) (*domain.Chat, error) {
 	chat, err := c.chats.Create(&domain.Chat{
-		Members: []domain.Member{
+		Members: []domain.User{
 			{
 				ID: user_id,
 			},

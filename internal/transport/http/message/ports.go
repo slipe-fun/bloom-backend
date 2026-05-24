@@ -7,7 +7,7 @@ import (
 )
 
 type ChatApp interface {
-	GetOtherMember(chat *domain.Chat, memberID int) *domain.Member
+	GetOtherMember(chat *domain.Chat, memberID int) *domain.User
 }
 
 type MessageApp interface {

@@ -12,7 +12,7 @@ func (m *MessageApp) Send(user_id int, message *domain.SocketMessage) (*domain.M
 		return nil, nil, domain.NotFound("chat not found")
 	}
 
-	var member *domain.Member
+	var member *domain.User
 	for i, m := range chat.Members {
 		if m.ID == user_id {
 			member = &chat.Members[i]
