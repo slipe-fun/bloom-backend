@@ -34,11 +34,6 @@ type Config struct {
 		GeneralRequestsPerMinute int  `mapstructure:"general_requests_per_minute"`
 		WindowMinutes            int  `mapstructure:"window_minutes"`
 	} `mapstructure:"rate_limit"`
-	WebAuthn struct {
-		RPID          string   `mapstructure:"rpid"`
-		RPDisplayName string   `mapstructure:"rp_display_name"`
-		RPOrigins     []string `mapstructure:"rp_origins"`
-	} `mapstructure:"webauthn"`
 }
 
 func LoadConfig(path string) *Config {

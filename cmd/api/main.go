@@ -8,7 +8,6 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/websocket/v2"
 
-	"github.com/go-webauthn/webauthn/webauthn"
 	"github.com/gofiber/fiber/v2/middleware/adaptor"
 	"github.com/gofiber/fiber/v2/middleware/cors"
 	"github.com/gofiber/fiber/v2/middleware/recover"
@@ -26,7 +25,6 @@ import (
 	"github.com/slipe-fun/skid-backend/internal/redis"
 	"github.com/slipe-fun/skid-backend/internal/repository"
 	chatrepo "github.com/slipe-fun/skid-backend/internal/repository/chat"
-	credrepo "github.com/slipe-fun/skid-backend/internal/repository/credential"
 	keysrepo "github.com/slipe-fun/skid-backend/internal/repository/keys"
 	messagerepo "github.com/slipe-fun/skid-backend/internal/repository/message"
 	sessionrepo "github.com/slipe-fun/skid-backend/internal/repository/session"
@@ -60,18 +58,7 @@ func main() {
 
 	metrics.Init()
 
-	wConfig := &webauthn.Config{
-		RPID:          cfg.WebAuthn.RPID,
-		RPDisplayName: cfg.WebAuthn.RPDisplayName,
-		RPOrigins:     cfg.WebAuthn.RPOrigins,
-	}
-	webauthnInstance, err := webauthn.New(wConfig)
-	if err != nil {
-		log.Fatalf("Failed to initialize WebAuthn: %v", err)
-	}
-
 	userRepo := userrepo.NewUserRepo(db)
-	credRepo := credrepo.NewCredentialRepo(db)
 	chatRepo := chatrepo.NewChatRepo(db, userRepo)
 	messageRepo := messagerepo.NewMessageRepo(db)
 	sessionRepo := sessionrepo.NewSessionRepo(db, userRepo)
@@ -80,7 +67,7 @@ func main() {
 	tokenSvc := authservice.NewTokenService(jwtSvc)
 
 	sessionApp := sessionapp.NewSessionApp(sessionRepo, userRepo, jwtSvc, tokenSvc)
-	authApp := authapp.NewAuthApp(sessionApp, userRepo, credRepo, rdb, webauthnInstance)
+	authApp := authapp.NewAuthApp(sessionApp, userRepo)
 	userApp := userapp.NewUserApp(userRepo, keysRepo)
 	chatApp := chatapp.NewChatApp(chatRepo, messageRepo)
 	messageApp := messageapp.NewMessageApp(messageRepo, chatApp)
@@ -94,6 +81,8 @@ func main() {
 	messageHandler := messagehandler.NewMessageHandler(chatApp, messageApp, hub)
 	sessionHandler := sessionhandler.NewSessionHandler(sessionApp, chatRepo)
 	keysHandler := keyshandler.NewKeysHandler(keysApp)
+
+	_ = authHandler
 
 	fiberApp := fiber.New()
 
@@ -129,10 +118,7 @@ func main() {
 	messageGroup := fiberApp.Group("/message")
 	sessionGroup := fiberApp.Group("/session")
 
-	authGroup.Post("/register/begin", authHandler.RegisterBegin)
-	authGroup.Post("/register/finish", authHandler.RegisterFinish)
-	authGroup.Post("/login/begin", authHandler.LoginBegin)
-	authGroup.Post("/login/finish", authHandler.LoginFinish)
+	_ = authGroup
 
 	userGroup.Get("/me", authMiddleware.Handle(), userHandler.GetUser)
 	userGroup.Post("/edit", authMiddleware.Handle(), userHandler.EditUser)
