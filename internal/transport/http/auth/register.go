@@ -15,7 +15,7 @@ func (h *AuthHandler) Register(c *fiber.Ctx) error {
 		})
 	}
 
-	pubKeys := req.EncryptedIdentityKeys.IdentityPublicKeys
+	pubKeys := req.IdentityKeys.IdentityPublicKeys
 	if pubKeys.MlKemPublicKey == "" || pubKeys.EcdhPublicKey == "" || pubKeys.EdPublicKey == "" {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
 			"error":   "invalid_request",
@@ -23,7 +23,7 @@ func (h *AuthHandler) Register(c *fiber.Ctx) error {
 		})
 	}
 
-	idSecret := req.EncryptedIdentityKeys.EncryptedSecretKeys
+	idSecret := req.IdentityKeys.EncryptedSecretKeys
 	if idSecret.Ciphertext == "" || idSecret.Nonce == "" || idSecret.Salt == "" || idSecret.Signature == "" {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
 			"error":   "invalid_request",
@@ -55,8 +55,7 @@ func (h *AuthHandler) Register(c *fiber.Ctx) error {
 	}
 
 	return c.Status(fiber.StatusCreated).JSON(fiber.Map{
-		"success": true,
-		"token":   token,
+		"token": token,
 		"user": fiber.Map{
 			"id":                user.PublicID,
 			"username":          user.Username,

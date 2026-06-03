@@ -8,12 +8,12 @@ import (
 )
 
 func (a *AuthApp) Register(req *domain.KeysRequest) (string, *domain.User, *domain.Session, error) {
-	ecdhBytes, err := base64.StdEncoding.DecodeString(req.EncryptedIdentityKeys.IdentityPublicKeys.EcdhPublicKey)
+	ecdhBytes, err := base64.StdEncoding.DecodeString(req.IdentityKeys.IdentityPublicKeys.EcdhPublicKey)
 	if err != nil {
 		return "", nil, nil, domain.InvalidData("invalid ecdh public key format")
 	}
 
-	mlKemBytes, err := base64.StdEncoding.DecodeString(req.EncryptedIdentityKeys.IdentityPublicKeys.MlKemPublicKey)
+	mlKemBytes, err := base64.StdEncoding.DecodeString(req.IdentityKeys.IdentityPublicKeys.MlKemPublicKey)
 	if err != nil {
 		return "", nil, nil, domain.InvalidData("invalid ml-kem public key format")
 	}
@@ -36,7 +36,7 @@ func (a *AuthApp) Register(req *domain.KeysRequest) (string, *domain.User, *doma
 		_ = a.users.Delete(createdUser.ID)
 	}
 
-	_, _, err = a.keysApp.UploadIdentityKeys(createdUser.ID, &req.EncryptedIdentityKeys)
+	_, _, err = a.keysApp.UploadIdentityKeys(createdUser.ID, &req.IdentityKeys)
 	if err != nil {
 		rollback()
 		return "", nil, nil, err

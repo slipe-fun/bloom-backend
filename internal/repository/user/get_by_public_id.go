@@ -7,7 +7,7 @@ import (
 	"github.com/slipe-fun/skid-backend/internal/metrics"
 )
 
-func (r *UserRepo) GetByPublicID(id int) (*domain.User, error) {
+func (r *UserRepo) GetByPublicID(id string) (*domain.User, error) {
 	var user domain.User
 
 	query := `SELECT id, public_id, username, display_name, description, kyber_public_key, ecdh_public_key, ed_public_key, date FROM users WHERE public_id = $1`

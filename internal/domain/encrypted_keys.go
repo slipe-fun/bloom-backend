@@ -43,6 +43,6 @@ type MasterKeyRequest struct {
 }
 
 type KeysRequest struct {
-	EncryptedIdentityKeys IdentityKeysRequest `json:"identity_keys"`
-	EncryptedMasterKey    MasterKeyRequest    `json:"encrypted_master_key"`
+	IdentityKeys       IdentityKeysRequest `json:"identity_keys"`
+	EncryptedMasterKey MasterKeyRequest    `json:"encrypted_master_key"`
 }
