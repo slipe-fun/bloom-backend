@@ -11,4 +11,5 @@ type KeysRepo interface {
 
 type UserRepo interface {
 	GetByID(id int) (*domain.User, error)
+	UpdatePublicKeys(userID int, kyber, ecdh, ed string) error
 }

@@ -14,7 +14,7 @@ func (r *UserRepo) Edit(user *domain.User) error {
 			display_name = $2,
 			description = $3
         WHERE id = $4
-        RETURNING id, username, display_name, description, date
+        RETURNING id, public_id, username, display_name, description, date
     `
 
 	start := time.Now()

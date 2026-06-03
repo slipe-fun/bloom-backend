@@ -1,41 +1,35 @@
 package generator
 
 import (
+	"crypto/rand"
+	"encoding/hex"
 	"fmt"
-	"math/rand"
-	"regexp"
+	"math/big"
 	"strings"
-	"time"
 
-	"github.com/mozillazg/go-unidecode"
+	"github.com/slipe-fun/skid-backend/internal/config"
 )
 
-var latinLetters = regexp.MustCompile("[^a-zA-Z]+")
-
-func GenerateUsername(fullName string) string {
-	parts := strings.Fields(fullName)
-
-	var firstName, lastName string
-
-	if len(parts) > 0 {
-		firstName = unidecode.Unidecode(parts[0])
-		firstName = strings.ToLower(latinLetters.ReplaceAllString(firstName, ""))
+func GenerateUsername() (string, error) {
+	adjIdx, err := rand.Int(rand.Reader, big.NewInt(int64(len(config.Adjectives))))
+	if err != nil {
+		return "", fmt.Errorf("failed to select adjective: %w", err)
 	}
-	if len(parts) > 1 {
-		lastName = unidecode.Unidecode(parts[1])
-		lastName = strings.ToLower(latinLetters.ReplaceAllString(lastName, ""))
-	}
+	adj := strings.ToLower(strings.TrimSpace(config.Adjectives[adjIdx.Int64()]))
 
-	if firstName == "" {
-		firstName = "user"
+	nounIdx, err := rand.Int(rand.Reader, big.NewInt(int64(len(config.Nouns))))
+	if err != nil {
+		return "", fmt.Errorf("failed to select noun: %w", err)
 	}
-	if lastName == "" {
-		lastName = "user"
+	noun := strings.ToLower(strings.TrimSpace(config.Nouns[nounIdx.Int64()]))
+
+	suffixBytes := make([]byte, 4)
+	if _, err := rand.Read(suffixBytes); err != nil {
+		return "", fmt.Errorf("failed to generate random suffix: %w", err)
 	}
+	suffix := hex.EncodeToString(suffixBytes)
 
-	rand.Seed(time.Now().UnixNano())
-	randomNum := rand.Intn(10000)
-	randomStr := fmt.Sprintf("%04d", randomNum)
+	username := fmt.Sprintf("%s-%s-%s", adj, noun, suffix)
 
-	return fmt.Sprintf("%s_%s_%s", firstName, lastName, randomStr)
+	return username, nil
 }

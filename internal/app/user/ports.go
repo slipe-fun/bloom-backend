@@ -8,9 +8,4 @@ type UserRepo interface {
 	GetAllUsers(limit, offset int) ([]*domain.User, error)
 	Edit(user *domain.User) error
 	SearchUsersByUsername(query string, limit, offset int) ([]*domain.User, error)
-	UpdatePublicKeys(userID int, kyber, ecdh, ed string) error
-}
-
-type KeysRepo interface {
-	Create(keys *domain.EncryptedKeys) (*domain.EncryptedKeys, error)
 }

@@ -67,11 +67,11 @@ func main() {
 	tokenSvc := authservice.NewTokenService(jwtSvc)
 
 	sessionApp := sessionapp.NewSessionApp(sessionRepo, userRepo, jwtSvc, tokenSvc)
-	authApp := authapp.NewAuthApp(sessionApp, userRepo)
-	userApp := userapp.NewUserApp(userRepo, keysRepo)
+	keysApp := keysapp.NewKeysApp(keysRepo, userRepo)
+	authApp := authapp.NewAuthApp(sessionApp, keysApp, userRepo, rdb)
+	userApp := userapp.NewUserApp(userRepo)
 	chatApp := chatapp.NewChatApp(chatRepo, messageRepo)
 	messageApp := messageapp.NewMessageApp(messageRepo, chatApp)
-	keysApp := keysapp.NewKeysApp(keysRepo, userRepo)
 
 	hub := types.NewHub(sessionApp, chatApp)
 
@@ -118,15 +118,13 @@ func main() {
 	messageGroup := fiberApp.Group("/message")
 	sessionGroup := fiberApp.Group("/session")
 
-	_ = authGroup
+	authGroup.Post("/register", authHandler.Register)
 
 	userGroup.Get("/me", authMiddleware.Handle(), userHandler.GetUser)
 	userGroup.Post("/edit", authMiddleware.Handle(), userHandler.EditUser)
 	userGroup.Get("/search", userHandler.SearchByUsername)
 	userGroup.Get("/:id", userHandler.GetUserByID)
 	userGroup.Get("/keys/:type", authMiddleware.Handle(), keysHandler.GetUserKeys)
-	userGroup.Post("/keys/:type", authMiddleware.Handle(), keysHandler.SaveKeys)
-	userGroup.Post("identity", authMiddleware.Handle(), userHandler.SaveKeys)
 
 	fiberApp.Get("/users", userHandler.GetAllUsers)
 
