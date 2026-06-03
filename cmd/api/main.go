@@ -120,6 +120,7 @@ func main() {
 
 	authGroup.Post("/register", authHandler.Register)
 	authGroup.Get("/login/begin/:user_id", authHandler.LoginBegin)
+	authGroup.Post("/login/finish", authHandler.LoginFinish)
 
 	userGroup.Get("/me", authMiddleware.Handle(), userHandler.GetUser)
 	userGroup.Post("/edit", authMiddleware.Handle(), userHandler.EditUser)
