@@ -9,18 +9,21 @@ import (
 )
 
 func (r *SessionRepo) GetByIDs(ids []int) ([]*domain.Session, error) {
+	var sessions []*domain.Session
+
 	query := `
-		SELECT id, token, user_id, revoked_at, created_at
-		FROM sessions
-		WHERE id = ANY($1)
+	SELECT s.id, s.token, s.user_id, s.revoked_at, s.created_at, u.public_id AS user_public_id
+	FROM sessions s
+	JOIN users u ON u.id = s.user_id
+	WHERE s.id = ANY($1)
 	`
 
 	start := time.Now()
 
-	var sessions []*domain.Session
 	err := r.db.Select(&sessions, query, pq.Array(ids))
 
 	duration := time.Since(start)
+
 	metrics.ObserveDB("session_get_many", duration, err)
 
 	if err != nil {

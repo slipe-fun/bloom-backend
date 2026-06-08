@@ -41,8 +41,8 @@ func (h *UserHandler) EditUser(c *fiber.Ctx) error {
 	}
 
 	newUser := &domain.User{
-		ID:    user.ID,
-		Date:  user.Date,
+		ID:   user.ID,
+		Date: user.Date,
 	}
 
 	if req.Username != nil {
@@ -73,12 +73,6 @@ func (h *UserHandler) EditUser(c *fiber.Ctx) error {
 
 	return c.JSON(fiber.Map{
 		"success": true,
-		"user": fiber.Map{
-			"id":           edited.ID,
-			"username":     edited.Username,
-			"display_name": edited.DisplayName,
-			"description":  edited.Description,
-			"date":         edited.Date,
-		},
+		"user":    edited,
 	})
 }

@@ -8,8 +8,8 @@ import (
 )
 
 func (h *MessageHandler) Send(c *fiber.Ctx) error {
-	sessionVal := c.Locals("session")
-	session, ok := sessionVal.(*domain.Session)
+	userVal := c.Locals("session_user")
+	sessionUser, ok := userVal.(*domain.User)
 	if !ok {
 		return fiber.ErrUnauthorized
 	}
@@ -35,7 +35,7 @@ func (h *MessageHandler) Send(c *fiber.Ctx) error {
 		})
 	}
 
-	message, chat, err := h.messageApp.Send(session.UserID, &domain.SocketMessage{
+	message, chat, err := h.messageApp.Send(sessionUser.ID, &domain.SocketMessage{
 		Ciphertext: req.Ciphertext,
 		Nonce:      req.Nonce,
 		ChatID:     req.ChatID,
@@ -51,13 +51,13 @@ func (h *MessageHandler) Send(c *fiber.Ctx) error {
 	outMsg := struct {
 		Type    string          `json:"type"`
 		ID      int             `json:"id"`
-		UserID  int             `json:"user_id"`
+		UserID  string          `json:"user_id"`
 		ReplyTo *domain.Message `json:"reply_to,omitempty"`
 		*domain.MessageWithReply
 	}{
 		Type:             "message.new",
 		ID:               message.ID,
-		UserID:           session.UserID,
+		UserID:           sessionUser.PublicID,
 		ReplyTo:          message.ReplyToMessage,
 		MessageWithReply: message,
 	}
@@ -70,7 +70,7 @@ func (h *MessageHandler) Send(c *fiber.Ctx) error {
 		})
 	}
 
-	h.wsHub.SendToUser(h.chatApp.GetOtherMember(chat, session.UserID).ID, b)
+	h.wsHub.SendToUser(h.chatApp.GetOtherMember(chat, sessionUser.ID).ID, b)
 
 	return c.JSON(message)
 }

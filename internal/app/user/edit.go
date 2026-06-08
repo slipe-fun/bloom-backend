@@ -3,6 +3,7 @@ package user
 import (
 	"database/sql"
 	"errors"
+	"strings"
 
 	"github.com/slipe-fun/skid-backend/internal/config"
 	"github.com/slipe-fun/skid-backend/internal/domain"
@@ -20,6 +21,18 @@ func (u *UserApp) EditUser(user_id int, editedUser *domain.User) (*domain.User, 
 		user.Username = ""
 	} else {
 		if !config.UsernameRegex.MatchString(editedUser.Username) {
+			return nil, domain.InvalidData("invalid username")
+		}
+
+		if len(editedUser.Username) < 3 || len(editedUser.Username) > 30 {
+			return nil, domain.InvalidData("invalid username")
+		}
+
+		if strings.Contains(editedUser.Username, "--") {
+			return nil, domain.InvalidData("invalid username")
+		}
+
+		if editedUser.Username != strings.ToLower(editedUser.Username) {
 			return nil, domain.InvalidData("invalid username")
 		}
 

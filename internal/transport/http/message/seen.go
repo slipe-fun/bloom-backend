@@ -36,13 +36,13 @@ func (h *MessageHandler) Seen(c *fiber.Ctx) error {
 
 	outMsg := struct {
 		Type     string    `json:"type"`
-		UserID   int       `json:"user_id"`
+		UserID   string    `json:"user_id"`
 		ChatID   int       `json:"chat_id"`
 		SeenAt   time.Time `json:"seen_at"`
 		Messages []int     `json:"messages"`
 	}{
 		Type:     "message.seen",
-		UserID:   session.UserID,
+		UserID:   session.PublicID,
 		ChatID:   req.ChatID,
 		SeenAt:   *seenAt,
 		Messages: *validMessages,

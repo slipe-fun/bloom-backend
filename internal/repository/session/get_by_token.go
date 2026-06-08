@@ -10,7 +10,12 @@ import (
 func (r *SessionRepo) GetByToken(token string) (*domain.Session, error) {
 	var session domain.Session
 
-	query := `SELECT id, token, user_id, revoked_at, created_at FROM sessions WHERE token = $1`
+	query := `
+	SELECT s.id, s.token, s.user_id, s.revoked_at, s.created_at, u.public_id AS user_public_id
+	FROM sessions s
+	JOIN users u ON u.id = s.user_id
+	WHERE s.token = $1
+	`
 
 	start := time.Now()
 
