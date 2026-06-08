@@ -16,14 +16,14 @@ const (
 )
 
 func (h *ChatHandler) CreateChat(c *fiber.Ctx) error {
-	sessionVal := c.Locals("session")
-	session, ok := sessionVal.(*domain.Session)
+	userVal := c.Locals("session_user")
+	sessionUser, ok := userVal.(*domain.User)
 	if !ok {
 		return fiber.ErrUnauthorized
 	}
 
 	var req struct {
-		Recipient int `json:"recipient"`
+		Recipient string `json:"recipient"`
 		Handshake struct {
 			ReceiverCipherText string `json:"receiver_cipher_text"`
 			SenderCipherText   string `json:"sender_cipher_text"`
@@ -42,7 +42,7 @@ func (h *ChatHandler) CreateChat(c *fiber.Ctx) error {
 		})
 	}
 
-	if req.Recipient == 0 {
+	if req.Recipient == "" {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
 			"error":   "no_recipient",
 			"message": "no recipient",
@@ -93,13 +93,7 @@ func (h *ChatHandler) CreateChat(c *fiber.Ctx) error {
 		return c.Status(400).JSON(fiber.Map{"error": "invalid_sync_key_length"})
 	}
 
-	if req.Recipient == session.UserID {
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-			"error": "self_chat_not_allowed",
-		})
-	}
-
-	user, err := h.userApp.GetUserByID(req.Recipient)
+	user, err := h.userApp.GetUserByPublicID(req.Recipient)
 	if appErr, ok := err.(*domain.AppError); ok {
 		return c.Status(appErr.Status).JSON(fiber.Map{
 			"error":   appErr.Code,
@@ -107,7 +101,13 @@ func (h *ChatHandler) CreateChat(c *fiber.Ctx) error {
 		})
 	}
 
-	chat, err := h.chatApp.GetChatWithUsers(session.UserID, req.Recipient)
+	if user.ID == sessionUser.ID {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"error": "self_chat_not_allowed",
+		})
+	}
+
+	chat, err := h.chatApp.GetChatWithUsers(sessionUser.ID, user.ID)
 	if chat != nil || err == nil {
 		return c.Status(fiber.StatusConflict).JSON(fiber.Map{
 			"error":   "already_exists",
@@ -115,7 +115,7 @@ func (h *ChatHandler) CreateChat(c *fiber.Ctx) error {
 		})
 	}
 
-	chat, err = h.chatApp.CreateChat(session.UserID, user.ID, domain.Handshake{
+	chat, err = h.chatApp.CreateChat(sessionUser.ID, user.ID, domain.Handshake{
 		ReceiverCipherText: req.Handshake.ReceiverCipherText,
 		SenderCipherText:   req.Handshake.SenderCipherText,
 		EncryptedSyncKey: struct {
@@ -135,11 +135,11 @@ func (h *ChatHandler) CreateChat(c *fiber.Ctx) error {
 
 	outMsg := struct {
 		Type   string `json:"type"`
-		UserID int    `json:"user_id"`
+		UserID string `json:"user_id"`
 		*domain.Chat
 	}{
 		Type:   "chat.new",
-		UserID: session.UserID,
+		UserID: sessionUser.PublicID,
 		Chat:   chat,
 	}
 

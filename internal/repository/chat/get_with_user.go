@@ -18,12 +18,12 @@ func (r *ChatRepo) GetWithUsers(id int, recipient int) (*domain.Chat, error) {
 	FROM chats
 	WHERE EXISTS (
 		SELECT 1
-		FROM jsonb_array_elements(members) AS m
+		FROM jsonb_array_elements(members) m
 		WHERE (m->>'id')::int = $1
 	)
 	AND EXISTS (
 		SELECT 1
-		FROM jsonb_array_elements(members) AS m
+		FROM jsonb_array_elements(members) m
 		WHERE (m->>'id')::int = $2
 	);
 	`
@@ -40,22 +40,26 @@ func (r *ChatRepo) GetWithUsers(id int, recipient int) (*domain.Chat, error) {
 		return nil, err
 	}
 
-	json.Unmarshal(membersJSON, &chat.Members)
+	var rawMembers []domain.Member
+	if err := json.Unmarshal(membersJSON, &rawMembers); err != nil {
+		return nil, err
+	}
+
+	chat.Members = make([]domain.User, 0, len(rawMembers))
+
+	for _, m := range rawMembers {
+		user, err := r.userRepo.GetByID(m.ID)
+		if err != nil {
+			continue
+		}
+		chat.Members = append(chat.Members, *user)
+	}
 
 	if len(handshakeJSON) > 0 {
 		var hs domain.Handshake
 		if err := json.Unmarshal(handshakeJSON, &hs); err == nil {
 			chat.Handshake = &hs
 		}
-	}
-
-	for i := range chat.Members {
-		member := chat.Members[i]
-		user, err := r.userRepo.GetByID(member.ID)
-		if err != nil {
-			continue
-		}
-		chat.Members[i] = *user
 	}
 
 	return &chat, nil

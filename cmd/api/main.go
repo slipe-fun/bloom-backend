@@ -110,7 +110,7 @@ func main() {
 
 	fiberApp.Use(middleware.MetricsMiddleware())
 
-	authMiddleware := middleware.NewAuthMiddleware(sessionApp)
+	authMiddleware := middleware.NewAuthMiddleware(sessionApp, userApp)
 
 	authGroup := fiberApp.Group("/auth")
 	userGroup := fiberApp.Group("/user")

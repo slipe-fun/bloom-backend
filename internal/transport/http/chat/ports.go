@@ -18,4 +18,5 @@ type MessageApp interface {
 
 type UserApp interface {
 	GetUserByID(id int) (*domain.User, error)
+	GetUserByPublicID(id string) (*domain.User, error)
 }

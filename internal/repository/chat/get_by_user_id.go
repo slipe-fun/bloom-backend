@@ -15,8 +15,9 @@ func (r *ChatRepo) GetByUserID(userID int) ([]*domain.ChatWithLastMessage, error
 		SELECT id, members, handshake
 		FROM chats
 		WHERE EXISTS (
-			SELECT 1 FROM jsonb_array_elements(members) AS m
-			WHERE (m->>'id')::int = $1
+			SELECT 1
+			FROM jsonb_array_elements(members) m
+			WHERE (m->>'id') = $1::text
 		)
 	`, userID)
 
@@ -30,6 +31,7 @@ func (r *ChatRepo) GetByUserID(userID int) ([]*domain.ChatWithLastMessage, error
 	defer rows.Close()
 
 	var chats []*domain.ChatWithLastMessage
+
 	for rows.Next() {
 		var chat domain.ChatWithLastMessage
 		var membersJSON []byte
@@ -38,8 +40,20 @@ func (r *ChatRepo) GetByUserID(userID int) ([]*domain.ChatWithLastMessage, error
 		if err := rows.Scan(&chat.ID, &membersJSON, &handshakeJSON); err != nil {
 			return nil, err
 		}
-		if err := json.Unmarshal(membersJSON, &chat.Members); err != nil {
+
+		var rawMembers []domain.Member
+		if err := json.Unmarshal(membersJSON, &rawMembers); err != nil {
 			return nil, err
+		}
+
+		chat.Members = make([]domain.User, 0, len(rawMembers))
+
+		for _, m := range rawMembers {
+			user, err := r.userRepo.GetByID(m.ID)
+			if err != nil {
+				continue
+			}
+			chat.Members = append(chat.Members, *user)
 		}
 
 		if len(handshakeJSON) > 0 {
@@ -47,15 +61,6 @@ func (r *ChatRepo) GetByUserID(userID int) ([]*domain.ChatWithLastMessage, error
 			if err := json.Unmarshal(handshakeJSON, &hs); err == nil {
 				chat.Handshake = &hs
 			}
-		}
-
-		for i := range chat.Members {
-			member := chat.Members[i]
-			user, err := r.userRepo.GetByID(member.ID)
-			if err != nil {
-				continue
-			}
-			chat.Members[i] = *user
 		}
 
 		var msg domain.Message
@@ -68,6 +73,7 @@ func (r *ChatRepo) GetByUserID(userID int) ([]*domain.ChatWithLastMessage, error
 		`, chat.ID).Scan(
 			&msg.ID, &msg.Ciphertext, &msg.Nonce, &msg.ChatID, &msg.Seen, &msg.ReplyTo,
 		)
+
 		if err == nil {
 			chat.LastMessage = &msg
 		}

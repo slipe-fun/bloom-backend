@@ -8,7 +8,7 @@ import (
 	"github.com/slipe-fun/skid-backend/internal/metrics"
 )
 
-func (r *ChatRepo) Create(chat *domain.Chat) (*domain.Chat, error) {
+func (r *ChatRepo) Create(chat *domain.RawChat) (*domain.Chat, error) {
 	membersJSON, _ := json.Marshal(chat.Members)
 
 	var handshakeJSON []byte
@@ -34,9 +34,12 @@ func (r *ChatRepo) Create(chat *domain.Chat) (*domain.Chat, error) {
 		return nil, err
 	}
 
-	if err := json.Unmarshal(membersBytes, &created.Members); err != nil {
+	var rawMembers []domain.Member
+	if err := json.Unmarshal(membersBytes, &rawMembers); err != nil {
 		return nil, err
 	}
+
+	created.Members = make([]domain.User, len(rawMembers))
 
 	if len(handshakeBytes) > 0 {
 		var hs domain.Handshake
@@ -45,13 +48,13 @@ func (r *ChatRepo) Create(chat *domain.Chat) (*domain.Chat, error) {
 		}
 	}
 
-	for i := range created.Members {
-		member := created.Members[i]
-		user, err := r.userRepo.GetByID(member.ID)
+	for i, m := range rawMembers {
+		user, err := r.userRepo.GetByID(m.ID)
 		if err != nil {
 			continue
 		}
-		created.Members[i].Username = user.Username
+
+		created.Members[i] = *user
 	}
 
 	return &created, nil

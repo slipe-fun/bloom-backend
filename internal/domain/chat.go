@@ -14,6 +14,16 @@ type Chat struct {
 	Members   []User     `json:"members"`
 	Handshake *Handshake `json:"handshake,omitempty"`
 }
+
+type RawChat struct {
+	Members   []Member   `json:"members"`
+	Handshake *Handshake `json:"handshake"`
+}
+
+type Member struct {
+	ID int `json:"id"`
+}
+
 type ChatWithLastMessage struct {
 	ID              int        `json:"id"`
 	Members         []User     `json:"members"`
