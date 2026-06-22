@@ -13,6 +13,7 @@ const (
 	MLKEM768CiphertextSize = 1088
 	AESGCMNonceSize        = 12
 	SyncKeyCiphertextSize  = 48
+	X448PublicKeySize      = 56
 )
 
 func (h *ChatHandler) CreateChat(c *fiber.Ctx) error {
@@ -25,9 +26,9 @@ func (h *ChatHandler) CreateChat(c *fiber.Ctx) error {
 	var req struct {
 		Recipient string `json:"recipient"`
 		Handshake struct {
-			ReceiverCipherText string `json:"receiver_cipher_text"`
-			SenderCipherText   string `json:"sender_cipher_text"`
-			EncryptedSyncKey   struct {
+			ReceiverCipherText  string `json:"receiver_cipher_text"`
+			SenderEphemeralX448 string `json:"sender_ephemeral_x448"`
+			EncryptedSyncKey    struct {
 				CipherText string `json:"ciphertext"`
 				Nonce      string `json:"nonce"`
 			} `json:"encrypted_sync_key"`
@@ -56,7 +57,7 @@ func (h *ChatHandler) CreateChat(c *fiber.Ctx) error {
 		})
 	}
 
-	if req.Handshake.SenderCipherText == "" {
+	if req.Handshake.SenderEphemeralX448 == "" {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
 			"error":   "no_sender_cipher_text",
 			"message": "sender cipher text is missing",
@@ -81,7 +82,7 @@ func (h *ChatHandler) CreateChat(c *fiber.Ctx) error {
 		return c.Status(400).JSON(fiber.Map{"error": "invalid_receiver_ciphertext_length"})
 	}
 
-	if err := validations.ValidateCryptoLength(req.Handshake.SenderCipherText, MLKEM768CiphertextSize); err != nil {
+	if err := validations.ValidateCryptoLength(req.Handshake.SenderEphemeralX448, X448PublicKeySize); err != nil {
 		return c.Status(400).JSON(fiber.Map{"error": "invalid_sender_ciphertext_length"})
 	}
 
@@ -116,8 +117,8 @@ func (h *ChatHandler) CreateChat(c *fiber.Ctx) error {
 	}
 
 	chat, err = h.chatApp.CreateChat(sessionUser.ID, user.ID, domain.Handshake{
-		ReceiverCipherText: req.Handshake.ReceiverCipherText,
-		SenderCipherText:   req.Handshake.SenderCipherText,
+		ReceiverCipherText:  req.Handshake.ReceiverCipherText,
+		SenderEphemeralX448: req.Handshake.SenderEphemeralX448,
 		EncryptedSyncKey: struct {
 			CipherText string `json:"ciphertext"`
 			Nonce      string `json:"nonce"`
