@@ -35,6 +35,7 @@ func (m *MessageApp) Send(user_id int, message *domain.SocketMessage) (*domain.M
 	newMessage, err := m.messages.Create(&domain.Message{
 		Ciphertext: message.Ciphertext,
 		Nonce:      message.Nonce,
+		Salt:       message.Salt,
 		ChatID:     message.ChatID,
 		ReplyTo:    pointer.Intptr(message.ReplyTo),
 	})

@@ -10,10 +10,11 @@ import (
 func (r *MessageRepo) GetByID(id int) (*domain.Message, error) {
 	var message domain.Message
 
-	query := `SELECT 
+	query := `SELECT
 		id,
 		ciphertext,
 		nonce,
+		salt,
 		chat_id,
 		seen,
 		reply_to

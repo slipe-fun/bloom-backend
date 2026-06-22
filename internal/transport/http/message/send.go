@@ -17,6 +17,7 @@ func (h *MessageHandler) Send(c *fiber.Ctx) error {
 	var req struct {
 		Ciphertext string `json:"ciphertext"`
 		Nonce      string `json:"nonce"`
+		Salt       string `json:"salt"`
 		ChatID     int    `json:"chat_id"`
 		ReplyTo    int    `json:"reply_to"`
 	}
@@ -28,7 +29,7 @@ func (h *MessageHandler) Send(c *fiber.Ctx) error {
 		})
 	}
 
-	if req.Ciphertext == "" || req.Nonce == "" || req.ChatID == 0 {
+	if req.Ciphertext == "" || req.Nonce == "" || req.Salt == "" || req.ChatID == 0 {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
 			"error":   "invalid_request",
 			"message": "invalid request",
@@ -38,6 +39,7 @@ func (h *MessageHandler) Send(c *fiber.Ctx) error {
 	message, chat, err := h.messageApp.Send(sessionUser.ID, &domain.SocketMessage{
 		Ciphertext: req.Ciphertext,
 		Nonce:      req.Nonce,
+		Salt:       req.Salt,
 		ChatID:     req.ChatID,
 		ReplyTo:    req.ReplyTo,
 	})

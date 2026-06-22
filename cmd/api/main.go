@@ -82,8 +82,6 @@ func main() {
 	sessionHandler := sessionhandler.NewSessionHandler(sessionApp, chatRepo)
 	keysHandler := keyshandler.NewKeysHandler(keysApp)
 
-	_ = authHandler
-
 	fiberApp := fiber.New()
 
 	fiberApp.Use(recover.New(recover.Config{

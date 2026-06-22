@@ -11,15 +11,16 @@ func (r *MessageRepo) GetChatMessagesBefore(chatID, beforeID, count int) ([]*dom
 	start := time.Now()
 
 	rows, err := r.db.Query(`
-	SELECT 
+	SELECT
 		id,
 		ciphertext,
 		nonce,
+		salt,
 		chat_id,
 		seen,
 		reply_to
 	FROM messages
-	WHERE chat_id = $1 AND id < $2 
+	WHERE chat_id = $1 AND id < $2
 	ORDER BY id DESC
 	LIMIT $3
 	`, chatID, beforeID, count)
@@ -40,6 +41,7 @@ func (r *MessageRepo) GetChatMessagesBefore(chatID, beforeID, count int) ([]*dom
 			&message.ID,
 			&message.Ciphertext,
 			&message.Nonce,
+			&message.Salt,
 			&message.ChatID,
 			&message.Seen,
 			&message.ReplyTo,
