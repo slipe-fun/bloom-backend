@@ -9,16 +9,16 @@ import (
 
 func (r *UserRepo) SearchUsersByUsername(query string, limit, offset int) ([]*domain.User, error) {
 	sqlQuery := `
-    SELECT id, public_id, username, display_name, description, kyber_public_key, ecdh_public_key, ed_public_key, date
+    SELECT id, public_id, username, display_name, description, ml_kem_public_key, ecdh_public_key, ed_public_key, date
     FROM users
-    WHERE 
+    WHERE
         (
             username ILIKE '%' || $1 || '%'
             OR display_name ILIKE '%' || $1 || '%'
             OR similarity(username, cyr_to_lat($1)) > 0.3
             OR similarity(cyr_to_lat(display_name), cyr_to_lat($1)) > 0.3
         )
-        AND kyber_public_key IS NOT NULL AND kyber_public_key <> ''
+        AND ml_kem_public_key IS NOT NULL AND ml_kem_public_key <> ''
         AND ecdh_public_key IS NOT NULL AND ecdh_public_key <> ''
         AND ed_public_key IS NOT NULL AND ed_public_key <> ''
     ORDER BY
@@ -26,7 +26,7 @@ func (r *UserRepo) SearchUsersByUsername(query string, limit, offset int) ([]*do
         CASE WHEN username ILIKE $1 || '%' THEN 1 ELSE 0 END DESC,
         CASE WHEN display_name ILIKE $1 || '%' THEN 1 ELSE 0 END DESC,
         GREATEST(
-            similarity(username, cyr_to_lat($1)), 
+            similarity(username, cyr_to_lat($1)),
             similarity(cyr_to_lat(display_name), cyr_to_lat($1))
         ) DESC
     LIMIT $2 OFFSET $3;
@@ -49,7 +49,7 @@ func (r *UserRepo) SearchUsersByUsername(query string, limit, offset int) ([]*do
 
 	for rows.Next() {
 		var user domain.User
-		if err := rows.Scan(&user.ID, &user.PublicID, &user.Username, &user.DisplayName, &user.Description, &user.KyberPublicKey, &user.EcdhPublicKey, &user.EdPublicKey, &user.Date); err != nil {
+		if err := rows.Scan(&user.ID, &user.PublicID, &user.Username, &user.DisplayName, &user.Description, &user.MlKemPublicKey, &user.EcdhPublicKey, &user.EdPublicKey, &user.Date); err != nil {
 			return nil, err
 		}
 		users = append(users, &user)

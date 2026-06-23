@@ -9,7 +9,7 @@ import (
 func (r *UserRepo) UpdatePublicKeys(userID int, kyber, ecdh, ed string) error {
 	query := `
         UPDATE users
-        SET kyber_public_key = $1,
+        SET ml_kem_public_key = $1,
             ecdh_public_key = $2,
             ed_public_key = $3
         WHERE id = $4

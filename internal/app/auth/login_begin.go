@@ -47,7 +47,7 @@ func (a *AuthApp) LoginBegin(user_id string) (*domain.KeysRequest, string, error
 				Signature:  encrypted_identity_keys.Signature,
 			},
 			IdentityPublicKeys: domain.IdentityPublicKeys{
-				MlKemPublicKey: user.KyberPublicKey,
+				MlKemPublicKey: user.MlKemPublicKey,
 				EcdhPublicKey:  user.EcdhPublicKey,
 				EdPublicKey:    user.EdPublicKey,
 			},

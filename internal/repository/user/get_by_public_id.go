@@ -10,7 +10,7 @@ import (
 func (r *UserRepo) GetByPublicID(id string) (*domain.User, error) {
 	var user domain.User
 
-	query := `SELECT id, public_id, username, display_name, description, kyber_public_key, ecdh_public_key, ed_public_key, date FROM users WHERE public_id = $1`
+	query := `SELECT id, public_id, username, display_name, description, ml_kem_public_key, ecdh_public_key, ed_public_key, date FROM users WHERE public_id = $1`
 
 	start := time.Now()
 

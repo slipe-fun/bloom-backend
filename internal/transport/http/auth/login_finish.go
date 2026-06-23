@@ -47,7 +47,7 @@ func (h *AuthHandler) LoginFinish(c *fiber.Ctx) error {
 			"username":          user.Username,
 			"display_name":      user.DisplayName,
 			"description":       user.Description,
-			"ml_kem_public_key": user.KyberPublicKey,
+			"ml_kem_public_key": user.MlKemPublicKey,
 			"ecdh_public_key":   user.EcdhPublicKey,
 			"ed_public_key":     user.EdPublicKey,
 			"date":              user.Date,

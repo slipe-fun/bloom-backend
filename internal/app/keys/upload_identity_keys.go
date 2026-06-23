@@ -14,7 +14,7 @@ func (k *KeysApp) UploadIdentityKeys(user_id int, req *domain.IdentityKeysReques
 		return nil, nil, domain.Failed("user not found")
 	}
 
-	if user.KyberPublicKey != "" || user.EcdhPublicKey != "" || user.EdPublicKey != "" {
+	if user.MlKemPublicKey != "" || user.EcdhPublicKey != "" || user.EdPublicKey != "" {
 		return nil, nil, domain.InvalidData("user already have keys")
 	}
 

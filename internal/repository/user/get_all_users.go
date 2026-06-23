@@ -8,9 +8,9 @@ import (
 )
 
 func (r *UserRepo) GetAllUsers(limit, offset int) ([]*domain.User, error) {
-	query := `SELECT id, public_id, username, display_name, description, kyber_public_key, ecdh_public_key, ed_public_key, date
+	query := `SELECT id, public_id, username, display_name, description, ml_kem_public_key, ecdh_public_key, ed_public_key, date
 			  FROM users
-			  WHERE kyber_public_key IS NOT NULL AND kyber_public_key != ''
+			  WHERE ml_kem_public_key IS NOT NULL AND ml_kem_public_key != ''
 					AND ecdh_public_key IS NOT NULL AND ecdh_public_key != ''
 					AND ed_public_key IS NOT NULL AND ed_public_key != ''
 			  ORDER BY id DESC
@@ -33,7 +33,7 @@ func (r *UserRepo) GetAllUsers(limit, offset int) ([]*domain.User, error) {
 
 	for rows.Next() {
 		var user domain.User
-		if err := rows.Scan(&user.ID, &user.PublicID, &user.Username, &user.DisplayName, &user.Description, &user.KyberPublicKey, &user.EcdhPublicKey, &user.EdPublicKey, &user.Date); err != nil {
+		if err := rows.Scan(&user.ID, &user.PublicID, &user.Username, &user.DisplayName, &user.Description, &user.MlKemPublicKey, &user.EcdhPublicKey, &user.EdPublicKey, &user.Date); err != nil {
 			return nil, err
 		}
 		users = append(users, &user)
