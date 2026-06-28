@@ -1,35 +1,60 @@
 package crypto
 
 import (
-	"encoding/json"
+	"encoding/base64"
 
 	"github.com/cloudflare/circl/sign/ed448"
 )
 
-type IdentityKeysPayload struct {
-	Ciphertext     string `json:"ciphertext"`
-	Nonce          string `json:"nonce"`
-	MlKemPublicKey string `json:"ml_kem_public_key"`
-	EcdhPublicKey  string `json:"ecdh_public_key"`
-	EdPublicKey    string `json:"ed_public_key"`
-	Salt           string `json:"salt"`
-}
+func VerifyIdentityKeysSignature(
+	pubKey []byte,
+	signature []byte,
+	ciphertext,
+	nonce,
+	mlKem,
+	ecdh,
+	ed,
+	salt string,
+) (bool, error) {
 
-func VerifyIdentityKeysSignature(pubKey []byte, signature []byte, ciphertext, nonce, mlKem, ecdh, ed, salt string) (bool, error) {
-	data := IdentityKeysPayload{
-		Ciphertext:     ciphertext,
-		Nonce:          nonce,
-		MlKemPublicKey: mlKem,
-		EcdhPublicKey:  ecdh,
-		EdPublicKey:    ed,
-		Salt:           salt,
-	}
-
-	message, err := json.Marshal(data)
+	ciphertextBytes, err := base64.StdEncoding.DecodeString(ciphertext)
 	if err != nil {
 		return false, err
 	}
 
-	isValid := ed448.Verify(pubKey, message, signature, "")
-	return isValid, nil
+	nonceBytes, err := base64.StdEncoding.DecodeString(nonce)
+	if err != nil {
+		return false, err
+	}
+
+	mlKemBytes, err := base64.StdEncoding.DecodeString(mlKem)
+	if err != nil {
+		return false, err
+	}
+
+	ecdhBytes, err := base64.StdEncoding.DecodeString(ecdh)
+	if err != nil {
+		return false, err
+	}
+
+	edBytes, err := base64.StdEncoding.DecodeString(ed)
+	if err != nil {
+		return false, err
+	}
+
+	saltBytes, err := base64.StdEncoding.DecodeString(salt)
+	if err != nil {
+		return false, err
+	}
+
+	message := ConcatBytes(
+		ciphertextBytes,
+		nonceBytes,
+		mlKemBytes,
+		ecdhBytes,
+		edBytes,
+		saltBytes,
+	)
+
+	return ed448.Verify(pubKey, message, signature, ""), nil
 }

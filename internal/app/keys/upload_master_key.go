@@ -56,7 +56,7 @@ func (k *KeysApp) UploadMasterKey(user_id int, key *domain.EncryptedKeys) (*doma
 		return nil, domain.InvalidData("invalid user public key")
 	}
 
-	if isValid, err := crypto.VerifyEncryptedMasterKeySignature(edPublicKey, signatureBytes, key.Ciphertext, key.Nonce, key.Salt); !isValid {
+	if isValid, err := crypto.VerifyEncryptedMasterKeySignature(edPublicKey, signatureBytes, key.Ciphertext, key.Nonce, key.Salt, user.MlKemPublicKey, user.EcdhPublicKey, user.EdPublicKey); !isValid {
 		return nil, domain.InvalidData("invalid signature")
 	} else if err != nil {
 		return nil, domain.Failed("failed to verify signature")
