@@ -39,7 +39,7 @@ func (k *KeysApp) UploadIdentityKeys(user_id int, req *domain.IdentityKeysReques
 	}
 
 	saltBytes, err := base64.StdEncoding.DecodeString(req.EncryptedSecretKeys.Salt)
-	if err != nil || len(saltBytes) != 16 {
+	if err != nil || len(saltBytes) != 32 {
 		return nil, nil, domain.InvalidData("invalid salt")
 	}
 
