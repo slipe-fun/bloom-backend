@@ -39,7 +39,7 @@ func (k *KeysApp) UploadMasterKey(user_id int, key *domain.EncryptedKeys) (*doma
 	}
 
 	saltBytes, err := base64.StdEncoding.DecodeString(key.Salt)
-	if err != nil || len(saltBytes) != 16 {
+	if err != nil || len(saltBytes) != 32 {
 		if err != nil {
 			logger.LogError(err.Error(), "key-app")
 		}
