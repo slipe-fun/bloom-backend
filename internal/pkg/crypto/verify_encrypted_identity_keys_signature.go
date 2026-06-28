@@ -48,12 +48,12 @@ func VerifyIdentityKeysSignature(
 	}
 
 	message := ConcatBytes(
-		ciphertextBytes,
-		nonceBytes,
-		mlKemBytes,
-		ecdhBytes,
-		edBytes,
-		saltBytes,
+	    ciphertextBytes,
+	    nonceBytes,
+	    saltBytes,
+	    mlKemBytes,
+	    ecdhBytes,
+	    edBytes,
 	)
 
 	return ed448.Verify(pubKey, message, signature, ""), nil
