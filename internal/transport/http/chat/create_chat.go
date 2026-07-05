@@ -2,7 +2,6 @@ package chat
 
 import (
 	"encoding/json"
-	"fmt"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/slipe-fun/skid-backend/internal/domain"
@@ -12,7 +11,7 @@ import (
 const (
 	MLKEM768CiphertextSize = 1088
 	AESGCMNonceSize        = 12
-	SyncKeyCiphertextSize  = 169
+	SyncKeyCiphertextSize  = 172
 	X448PublicKeySize      = 56
 )
 
@@ -36,7 +35,6 @@ func (h *ChatHandler) CreateChat(c *fiber.Ctx) error {
 	}
 
 	if err := c.BodyParser(&req); err != nil {
-		fmt.Println(err)
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
 			"error":   "invalid_request",
 			"message": "invalid request",
