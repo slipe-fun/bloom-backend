@@ -12,7 +12,7 @@ import (
 const (
 	MLKEM768CiphertextSize = 1088
 	AESGCMNonceSize        = 12
-	SyncKeyCiphertextSize  = 48
+	SyncKeyCiphertextSize  = 169
 	X448PublicKeySize      = 56
 )
 
