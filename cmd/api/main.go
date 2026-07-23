@@ -117,7 +117,7 @@ func main() {
 	sessionGroup := fiberApp.Group("/session")
 
 	authGroup.Post("/register", authHandler.Register)
-	authGroup.Get("/login/begin/:user_id", authHandler.LoginBegin)
+	authGroup.Get("/login/begin/:auth_lookup_id", authHandler.LoginBegin)
 	authGroup.Post("/login/finish", authHandler.LoginFinish)
 
 	userGroup.Get("/me", authMiddleware.Handle(), userHandler.GetUser)

@@ -43,6 +43,7 @@ type MasterKeyRequest struct {
 }
 
 type KeysRequest struct {
+	AuthLookupID       string              `json:"auth_lookup_id"`
 	IdentityKeys       IdentityKeysRequest `json:"identity_keys"`
 	EncryptedMasterKey MasterKeyRequest    `json:"encrypted_master_key"`
 }

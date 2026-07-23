@@ -5,6 +5,7 @@ import "time"
 type User struct {
 	ID             int       `db:"id" json:"-"`
 	PublicID       string    `db:"public_id" json:"id"`
+	AuthLookupID   string    `db:"auth_lookup_id" json:"-"`
 	Username       string    `db:"username" json:"username"`
 	DisplayName    *string   `db:"display_name" json:"display_name"`
 	Description    *string   `db:"description" json:"description"`

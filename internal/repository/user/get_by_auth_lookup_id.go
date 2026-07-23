@@ -7,14 +7,14 @@ import (
 	"github.com/slipe-fun/skid-backend/internal/metrics"
 )
 
-func (r *UserRepo) GetByID(id int) (*domain.User, error) {
+func (r *UserRepo) GetByAuthLookupID(authLookupID string) (*domain.User, error) {
 	var user domain.User
 
-	query := `SELECT id, public_id, auth_lookup_id, username, display_name, description, ml_kem_public_key, ecdh_public_key, ed_public_key, date FROM users WHERE id = $1`
+	query := `SELECT id, public_id, auth_lookup_id, username, display_name, description, ml_kem_public_key, ecdh_public_key, ed_public_key, date FROM users WHERE auth_lookup_id = $1`
 
 	start := time.Now()
 
-	err := r.db.Get(&user, query, id)
+	err := r.db.Get(&user, query, authLookupID)
 
 	duration := time.Since(start)
 

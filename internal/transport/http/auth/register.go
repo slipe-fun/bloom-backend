@@ -15,6 +15,13 @@ func (h *AuthHandler) Register(c *fiber.Ctx) error {
 		})
 	}
 
+	if req.AuthLookupID == "" {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"error":   "invalid_request",
+			"message": "missing auth lookup ID",
+		})
+	}
+
 	pubKeys := req.IdentityKeys.IdentityPublicKeys
 	if pubKeys.MlKemPublicKey == "" || pubKeys.EcdhPublicKey == "" || pubKeys.EdPublicKey == "" {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
@@ -36,6 +43,13 @@ func (h *AuthHandler) Register(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
 			"error":   "invalid_request",
 			"message": "missing required encrypted master key fields",
+		})
+	}
+
+	if len(req.AuthLookupID) < 16 || len(req.AuthLookupID) > 22 {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"error":   "invalid_request",
+			"message": "invalid auth lookup ID",
 		})
 	}
 

@@ -6,9 +6,9 @@ import (
 )
 
 func (h *AuthHandler) LoginBegin(c *fiber.Ctx) error {
-	user_id := c.Params("user_id")
+	authLookupID := c.Params("auth_lookup_id")
 
-	keys, challenge, err := h.authApp.LoginBegin(user_id)
+	keys, challenge, userID, err := h.authApp.LoginBegin(authLookupID)
 	if err != nil {
 		if appErr, ok := err.(*domain.AppError); ok {
 			return c.Status(appErr.Status).JSON(fiber.Map{
@@ -24,6 +24,7 @@ func (h *AuthHandler) LoginBegin(c *fiber.Ctx) error {
 	}
 
 	return c.Status(fiber.StatusOK).JSON(fiber.Map{
+		"user_id":   userID,
 		"keys":      keys,
 		"challenge": challenge,
 	})

@@ -1,7 +1,9 @@
 package auth
 
 import (
+	"database/sql"
 	"encoding/base64"
+	"errors"
 
 	"github.com/slipe-fun/skid-backend/internal/domain"
 	"github.com/slipe-fun/skid-backend/internal/generator"
@@ -18,6 +20,14 @@ func (a *AuthApp) Register(req *domain.KeysRequest) (string, *domain.User, *doma
 		return "", nil, nil, domain.InvalidData("invalid ml-kem public key format")
 	}
 
+	user, err := a.users.GetByAuthLookupID(req.AuthLookupID)
+	if user != nil {
+		return "", nil, nil, domain.InvalidData("user with this auth lookup id is already exists")
+	}
+	if err != nil && !errors.Is(err, sql.ErrNoRows) {
+		return "", nil, nil, domain.Failed("failed to create user")
+	}
+
 	publicID := generator.GenerateUserID(ecdhBytes, mlKemBytes)
 	username, err := generator.GenerateUsername()
 	if err != nil {
@@ -25,8 +35,9 @@ func (a *AuthApp) Register(req *domain.KeysRequest) (string, *domain.User, *doma
 	}
 
 	createdUser, err := a.users.Create(&domain.User{
-		PublicID: publicID,
-		Username: username,
+		AuthLookupID: req.AuthLookupID,
+		PublicID:     publicID,
+		Username:     username,
 	})
 	if err != nil {
 		return "", nil, nil, domain.Failed("failed to create user")

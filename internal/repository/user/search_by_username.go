@@ -9,7 +9,7 @@ import (
 
 func (r *UserRepo) SearchUsersByUsername(query string, limit, offset int) ([]*domain.User, error) {
 	sqlQuery := `
-    SELECT id, public_id, username, display_name, description, ml_kem_public_key, ecdh_public_key, ed_public_key, date
+    SELECT id, public_id, auth_lookup_id, username, display_name, description, ml_kem_public_key, ecdh_public_key, ed_public_key, date
     FROM users
     WHERE
         (
@@ -49,7 +49,7 @@ func (r *UserRepo) SearchUsersByUsername(query string, limit, offset int) ([]*do
 
 	for rows.Next() {
 		var user domain.User
-		if err := rows.Scan(&user.ID, &user.PublicID, &user.Username, &user.DisplayName, &user.Description, &user.MlKemPublicKey, &user.EcdhPublicKey, &user.EdPublicKey, &user.Date); err != nil {
+		if err := rows.Scan(&user.ID, &user.PublicID, &user.AuthLookupID, &user.Username, &user.DisplayName, &user.Description, &user.MlKemPublicKey, &user.EcdhPublicKey, &user.EdPublicKey, &user.Date); err != nil {
 			return nil, err
 		}
 		users = append(users, &user)
