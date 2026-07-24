@@ -14,6 +14,7 @@ import (
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	authapp "github.com/slipe-fun/skid-backend/internal/app/auth"
 	chatapp "github.com/slipe-fun/skid-backend/internal/app/chat"
+	exchangeapp "github.com/slipe-fun/skid-backend/internal/app/exchange"
 	keysapp "github.com/slipe-fun/skid-backend/internal/app/keys"
 	messageapp "github.com/slipe-fun/skid-backend/internal/app/message"
 	sessionapp "github.com/slipe-fun/skid-backend/internal/app/session"
@@ -31,6 +32,7 @@ import (
 	userrepo "github.com/slipe-fun/skid-backend/internal/repository/user"
 	authhandler "github.com/slipe-fun/skid-backend/internal/transport/http/auth"
 	chathandler "github.com/slipe-fun/skid-backend/internal/transport/http/chat"
+	exchangehandler "github.com/slipe-fun/skid-backend/internal/transport/http/exchange"
 	keyshandler "github.com/slipe-fun/skid-backend/internal/transport/http/keys"
 	messagehandler "github.com/slipe-fun/skid-backend/internal/transport/http/message"
 	"github.com/slipe-fun/skid-backend/internal/transport/http/middleware"
@@ -69,6 +71,7 @@ func main() {
 	sessionApp := sessionapp.NewSessionApp(sessionRepo, userRepo, jwtSvc, tokenSvc)
 	keysApp := keysapp.NewKeysApp(keysRepo, userRepo)
 	authApp := authapp.NewAuthApp(sessionApp, keysApp, userRepo, rdb)
+	exchangeApp := exchangeapp.NewExchangeApp(sessionApp, userRepo, rdb)
 	userApp := userapp.NewUserApp(userRepo)
 	chatApp := chatapp.NewChatApp(chatRepo, messageRepo)
 	messageApp := messageapp.NewMessageApp(messageRepo, chatApp)
@@ -76,6 +79,7 @@ func main() {
 	hub := types.NewHub(sessionApp, chatApp)
 
 	authHandler := authhandler.NewAuthHandler(authApp)
+	exchangeHandler := exchangehandler.NewExchangeHandler(exchangeApp)
 	userHandler := userhandler.NewUserHandler(userApp)
 	chatHandler := chathandler.NewChatHandler(chatApp, userApp, messageApp, hub)
 	messageHandler := messagehandler.NewMessageHandler(chatApp, messageApp, hub)
@@ -111,6 +115,7 @@ func main() {
 	authMiddleware := middleware.NewAuthMiddleware(sessionApp, userApp)
 
 	authGroup := fiberApp.Group("/auth")
+	exchangeGroup := fiberApp.Group("/exchange")
 	userGroup := fiberApp.Group("/user")
 	chatGroup := fiberApp.Group("/chat")
 	messageGroup := fiberApp.Group("/message")
@@ -119,6 +124,8 @@ func main() {
 	authGroup.Post("/register", authHandler.Register)
 	authGroup.Get("/login/begin/:auth_lookup_id", authHandler.LoginBegin)
 	authGroup.Post("/login/finish", authHandler.LoginFinish)
+
+	exchangeGroup.Post("/session", exchangeHandler.StartSession)
 
 	userGroup.Get("/me", authMiddleware.Handle(), userHandler.GetUser)
 	userGroup.Post("/edit", authMiddleware.Handle(), userHandler.EditUser)
@@ -148,6 +155,7 @@ func main() {
 	fiberApp.Get("/metrics", adaptor.HTTPHandler(promhttp.Handler()))
 
 	fiberApp.Get("/ws", websocket.New(handler.HandleWS(hub)))
+	fiberApp.Get("/exchange/ws", websocket.New(exchangehandler.HandleExchangeWS(hub, rdb)))
 
 	log.Fatal(fiberApp.Listen(fmt.Sprintf("%s:%d", cfg.Server.Host, cfg.Server.Port)))
 }
