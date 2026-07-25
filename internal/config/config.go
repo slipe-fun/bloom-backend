@@ -28,6 +28,9 @@ type Config struct {
 		Secret      string
 		ExpireHours int `mapstructure:"expire_hours"`
 	}
+	Metrics struct {
+		PrometheusSecret string `mapstructure:"prometheus_secret"`
+	}
 	RateLimit struct {
 		Enabled                  bool `mapstructure:"enabled"`
 		AuthRequestsPerMinute    int  `mapstructure:"auth_requests_per_minute"`

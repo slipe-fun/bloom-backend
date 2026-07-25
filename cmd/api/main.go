@@ -152,7 +152,7 @@ func main() {
 
 	fiberApp.Get("/sessions", authMiddleware.Handle(), sessionHandler.GetUserSessions)
 
-	fiberApp.Get("/metrics", adaptor.HTTPHandler(promhttp.Handler()))
+	fiberApp.Get("/metrics", middleware.TokenProtection(cfg.Metrics.PrometheusSecret), adaptor.HTTPHandler(promhttp.Handler()))
 
 	fiberApp.Get("/ws", websocket.New(handler.HandleWS(hub)))
 	fiberApp.Get("/exchange/ws", websocket.New(exchangehandler.HandleExchangeWS(hub, rdb)))
