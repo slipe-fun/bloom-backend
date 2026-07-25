@@ -9,4 +9,5 @@ type UserRepo interface {
 	Edit(user *domain.User) error
 	SearchUsersByUsername(query string, limit, offset int) ([]*domain.User, error)
 	GetByPublicID(id string) (*domain.User, error)
+	GetUsersByPublicIDs(ids []string) ([]domain.User, error)
 }
