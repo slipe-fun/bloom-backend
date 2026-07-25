@@ -26,6 +26,7 @@ import (
 	"github.com/slipe-fun/skid-backend/internal/redis"
 	"github.com/slipe-fun/skid-backend/internal/repository"
 	chatrepo "github.com/slipe-fun/skid-backend/internal/repository/chat"
+	groupmemberrepo "github.com/slipe-fun/skid-backend/internal/repository/group_member"
 	keysrepo "github.com/slipe-fun/skid-backend/internal/repository/keys"
 	messagerepo "github.com/slipe-fun/skid-backend/internal/repository/message"
 	sessionrepo "github.com/slipe-fun/skid-backend/internal/repository/session"
@@ -63,6 +64,7 @@ func main() {
 	userRepo := userrepo.NewUserRepo(db)
 	chatRepo := chatrepo.NewChatRepo(db, userRepo)
 	messageRepo := messagerepo.NewMessageRepo(db)
+	groupMemberRepo := groupmemberrepo.NewGroupMemberRepo(db)
 	sessionRepo := sessionrepo.NewSessionRepo(db, userRepo)
 	keysRepo := keysrepo.NewKeysRepo(db)
 	jwtSvc := authservice.NewJWTService(cfg.JWT.Secret)
@@ -73,7 +75,7 @@ func main() {
 	authApp := authapp.NewAuthApp(sessionApp, keysApp, userRepo, rdb)
 	exchangeApp := exchangeapp.NewExchangeApp(sessionApp, userRepo, rdb)
 	userApp := userapp.NewUserApp(userRepo)
-	chatApp := chatapp.NewChatApp(chatRepo, messageRepo)
+	chatApp := chatapp.NewChatApp(chatRepo, groupMemberRepo, messageRepo)
 	messageApp := messageapp.NewMessageApp(messageRepo, chatApp)
 
 	hub := types.NewHub(sessionApp, chatApp)

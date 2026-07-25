@@ -12,12 +12,13 @@ func (r *ChatRepo) GetByID(id int) (*domain.Chat, error) {
 	var chat domain.Chat
 	var membersJSON []byte
 	var handshakeJSON []byte
+	var titlePtr *string
 
-	query := `SELECT id, members, handshake FROM chats WHERE id=$1`
+	query := `SELECT id, members, handshake, type, title FROM chats WHERE id=$1`
 
 	start := time.Now()
 
-	err := r.db.QueryRow(query, id).Scan(&chat.ID, &membersJSON, &handshakeJSON)
+	err := r.db.QueryRow(query, id).Scan(&chat.ID, &membersJSON, &handshakeJSON, &chat.Type, &titlePtr)
 
 	duration := time.Since(start)
 
@@ -27,25 +28,34 @@ func (r *ChatRepo) GetByID(id int) (*domain.Chat, error) {
 		return nil, err
 	}
 
-	var rawMembers []domain.Member
-	if err := json.Unmarshal(membersJSON, &rawMembers); err != nil {
-		return nil, err
+	if titlePtr != nil {
+		chat.Title = *titlePtr
 	}
 
-	chat.Members = make([]domain.User, 0, len(rawMembers))
+	if chat.Type == "private" {
+		var rawMembers []domain.Member
 
-	for _, m := range rawMembers {
-		user, err := r.userRepo.GetByID(m.ID)
-		if err != nil {
-			continue
+		if len(membersJSON) > 0 {
+			if err := json.Unmarshal(membersJSON, &rawMembers); err != nil {
+				return nil, err
+			}
 		}
-		chat.Members = append(chat.Members, *user)
-	}
 
-	if len(handshakeJSON) > 0 {
-		var hs domain.Handshake
-		if err := json.Unmarshal(handshakeJSON, &hs); err == nil {
-			chat.Handshake = &hs
+		chat.Members = make([]domain.User, 0, len(rawMembers))
+
+		for _, m := range rawMembers {
+			user, err := r.userRepo.GetByID(m.ID)
+			if err != nil {
+				continue
+			}
+			chat.Members = append(chat.Members, *user)
+		}
+
+		if len(handshakeJSON) > 0 {
+			var hs domain.Handshake
+			if err := json.Unmarshal(handshakeJSON, &hs); err == nil {
+				chat.Handshake = &hs
+			}
 		}
 	}
 

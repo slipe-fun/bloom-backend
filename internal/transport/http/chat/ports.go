@@ -1,9 +1,14 @@
 package chat
 
-import "github.com/slipe-fun/skid-backend/internal/domain"
+import (
+	"context"
+
+	"github.com/slipe-fun/skid-backend/internal/domain"
+)
 
 type ChatApp interface {
-	CreateChat(user_id, recipient int, handshake domain.Handshake) (*domain.Chat, error)
+	CreatePrivateChat(user_id, recipient int, handshake domain.Handshake) (*domain.Chat, error)
+	CreateGroupChat(ctx context.Context, title string, members []domain.GroupMember, invitedByID int) (*domain.Chat, error)
 	GetChatByID(user_id int, id int) (*domain.Chat, error)
 	GetChatsByUserID(user_id int) ([]*domain.ChatWithLastMessage, error)
 	GetChatWithUsers(user_id, recipient int) (*domain.Chat, error)
@@ -19,4 +24,5 @@ type MessageApp interface {
 type UserApp interface {
 	GetUserByID(id int) (*domain.User, error)
 	GetUserByPublicID(id string) (*domain.User, error)
+	GetUsersByPublicIDs(ids []string) ([]domain.User, error)
 }

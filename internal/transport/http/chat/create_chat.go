@@ -23,6 +23,134 @@ func (h *ChatHandler) CreateChat(c *fiber.Ctx) error {
 	}
 
 	var req struct {
+		Type string `json:"type"`
+	}
+
+	if err := c.BodyParser(&req); err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"error":   "invalid_request",
+			"message": "invalid request",
+		})
+	}
+
+	switch req.Type {
+	case "private":
+		return h.createPrivateChat(c, sessionUser)
+	case "group":
+		return h.createGroupChat(c, sessionUser)
+	default:
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"error":   "invalid_request",
+			"message": "invalid chat type",
+		})
+	}
+}
+
+func (h *ChatHandler) createGroupChat(c *fiber.Ctx, sessionUser *domain.User) error {
+	var req struct {
+		Title   string `json:"title"`
+		Members []struct {
+			MemberID          string                   `json:"member_id"`
+			Handshake         domain.Handshake         `json:"handshake"`
+			EncryptedGroupKey domain.EncryptedGroupKey `json:"encrypted_group_key"`
+		} `json:"members"`
+	}
+
+	if err := c.BodyParser(&req); err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"error":   "invalid_request",
+			"message": "invalid request body",
+		})
+	}
+
+	if len(req.Title) < 1 || len(req.Title) > 30 {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"error":   "invalid_request",
+			"message": "invalid title length",
+		})
+	}
+
+	var members []domain.User
+	users := make(map[string]domain.User, len(req.Members))
+	var err error
+	if len(req.Members) != 0 {
+		var membersIDs []string
+		for i := range req.Members {
+			member := req.Members[i]
+			membersIDs = append(membersIDs, member.MemberID)
+		}
+
+		members, err = h.userApp.GetUsersByPublicIDs(membersIDs)
+		if appErr, ok := err.(*domain.AppError); ok {
+			return c.Status(appErr.Status).JSON(fiber.Map{
+				"error":   appErr.Code,
+				"message": appErr.Msg,
+			})
+		}
+
+		if len(members) == 0 {
+			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+				"error":   "invalid_request",
+				"message": "invalid members list",
+			})
+		}
+
+		for i := range members {
+			member := members[i]
+			users[member.PublicID] = member
+		}
+	}
+
+	var groupMembers []domain.GroupMember
+
+	for i := range req.Members {
+		memberObject := req.Members[i]
+
+		member, exists := users[memberObject.MemberID]
+		if !exists {
+			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+				"error":   "user_not_found",
+				"message": "member " + memberObject.MemberID + " not found",
+			})
+		}
+
+		if member.ID == sessionUser.ID {
+			continue
+		}
+
+		newGroupMember := domain.GroupMember{
+			MemberID:          member.ID,
+			Role:              "member",
+			Handshake:         memberObject.Handshake,
+			EncryptedGroupKey: memberObject.EncryptedGroupKey,
+		}
+
+		groupMembers = append(groupMembers, newGroupMember)
+	}
+
+	creatorGroupMember := domain.GroupMember{
+		MemberID: sessionUser.ID,
+		Role:     "creator",
+	}
+	groupMembers = append(groupMembers, creatorGroupMember)
+
+	chat, err := h.chatApp.CreateGroupChat(c.Context(), req.Title, groupMembers, sessionUser.ID)
+	if appErr, ok := err.(*domain.AppError); ok {
+		return c.Status(appErr.Status).JSON(fiber.Map{
+			"error":   appErr.Code,
+			"message": appErr.Msg,
+		})
+	}
+
+	return c.JSON(fiber.Map{
+		"id":    chat.ID,
+		"type":  chat.Type,
+		"title": chat.Title,
+	})
+}
+
+func (h *ChatHandler) createPrivateChat(c *fiber.Ctx, sessionUser *domain.User) error {
+	var req struct {
 		Recipient string `json:"recipient"`
 		Handshake struct {
 			ReceiverCipherText  string `json:"receiver_cipher_text"`
@@ -37,7 +165,7 @@ func (h *ChatHandler) CreateChat(c *fiber.Ctx) error {
 	if err := c.BodyParser(&req); err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
 			"error":   "invalid_request",
-			"message": "invalid request",
+			"message": "invalid request body",
 		})
 	}
 
@@ -114,13 +242,10 @@ func (h *ChatHandler) CreateChat(c *fiber.Ctx) error {
 		})
 	}
 
-	chat, err = h.chatApp.CreateChat(sessionUser.ID, user.ID, domain.Handshake{
+	chat, err = h.chatApp.CreatePrivateChat(sessionUser.ID, user.ID, domain.Handshake{
 		ReceiverCipherText:  req.Handshake.ReceiverCipherText,
 		SenderEphemeralX448: req.Handshake.SenderEphemeralX448,
-		EncryptedSyncKey: struct {
-			CipherText string `json:"ciphertext"`
-			Nonce      string `json:"nonce"`
-		}{
+		EncryptedSyncKey: domain.EncryptedSyncKey{
 			CipherText: req.Handshake.EncryptedSyncKey.CipherText,
 			Nonce:      req.Handshake.EncryptedSyncKey.Nonce,
 		},

@@ -1,6 +1,10 @@
 package chat
 
-import "github.com/slipe-fun/skid-backend/internal/domain"
+import (
+	"context"
+
+	"github.com/slipe-fun/skid-backend/internal/domain"
+)
 
 type ChatRepo interface {
 	Create(chat *domain.RawChat) (*domain.Chat, error)
@@ -8,6 +12,10 @@ type ChatRepo interface {
 	GetByID(id int) (*domain.Chat, error)
 	GetWithUsers(id, recipient int) (*domain.Chat, error)
 	GetByUserID(userID int) ([]*domain.ChatWithLastMessage, error)
+}
+
+type GroupMemberRepo interface {
+	CreateMany(ctx context.Context, chatID int, invitedByID int, members []domain.GroupMember) error
 }
 
 type MessageRepo interface {

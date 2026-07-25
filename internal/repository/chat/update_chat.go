@@ -9,39 +9,48 @@ import (
 )
 
 func (r *ChatRepo) UpdateChat(chat *domain.Chat) error {
-	rawMembers := make([]domain.Member, len(chat.Members))
+	start := time.Now()
+	var dbErr error
 
-	for i, m := range chat.Members {
-		rawMembers[i] = domain.Member{
-			ID: m.ID,
+	if chat.Type == "group" {
+		_, dbErr = r.db.Exec(`
+			UPDATE chats
+			SET title = $1
+			WHERE id = $2
+		`, chat.Title, chat.ID)
+	} else {
+		rawMembers := make([]domain.Member, len(chat.Members))
+
+		for i, m := range chat.Members {
+			rawMembers[i] = domain.Member{
+				ID: m.ID,
+			}
 		}
-	}
 
-	membersJSON, err := json.Marshal(rawMembers)
-	if err != nil {
-		return err
-	}
-
-	var handshakeJSON []byte
-	if chat.Handshake != nil {
-		var err error
-		handshakeJSON, err = json.Marshal(chat.Handshake)
+		membersJSON, err := json.Marshal(rawMembers)
 		if err != nil {
 			return err
 		}
+
+		var handshakeJSON []byte
+		if chat.Handshake != nil {
+			var err error
+			handshakeJSON, err = json.Marshal(chat.Handshake)
+			if err != nil {
+				return err
+			}
+		}
+
+		_, dbErr = r.db.Exec(`
+			UPDATE chats
+			SET members = $1, handshake = $2
+			WHERE id = $3
+		`, membersJSON, handshakeJSON, chat.ID)
 	}
-
-	start := time.Now()
-
-	_, err = r.db.Exec(`
-		UPDATE chats
-		SET members = $1, handshake = $2
-		WHERE id = $3
-	`, membersJSON, handshakeJSON, chat.ID)
 
 	duration := time.Since(start)
 
-	metrics.ObserveDB("chat_update", duration, err)
+	metrics.ObserveDB("chat_update", duration, dbErr)
 
-	return err
+	return dbErr
 }
