@@ -3,7 +3,6 @@ package events
 import (
 	"encoding/json"
 
-	"github.com/fasthttp/websocket"
 	"github.com/slipe-fun/skid-backend/internal/transport/ws/types"
 )
 
@@ -21,5 +20,9 @@ func SendError(client *types.Client, errMsg string) {
 		return
 	}
 
-	_ = client.Conn.WriteMessage(websocket.TextMessage, b)
+	select {
+	case client.Send <- b:
+	default:
+		client.Close()
+	}
 }

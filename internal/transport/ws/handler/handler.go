@@ -9,6 +9,10 @@ import (
 	"github.com/slipe-fun/skid-backend/internal/transport/ws/types"
 )
 
+const (
+	pongWait = 60 * time.Second
+)
+
 func HandleWS(hub *types.Hub) func(c *websocket.Conn) {
 	return func(c *websocket.Conn) {
 		defer c.Close()
@@ -20,16 +24,15 @@ func HandleWS(hub *types.Hub) func(c *websocket.Conn) {
 			return
 		}
 
-		client := &types.Client{
-			Conn:   c,
-			UserID: session.UserID,
-		}
+		client := types.NewClient(hub, c, session.UserID)
 
 		hub.RegisterUser(session.UserID, client)
+		go client.WritePump()
+
 		defer func() {
 			hub.UnregisterUser(session.UserID, client)
 			hub.LeaveAllRooms(client)
-			c.Close()
+			client.Close()
 		}()
 
 		chats, err := hub.Chats.GetChatsByUserID(session.UserID)
@@ -39,21 +42,11 @@ func HandleWS(hub *types.Hub) func(c *websocket.Conn) {
 			}
 		}
 
-		c.SetReadDeadline(time.Now().Add(70 * time.Second))
+		c.SetReadDeadline(time.Now().Add(pongWait))
 		c.SetPongHandler(func(string) error {
-			c.SetReadDeadline(time.Now().Add(70 * time.Second))
+			c.SetReadDeadline(time.Now().Add(pongWait))
 			return nil
 		})
-
-		ticker := time.NewTicker(30 * time.Second)
-		defer ticker.Stop()
-		go func() {
-			for range ticker.C {
-				if err := c.WriteControl(websocket.PingMessage, []byte{}, time.Now().Add(10*time.Second)); err != nil {
-					return
-				}
-			}
-		}()
 
 		for {
 			_, _, err := c.ReadMessage()
