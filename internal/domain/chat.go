@@ -34,6 +34,8 @@ type ChatWithLastMessage struct {
 	ID              int        `json:"id"`
 	Members         []User     `json:"members"`
 	Handshake       *Handshake `json:"handshake,omitempty"`
+	Type            string     `json:"type"`
+	Title           string     `json:"title"`
 	LastMessage     *Message   `json:"last_message,omitempty"`
 	LastReadMessage *Message   `json:"last_read_message,omitempty"`
 }

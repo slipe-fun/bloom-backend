@@ -236,6 +236,7 @@ func (h *ChatHandler) createGroupChat(c *fiber.Ctx, sessionUser *domain.User) er
 		"id":    chat.ID,
 		"type":  chat.Type,
 		"title": chat.Title,
+		"role":  "creator",
 	})
 }
 

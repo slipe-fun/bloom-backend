@@ -28,6 +28,46 @@ func (h *ChatHandler) GetChatByID(c *fiber.Ctx) error {
 		})
 	}
 
+	if chat.Type == "group" {
+		member, err := h.chatApp.GetGroupMember(c.Context(), chat.ID, session.UserID)
+		if appErr, ok := err.(*domain.AppError); ok {
+			return c.Status(appErr.Status).JSON(fiber.Map{
+				"error":   appErr.Code,
+				"message": appErr.Msg,
+			})
+		}
+
+		invitedBy, err := h.userApp.GetUserByID(member.InvitedByID)
+		if appErr, ok := err.(*domain.AppError); ok {
+			return c.Status(appErr.Status).JSON(fiber.Map{
+				"error":   appErr.Code,
+				"message": appErr.Msg,
+			})
+		}
+
+		var handshake *domain.Handshake
+		var encryptedGroupKey *domain.EncryptedGroupKey
+
+		encryptedGroupKey = &member.EncryptedGroupKey
+		handshake = &member.Handshake
+
+		if member.Role == "creator" {
+			handshake = nil
+			encryptedGroupKey = nil
+			invitedBy = nil
+		}
+
+		return c.JSON(fiber.Map{
+			"id":                  chat.ID,
+			"type":                chat.Type,
+			"title":               chat.Title,
+			"role":                member.Role,
+			"invited_by":          invitedBy,
+			"handshake":           handshake,
+			"encrypted_group_key": encryptedGroupKey,
+		})
+	}
+
 	return c.JSON(fiber.Map{
 		"id":      chat.ID,
 		"members": chat.Members,
