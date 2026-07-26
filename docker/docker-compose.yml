@@ -19,6 +19,7 @@ services:
       - "9090:9090"
     volumes:
       - ./prometheus.yml:/etc/prometheus/prometheus.yml
+      - ./backend_token.txt:/etc/prometheus/backend_token.txt
       - prometheus_data:/prometheus
     networks:
       - app_net

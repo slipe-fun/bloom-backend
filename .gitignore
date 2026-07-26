@@ -37,3 +37,4 @@ configs/config.yaml
 logs/*
 docker/.env
 test.go
+backend_token.txt
