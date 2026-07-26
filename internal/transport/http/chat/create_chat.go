@@ -198,6 +198,40 @@ func (h *ChatHandler) createGroupChat(c *fiber.Ctx, sessionUser *domain.User) er
 		})
 	}
 
+	for i := range groupMembers {
+		member := groupMembers[i]
+
+		outMsg := struct {
+			*domain.Chat
+			Type                     string      `json:"type"`
+			ChatType                 string      `json:"chat_type"`
+			UserID                   string      `json:"user_id"`
+			Role                     string      `json:"role"`
+			InvitedBy                domain.User `json:"invited_by"`
+			domain.Handshake         `json:"handshake"`
+			domain.EncryptedGroupKey `json:"encrypted_group_key"`
+		}{
+			Chat:              chat,
+			Type:              "chat.new",
+			ChatType:          "group",
+			UserID:            sessionUser.PublicID,
+			Role:              "member",
+			InvitedBy:         *sessionUser,
+			Handshake:         member.Handshake,
+			EncryptedGroupKey: member.EncryptedGroupKey,
+		}
+
+		b, err := json.Marshal(outMsg)
+		if err != nil {
+			return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+				"error":   "internal_error",
+				"message": "internal error",
+			})
+		}
+
+		h.wsHub.SendToUser(member.MemberID, b)
+	}
+
 	return c.JSON(fiber.Map{
 		"id":    chat.ID,
 		"type":  chat.Type,
@@ -314,13 +348,15 @@ func (h *ChatHandler) createPrivateChat(c *fiber.Ctx, sessionUser *domain.User) 
 	}
 
 	outMsg := struct {
-		Type   string `json:"type"`
-		UserID string `json:"user_id"`
 		*domain.Chat
+		Type     string `json:"type"`
+		ChatType string `json:"chat_type"`
+		UserID   string `json:"user_id"`
 	}{
-		Type:   "chat.new",
-		UserID: sessionUser.PublicID,
-		Chat:   chat,
+		Chat:     chat,
+		Type:     "chat.new",
+		ChatType: "private",
+		UserID:   sessionUser.PublicID,
 	}
 
 	b, err := json.Marshal(outMsg)

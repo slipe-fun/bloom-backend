@@ -1,12 +1,14 @@
 package message
 
 import (
+	"context"
+
 	"github.com/slipe-fun/skid-backend/internal/domain"
 	"github.com/slipe-fun/skid-backend/internal/pkg/logger"
 )
 
-func (m *MessageApp) GetChatMessagesAfter(user_id, chatID, afterID, count int) ([]*domain.MessageWithReply, error) {
-	chat, err := m.chats.GetChatByID(user_id, chatID)
+func (m *MessageApp) GetChatMessagesAfter(ctx context.Context, user_id, chatID, afterID, count int) ([]*domain.MessageWithReply, error) {
+	chat, err := m.chats.GetChatByID(ctx, user_id, chatID)
 	if err != nil {
 		return nil, err
 	}

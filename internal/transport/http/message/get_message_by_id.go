@@ -20,7 +20,7 @@ func (h *MessageHandler) GetMessageByID(c *fiber.Ctx) error {
 		})
 	}
 
-	message, err := h.messageApp.GetMessageByID(session.UserID, id)
+	message, err := h.messageApp.GetMessageByID(c.Context(), session.UserID, id)
 	if appErr, ok := err.(*domain.AppError); ok {
 		return c.Status(appErr.Status).JSON(fiber.Map{
 			"error":   appErr.Code,

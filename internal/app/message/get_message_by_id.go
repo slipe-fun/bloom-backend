@@ -1,18 +1,20 @@
 package message
 
 import (
+	"context"
+
 	"github.com/slipe-fun/skid-backend/internal/domain"
 	"github.com/slipe-fun/skid-backend/internal/pkg/logger"
 )
 
-func (m *MessageApp) GetMessageByID(user_id, id int) (*domain.MessageWithReply, error) {
+func (m *MessageApp) GetMessageByID(ctx context.Context, user_id, id int) (*domain.MessageWithReply, error) {
 	message, err := m.messages.GetByID(id)
 	if err != nil {
 		logger.LogError(err.Error(), "message-app")
 		return nil, domain.NotFound("message not found")
 	}
 
-	_, chaterr := m.chats.GetChatByID(user_id, message.ChatID)
+	_, chaterr := m.chats.GetChatByID(ctx, user_id, message.ChatID)
 	if chaterr != nil {
 		return nil, chaterr
 	}

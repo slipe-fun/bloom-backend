@@ -21,6 +21,6 @@ type GroupMemberRepo interface {
 }
 
 type ChatApp interface {
-	GetChatByID(user_id int, id int) (*domain.Chat, error)
-	HasMember(chat *domain.Chat, memberID int) bool
+	GetChatByID(ctx context.Context, user_id int, id int) (*domain.Chat, error)
+	HasMember(ctx context.Context, chat *domain.Chat, memberID int) bool
 }

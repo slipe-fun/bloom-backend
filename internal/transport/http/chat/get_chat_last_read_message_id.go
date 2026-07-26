@@ -20,7 +20,7 @@ func (h *ChatHandler) GetChatLastReadMessage(c *fiber.Ctx) error {
 		})
 	}
 
-	message, err := h.messageApp.GetChatLastReadMessage(session.UserID, id)
+	message, err := h.messageApp.GetChatLastReadMessage(c.Context(), session.UserID, id)
 	if appErr, ok := err.(*domain.AppError); ok {
 		return c.Status(appErr.Status).JSON(fiber.Map{
 			"error":   appErr.Code,

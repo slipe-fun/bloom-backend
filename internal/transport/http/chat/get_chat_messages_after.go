@@ -33,7 +33,7 @@ func (h *ChatHandler) GetChatMessagesAfter(c *fiber.Ctx) error {
 		count = 20
 	}
 
-	messages, err := h.messageApp.GetChatMessagesAfter(session.UserID, chatID, afterID, count)
+	messages, err := h.messageApp.GetChatMessagesAfter(c.Context(), session.UserID, chatID, afterID, count)
 	if appErr, ok := err.(*domain.AppError); ok {
 		return c.Status(appErr.Status).JSON(fiber.Map{
 			"error":   appErr.Code,

@@ -14,6 +14,6 @@ type ChatApp interface {
 
 type MessageApp interface {
 	Send(ctx context.Context, user_id int, message *domain.SocketMessage) (*domain.MessageWithReply, *domain.Chat, error)
-	GetMessageByID(user_id, id int) (*domain.MessageWithReply, error)
-	UpdateMessagesSeenStatus(user_id, chatID int, messageIDs []int) (*[]int, *time.Time, *domain.Chat, error)
+	GetMessageByID(ctx context.Context, user_id, id int) (*domain.MessageWithReply, error)
+	UpdateMessagesSeenStatus(ctx context.Context, user_id, chatID int, messageIDs []int) (*[]int, *time.Time, *domain.Chat, error)
 }

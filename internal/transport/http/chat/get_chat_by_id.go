@@ -20,7 +20,7 @@ func (h *ChatHandler) GetChatByID(c *fiber.Ctx) error {
 		})
 	}
 
-	chat, err := h.chatApp.GetChatByID(session.UserID, id)
+	chat, err := h.chatApp.GetChatByID(c.Context(), session.UserID, id)
 	if appErr, ok := err.(*domain.AppError); ok {
 		return c.Status(appErr.Status).JSON(fiber.Map{
 			"error":   appErr.Code,
@@ -29,7 +29,7 @@ func (h *ChatHandler) GetChatByID(c *fiber.Ctx) error {
 	}
 
 	return c.JSON(fiber.Map{
-		"id":             chat.ID,
-		"members":        chat.Members,
+		"id":      chat.ID,
+		"members": chat.Members,
 	})
 }

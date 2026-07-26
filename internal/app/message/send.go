@@ -9,29 +9,12 @@ import (
 )
 
 func (m *MessageApp) Send(ctx context.Context, user_id int, message *domain.SocketMessage) (*domain.MessageWithReply, *domain.Chat, error) {
-	chat, err := m.chats.GetChatByID(user_id, message.ChatID)
+	chat, err := m.chats.GetChatByID(ctx, user_id, message.ChatID)
 	if err != nil {
 		return nil, nil, domain.NotFound("chat not found")
 	}
 
-	switch chat.Type {
-	case "private":
-		var member *domain.User
-		for i, m := range chat.Members {
-			if m.ID == user_id {
-				member = &chat.Members[i]
-				break
-			}
-		}
-		if member == nil {
-			return nil, nil, domain.NotFound("chat not found")
-		}
-	case "group":
-		_, err := m.groups.GetByMemberAndChatID(ctx, user_id, message.ChatID)
-		if err != nil {
-			return nil, nil, domain.NotFound("chat not found")
-		}
-	default:
+	if !m.chats.HasMember(ctx, chat, user_id) {
 		return nil, nil, domain.NotFound("chat not found")
 	}
 

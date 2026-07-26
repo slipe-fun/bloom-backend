@@ -33,7 +33,7 @@ func (h *ChatHandler) GetChatMessagesBefore(c *fiber.Ctx) error {
 		count = 20
 	}
 
-	messages, err := h.messageApp.GetChatMessagesBefore(session.UserID, chatID, beforeID, count)
+	messages, err := h.messageApp.GetChatMessagesBefore(c.Context(), session.UserID, chatID, beforeID, count)
 	if appErr, ok := err.(*domain.AppError); ok {
 		return c.Status(appErr.Status).JSON(fiber.Map{
 			"error":   appErr.Code,

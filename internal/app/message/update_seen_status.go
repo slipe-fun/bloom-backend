@@ -1,14 +1,15 @@
 package message
 
 import (
+	"context"
 	"time"
 
 	"github.com/slipe-fun/skid-backend/internal/domain"
 	"github.com/slipe-fun/skid-backend/internal/pkg/logger"
 )
 
-func (m *MessageApp) UpdateMessagesSeenStatus(user_id, chatID int, messageIDs []int) (*[]int, *time.Time, *domain.Chat, error) {
-	chat, err := m.chats.GetChatByID(user_id, chatID)
+func (m *MessageApp) UpdateMessagesSeenStatus(ctx context.Context, user_id, chatID int, messageIDs []int) (*[]int, *time.Time, *domain.Chat, error) {
+	chat, err := m.chats.GetChatByID(ctx, user_id, chatID)
 	if err != nil {
 		return nil, nil, nil, err
 	}

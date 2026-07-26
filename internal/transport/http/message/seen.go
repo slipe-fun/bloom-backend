@@ -26,7 +26,7 @@ func (h *MessageHandler) Seen(c *fiber.Ctx) error {
 		})
 	}
 
-	validMessages, seenAt, chat, err := h.messageApp.UpdateMessagesSeenStatus(session.UserID, req.ChatID, req.Messages)
+	validMessages, seenAt, chat, err := h.messageApp.UpdateMessagesSeenStatus(c.Context(), session.UserID, req.ChatID, req.Messages)
 	if appErr, ok := err.(*domain.AppError); ok {
 		return c.Status(appErr.Status).JSON(fiber.Map{
 			"error":   appErr.Code,
@@ -56,7 +56,22 @@ func (h *MessageHandler) Seen(c *fiber.Ctx) error {
 		})
 	}
 
-	h.wsHub.SendToUser(h.chatApp.GetOtherMember(chat, session.UserID).ID, b)
+	switch chat.Type {
+	case "private":
+		h.wsHub.SendToUser(h.chatApp.GetOtherMember(chat, session.UserID).ID, b)
+	case "group":
+		members, err := h.chatApp.GetGroupMembers(c.Context(), chat.ID)
+		if appErr, ok := err.(*domain.AppError); ok {
+			return c.Status(appErr.Status).JSON(fiber.Map{
+				"error":   appErr.Code,
+				"message": appErr.Msg,
+			})
+		}
+		for i := range members {
+			member := members[i]
+			h.wsHub.SendToUser(member.MemberID, b)
+		}
+	}
 
 	return c.JSON(outMsg)
 }

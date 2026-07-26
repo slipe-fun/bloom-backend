@@ -1,18 +1,20 @@
 package chat
 
 import (
+	"context"
+
 	"github.com/slipe-fun/skid-backend/internal/domain"
 	"github.com/slipe-fun/skid-backend/internal/pkg/logger"
 )
 
-func (c *ChatApp) GetChatByID(user_id int, id int) (*domain.Chat, error) {
+func (c *ChatApp) GetChatByID(ctx context.Context, user_id int, id int) (*domain.Chat, error) {
 	chat, err := c.chats.GetByID(id)
 	if err != nil {
 		logger.LogError(err.Error(), "chat-app")
 		return nil, domain.NotFound("chat not found")
 	}
 
-	if !c.HasMember(chat, user_id) {
+	if !c.HasMember(ctx, chat, user_id) {
 		return nil, domain.NotFound("chat not found")
 	}
 
