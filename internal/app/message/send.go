@@ -1,25 +1,37 @@
 package message
 
 import (
+	"context"
+
 	"github.com/slipe-fun/skid-backend/internal/domain"
 	"github.com/slipe-fun/skid-backend/internal/pkg/logger"
 	"github.com/slipe-fun/skid-backend/internal/pointer"
 )
 
-func (m *MessageApp) Send(user_id int, message *domain.SocketMessage) (*domain.MessageWithReply, *domain.Chat, error) {
+func (m *MessageApp) Send(ctx context.Context, user_id int, message *domain.SocketMessage) (*domain.MessageWithReply, *domain.Chat, error) {
 	chat, err := m.chats.GetChatByID(user_id, message.ChatID)
 	if err != nil {
 		return nil, nil, domain.NotFound("chat not found")
 	}
 
-	var member *domain.User
-	for i, m := range chat.Members {
-		if m.ID == user_id {
-			member = &chat.Members[i]
-			break
+	switch chat.Type {
+	case "private":
+		var member *domain.User
+		for i, m := range chat.Members {
+			if m.ID == user_id {
+				member = &chat.Members[i]
+				break
+			}
 		}
-	}
-	if member == nil {
+		if member == nil {
+			return nil, nil, domain.NotFound("chat not found")
+		}
+	case "group":
+		_, err := m.groups.GetByMemberAndChatID(ctx, user_id, message.ChatID)
+		if err != nil {
+			return nil, nil, domain.NotFound("chat not found")
+		}
+	default:
 		return nil, nil, domain.NotFound("chat not found")
 	}
 

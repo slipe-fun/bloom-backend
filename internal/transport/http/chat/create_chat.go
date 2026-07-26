@@ -118,6 +118,62 @@ func (h *ChatHandler) createGroupChat(c *fiber.Ctx, sessionUser *domain.User) er
 			continue
 		}
 
+		if memberObject.Handshake.ReceiverCipherText == "" {
+			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+				"error":   "no_receiver_cipher_text",
+				"message": memberObject.MemberID + ": receiver cipher text is missing",
+			})
+		}
+
+		if memberObject.Handshake.SenderEphemeralX448 == "" {
+			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+				"error":   "no_sender_cipher_text",
+				"message": memberObject.MemberID + ": sender cipher text is missing",
+			})
+		}
+
+		if memberObject.Handshake.EncryptedSyncKey.CipherText == "" {
+			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+				"error":   "no_sync_key_ciphertext",
+				"message": memberObject.MemberID + ": encrypted sync key ciphertext is missing",
+			})
+		}
+
+		if memberObject.Handshake.EncryptedSyncKey.Nonce == "" {
+			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+				"error":   "no_sync_key_nonce",
+				"message": memberObject.MemberID + ": encrypted sync key nonce is missing",
+			})
+		}
+
+		if err := validations.ValidateCryptoLength(memberObject.Handshake.ReceiverCipherText, MLKEM768CiphertextSize); err != nil {
+			return c.Status(400).JSON(fiber.Map{
+				"error":   "invalid_receiver_ciphertext_length",
+				"message": memberObject.MemberID + ": invalid receiver ciphertext length",
+			})
+		}
+
+		if err := validations.ValidateCryptoLength(memberObject.Handshake.SenderEphemeralX448, X448PublicKeySize); err != nil {
+			return c.Status(400).JSON(fiber.Map{
+				"error":   "invalid_sender_ciphertext_length",
+				"message": memberObject.MemberID + ": invalid sender ciphertext length",
+			})
+		}
+
+		if err := validations.ValidateCryptoLength(memberObject.Handshake.EncryptedSyncKey.Nonce, AESGCMNonceSize); err != nil {
+			return c.Status(400).JSON(fiber.Map{
+				"error":   "invalid_nonce_length",
+				"message": memberObject.MemberID + ": invalid nonce length",
+			})
+		}
+
+		if err := validations.ValidateCryptoLength(memberObject.Handshake.EncryptedSyncKey.CipherText, SyncKeyCiphertextSize); err != nil {
+			return c.Status(400).JSON(fiber.Map{
+				"error":   "invalid_sync_key_length",
+				"message": memberObject.MemberID + ": invalid sync key length",
+			})
+		}
+
 		newGroupMember := domain.GroupMember{
 			MemberID:          member.ID,
 			Role:              "member",

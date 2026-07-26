@@ -36,7 +36,7 @@ func (h *MessageHandler) Send(c *fiber.Ctx) error {
 		})
 	}
 
-	message, chat, err := h.messageApp.Send(sessionUser.ID, &domain.SocketMessage{
+	message, chat, err := h.messageApp.Send(c.Context(), sessionUser.ID, &domain.SocketMessage{
 		Ciphertext: req.Ciphertext,
 		Nonce:      req.Nonce,
 		Salt:       req.Salt,
@@ -72,7 +72,22 @@ func (h *MessageHandler) Send(c *fiber.Ctx) error {
 		})
 	}
 
-	h.wsHub.SendToUser(h.chatApp.GetOtherMember(chat, sessionUser.ID).ID, b)
+	switch chat.Type {
+	case "private":
+		h.wsHub.SendToUser(h.chatApp.GetOtherMember(chat, sessionUser.ID).ID, b)
+	case "group":
+		members, err := h.chatApp.GetGroupMembers(c.Context(), chat.ID)
+		if appErr, ok := err.(*domain.AppError); ok {
+			return c.Status(appErr.Status).JSON(fiber.Map{
+				"error":   appErr.Code,
+				"message": appErr.Msg,
+			})
+		}
+		for i := range members {
+			member := members[i]
+			h.wsHub.SendToUser(member.MemberID, b)
+		}
+	}
 
 	return c.JSON(message)
 }

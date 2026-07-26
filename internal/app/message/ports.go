@@ -1,6 +1,7 @@
 package message
 
 import (
+	"context"
 	"time"
 
 	"github.com/slipe-fun/skid-backend/internal/domain"
@@ -13,6 +14,10 @@ type MessageRepo interface {
 	GetChatMessagesAfter(chatID, afterID, count int) ([]*domain.Message, error)
 	GetChatMessagesBefore(chatID, beforeID, count int) ([]*domain.Message, error)
 	GetByID(id int) (*domain.Message, error)
+}
+
+type GroupMemberRepo interface {
+	GetByMemberAndChatID(ctx context.Context, memberID int, chatID int) (*domain.GroupMember, error)
 }
 
 type ChatApp interface {

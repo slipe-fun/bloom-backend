@@ -76,7 +76,7 @@ func main() {
 	exchangeApp := exchangeapp.NewExchangeApp(sessionApp, userRepo, rdb)
 	userApp := userapp.NewUserApp(userRepo)
 	chatApp := chatapp.NewChatApp(chatRepo, groupMemberRepo, messageRepo)
-	messageApp := messageapp.NewMessageApp(messageRepo, chatApp)
+	messageApp := messageapp.NewMessageApp(messageRepo, groupMemberRepo, chatApp)
 
 	hub := types.NewHub(sessionApp, chatApp)
 

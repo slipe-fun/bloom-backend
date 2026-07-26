@@ -16,6 +16,7 @@ type ChatRepo interface {
 
 type GroupMemberRepo interface {
 	CreateMany(ctx context.Context, chatID int, invitedByID int, members []domain.GroupMember) error
+	GetByGroupID(ctx context.Context, chatID int) ([]domain.GroupMember, error)
 }
 
 type MessageRepo interface {
