@@ -142,6 +142,7 @@ func main() {
 	chatGroup.Get("/:id/read", authMiddleware.Handle(), chatHandler.GetChatLastReadMessage)
 	chatGroup.Get("/:c_id/messages/after/:m_id", authMiddleware.Handle(), chatHandler.GetChatMessagesAfter)
 	chatGroup.Get("/:c_id/messages/before/:m_id", authMiddleware.Handle(), chatHandler.GetChatMessagesBefore)
+	chatGroup.Post("/:c_id/members", authMiddleware.Handle(), chatHandler.InviteUsersToGroup)
 
 	fiberApp.Get("/chats", authMiddleware.Handle(), chatHandler.GetChatsByUserID)
 

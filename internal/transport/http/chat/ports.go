@@ -10,10 +10,12 @@ type ChatApp interface {
 	CreatePrivateChat(user_id, recipient int, handshake domain.Handshake) (*domain.Chat, error)
 	CreateGroupChat(ctx context.Context, title string, members []domain.GroupMember, invitedByID int) (*domain.Chat, error)
 	GetChatByID(ctx context.Context, user_id int, id int) (*domain.Chat, error)
-	GetGroupMember(ctx context.Context, groupID, memberID int) (*domain.GroupMember, error)
+	GetGroupMember(ctx context.Context, memberID, groupID int) (*domain.GroupMember, error)
 	GetChatsByUserID(user_id int) ([]*domain.ChatWithLastMessage, error)
 	GetChatWithUsers(user_id, recipient int) (*domain.Chat, error)
+	GetGroupMembers(ctx context.Context, groupID int) ([]domain.GroupMember, error)
 	GetMemberGroups(ctx context.Context, memberID int) ([]domain.GroupMember, error)
+	InviteUsersToGroup(ctx context.Context, chatID, invitedByID int, members []domain.GroupMember) error
 	GetOtherMember(chat *domain.Chat, memberID int) *domain.User
 }
 

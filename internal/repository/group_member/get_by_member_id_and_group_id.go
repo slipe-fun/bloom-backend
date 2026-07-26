@@ -2,9 +2,7 @@ package groupmember
 
 import (
 	"context"
-	"database/sql"
 	"encoding/json"
-	"errors"
 	"time"
 
 	"github.com/slipe-fun/skid-backend/internal/domain"
@@ -44,9 +42,6 @@ func (r *GroupMemberRepo) GetByMemberAndChatID(ctx context.Context, memberID int
 	metrics.ObserveDB("group_member_get_by_member_and_chat_id", time.Since(start), err)
 
 	if err != nil {
-		if errors.Is(err, sql.ErrNoRows) {
-			return nil, nil
-		}
 		return nil, err
 	}
 
