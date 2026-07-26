@@ -35,10 +35,19 @@ services:
     networks:
       - app_net
 
+  redis:
+    image: redis:7-alpine
+    container_name: redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    networks:
+      - app_net
+
 volumes:
   grafana_data:
   prometheus_data:
-
+  
 networks:
   app_net:
     driver: bridge
