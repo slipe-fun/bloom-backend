@@ -1,6 +1,7 @@
 package middleware
 
 import (
+	"strings"
 	"strconv"
 	"time"
 
@@ -16,11 +17,9 @@ func MetricsMiddleware() fiber.Handler {
 
 		duration := time.Since(start)
 
-		method := c.Method()
-
-		route := c.Route().Path
-
-		status := strconv.Itoa(c.Response().StatusCode())
+		method := strings.Clone(c.Method())
+		route := strings.Clone(c.Route().Path)
+		status := strings.Clone(strconv.Itoa(c.Response().StatusCode()))
 
 		metrics.HttpRequestsTotal.
 			WithLabelValues(method, route, status).
